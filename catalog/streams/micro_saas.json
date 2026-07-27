@@ -1,0 +1,49 @@
+{
+  "stream_id": "micro_saas",
+  "name": "Micro-SaaS (Small Software Tool)",
+  "category": "digital",
+  "passivity_index": 6,
+  "capital_usd": { "min": 0, "typical": 200, "scale_tiers": [500, 5000] },
+  "setup": { "hours": 100, "calendar_weeks": 12 },
+  "maintenance_hours_per_month": { "steady": 8, "year_1_avg": 15 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 0, "base": 500, "bull": 5000,
+    "notes": "MRR model: $29-99/mo subscription. Requires solving a real problem with technical execution.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 365, "base": 180, "bull": 60 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "high",
+    "flags": ["High failure rate: 90% of SaaS products get <10 customers", "Churn can eliminate MRR quickly", "Customer support requirements grow with user count"]
+  },
+  "skills_leveraged": ["software", "ai_ml", "marketing"],
+  "scalability": "exponential_product",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["digital_products"],
+  "prerequisites": ["Programming skills or no-code tools (Bubble, Webflow, Glide)", "Stripe account for payments"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Identify a painful, specific problem in a niche you know well",
+    "Build MVP in 2-4 weeks using no-code tools or focused coding",
+    "Validate with 5 paying customers before adding features",
+    "Set up recurring billing via Stripe or Paddle",
+    "Automate onboarding and support with documentation and chatbot"
+  ],
+  "failure_modes": [
+    "Build product nobody wants",
+    "Large player copies and bundles the feature for free",
+    "Technical debt makes maintenance unsustainable"
+  ],
+  "kill_criteria": [
+    "Less than 5 paying customers after 6 months of active promotion",
+    "Churn rate above 20%/month consistently"
+  ],
+  "kpis": ["MRR", "Churn rate", "CAC vs LTV", "Daily active users", "Support ticket volume"],
+  "tool_stack_examples": ["Bubble (no-code)", "Stripe", "Lemon Squeezy", "Intercom", "PostHog"],
+  "playbook_ref": "micro_saas",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Revenue data from Indie Hackers community reports."
+}

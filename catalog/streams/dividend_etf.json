@@ -1,0 +1,48 @@
+{
+  "stream_id": "dividend_etf",
+  "name": "Dividend ETF (Income-Focused)",
+  "category": "paper",
+  "passivity_index": 9,
+  "capital_usd": { "min": 1, "typical": 10000, "scale_tiers": [50000, 250000] },
+  "setup": { "hours": 1, "calendar_weeks": 0.5 },
+  "maintenance_hours_per_month": { "steady": 0.1, "year_1_avg": 0.2 },
+  "yield": {
+    "unit": "annual_pct_on_capital",
+    "bear": 2.8, "base": 3.5, "bull": 4.5,
+    "notes": "VYM, SCHD, DVY type funds. Better cash yield than index ETFs; slightly lower total return.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 90, "base": 90, "bull": 30 },
+  "risk": {
+    "principal_loss": "med", "platform": "low", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Dividend cuts are possible in recessions", "Interest rate sensitivity: dividend stocks often fall when rates rise", "Qualified dividends receive preferential tax treatment"]
+  },
+  "skills_leveraged": [],
+  "scalability": "linear_capital",
+  "tax_character": ["qualified_dividends"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["equity", "rates"],
+  "prerequisites": ["Brokerage account"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Choose fund: SCHD (Schwab, 0.06% ER), VYM (Vanguard, 0.06% ER), or DVY (iShares, 0.38% ER)",
+    "Open brokerage account if needed",
+    "Set up automatic monthly purchase",
+    "Enable DRIP (dividend reinvestment) or collect dividends as income",
+    "Track annual dividend income and compare yield vs benchmark quarterly"
+  ],
+  "failure_modes": [
+    "Companies in fund cut dividends during recession",
+    "Rising rates reduce share price (rate-sensitive sectors)"
+  ],
+  "kill_criteria": [
+    "Fund dividend yield drops below 2% for 2 consecutive quarters",
+    "Fund expense ratio rises above 0.5%"
+  ],
+  "kpis": ["Annual yield on cost", "Quarterly dividend received", "YTD total return", "Expense ratio"],
+  "tool_stack_examples": ["Schwab", "Vanguard", "Fidelity", "TD Ameritrade"],
+  "playbook_ref": "dividend_etf",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Yield ranges from ETF provider data and Morningstar."
+}

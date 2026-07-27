@@ -1,0 +1,49 @@
+{
+  "stream_id": "domain_parking",
+  "name": "Domain Parking & Flipping",
+  "category": "digital",
+  "passivity_index": 7,
+  "capital_usd": { "min": 10, "typical": 500, "scale_tiers": [2000, 10000] },
+  "setup": { "hours": 5, "calendar_weeks": 1 },
+  "maintenance_hours_per_month": { "steady": 1, "year_1_avg": 2 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 0, "base": 50, "bull": 500,
+    "notes": "Parking income is minimal ($0.01-$0.10/visit). Real money in flipping (buy low, sell higher).",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 365, "base": 180, "bull": 30 },
+  "risk": {
+    "principal_loss": "med", "platform": "low", "regulatory": "low",
+    "liquidity": "low", "complexity": "med",
+    "flags": ["Most domains never sell", "Renewal fees drain capital on unsold domains", "Cybersquatting laws limit certain types of speculation"]
+  },
+  "skills_leveraged": ["marketing", "software"],
+  "scalability": "capped",
+  "tax_character": ["cap_gains", "self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["digital_products"],
+  "prerequisites": ["Domain registrar account (Namecheap, GoDaddy)", "Sedo or Afternic account for marketplace listings"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Research domain market using Namebio.com for historical sales data",
+    "Focus on .com extensions with clear commercial intent",
+    "Register 5-10 domains at $10-15 each in underserved niches",
+    "List on Sedo, Afternic, and Dan.com with competitive pricing",
+    "Set up basic parking page with contact form for inbound inquiries"
+  ],
+  "failure_modes": [
+    "Domains never attract buyer interest",
+    "Annual renewal fees (10-15/yr per domain) exceed parking income",
+    "Trademark dispute forces domain surrender"
+  ],
+  "kill_criteria": [
+    "No offers received after 2 years on good domains",
+    "Total renewal costs exceed projected sale prices"
+  ],
+  "kpis": ["Portfolio size", "Offers received per quarter", "Average sale price", "Annual renewal cost vs income"],
+  "tool_stack_examples": ["Namecheap", "GoDaddy Auctions", "Sedo", "Afternic", "Namebio"],
+  "playbook_ref": "domain_parking",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Sales data from Namebio domain sale records."
+}

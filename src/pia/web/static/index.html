@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passive Income Analyzer</title>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+
+:root {
+  --ground: #F4F5F1;
+  --text: #162219;
+  --accent: #1E6B45;
+  --accent-dark: #144D32;
+  --tint: #EBF4EE;
+  --tint-mid: #D4E9DA;
+  --border: #C8D5CA;
+  --ink-mid: #3D5A42;
+  --warn: #92400E;
+  --warn-bg: #FEF3C7;
+  --danger: #991B1B;
+  --danger-bg: #FEE2E2;
+  --success: #065F46;
+  --success-bg: #D1FAE5;
+  --nav-w: 220px;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  background: var(--ground);
+  color: var(--text);
+  display: flex;
+  height: 100%;
+  line-height: 1.5;
+}
+
+/* NAV */
+nav {
+  width: var(--nav-w);
+  min-width: var(--nav-w);
+  background: var(--accent-dark);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.nav-brand {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+.nav-brand h1 {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  font-weight: normal;
+  letter-spacing: 0.02em;
+  color: #fff;
+  line-height: 1.3;
+}
+.nav-brand p {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 3px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.nav-items { padding: 12px 0; flex: 1; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  transition: background 0.15s, color 0.15s;
+  user-select: none;
+}
+.nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,0.14); color: #fff; }
+.nav-item.locked { opacity: 0.35; cursor: default; }
+.nav-icon { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-status {
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+}
+.dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #34D399; margin-right: 5px; vertical-align: middle; }
+.dot.off { background: rgba(255,255,255,0.2); }
+
+/* MAIN */
+main { flex: 1; overflow-y: auto; padding: 32px; min-width: 0; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* PAGE HEADER */
+.page-title {
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-weight: normal;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.page-sub { font-size: 13px; color: var(--ink-mid); margin-bottom: 28px; }
+
+/* CARD */
+.card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-family: Georgia, serif;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--ink-mid);
+  margin-bottom: 16px;
+}
+.divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+/* FORM */
+.fg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; }
+.fg3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px 20px; }
+.fg5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px 16px; }
+.span2 { grid-column: 1 / -1; }
+.fg { display: flex; flex-direction: column; gap: 5px; }
+label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-mid);
+}
+input[type="number"], input[type="text"], select, textarea {
+  background: var(--ground);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(30,107,69,0.1);
+}
+input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+input[type="checkbox"] { accent-color: var(--accent); }
+.range-row { display: flex; align-items: center; gap: 10px; }
+.range-row input { flex: 1; }
+.range-val { font-family: Georgia, serif; font-size: 18px; color: var(--accent); min-width: 48px; text-align: right; }
+.range-hints { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-mid); margin-top: 3px; }
+textarea { resize: vertical; min-height: 120px; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border-radius: 5px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  border: none; transition: all 0.15s; letter-spacing: 0.01em;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--tint); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+/* MODE TABS */
+.mode-bar { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 22px; }
+.mode-tab {
+  padding: 8px 18px; font-size: 13px; font-weight: 500; cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  color: var(--ink-mid); transition: all 0.15s;
+}
+.mode-tab.active { border-bottom-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+/* SKILLS */
+.skill-item { }
+.skill-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-mid); margin-bottom: 4px; }
+.skill-num { font-family: Georgia, serif; font-size: 20px; color: var(--accent); margin-bottom: 4px; }
+
+/* CHIPS */
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 12px; border-radius: 20px;
+  border: 1px solid var(--border); font-size: 12px;
+  cursor: pointer; background: #fff; color: var(--ink-mid); transition: all 0.15s;
+}
+.chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip:hover:not(.on) { border-color: var(--accent); color: var(--accent); }
+
+/* ALERTS */
+.alert { display: flex; gap: 12px; padding: 13px 16px; border-radius: 5px; margin-bottom: 18px; font-size: 13px; line-height: 1.5; }
+.alert-warn { background: var(--warn-bg); border: 1px solid #FCD34D; color: var(--warn); }
+.alert-danger { background: var(--danger-bg); border: 1px solid #FCA5A5; color: var(--danger); }
+.alert-ok { background: var(--success-bg); border: 1px solid #6EE7B7; color: var(--success); }
+.ai { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* RESULTS CONTROLS */
+.r-controls { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.show-disq { display: flex; align-items: center; gap: 5px; font-size: 12px; cursor: pointer; margin-left: auto; }
+
+/* STREAM TABLE */
+.tbl-wrap { overflow-x: auto; }
+.stbl { width: 100%; border-collapse: collapse; }
+.stbl th {
+  text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--ink-mid); padding: 10px 12px;
+  background: var(--tint); border-bottom: 2px solid var(--border); white-space: nowrap;
+}
+.stbl td { padding: 11px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+.stbl tbody tr { cursor: pointer; transition: background 0.1s; }
+.stbl tbody tr:hover td { background: var(--tint); }
+.stbl tbody tr.disq { opacity: 0.4; }
+.stbl tbody tr.disq:hover { opacity: 0.6; }
+.stbl tbody tr.sel td { background: var(--tint); }
+.n { font-family: Georgia, serif; font-variant-numeric: tabular-nums; }
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 3px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase;
+}
+.b-ok { background: var(--success-bg); color: var(--success); }
+.b-ng { background: var(--danger-bg); color: var(--danger); }
+.b-warn { background: var(--warn-bg); color: var(--warn); }
+.b-gray { background: var(--tint); color: var(--ink-mid); }
+.pdots { display: flex; gap: 2px; }
+.pdot { display: block; width: 5px; height: 5px; border-radius: 50%; background: var(--border); }
+.pdot.f { background: var(--accent); }
+
+/* DETAIL PANEL */
+.detail-card {
+  background: #fff; border: 1px solid var(--tint-mid); border-radius: 6px;
+  padding: 22px 24px; margin-bottom: 20px; position: relative;
+}
+.detail-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+.ds-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-mid); }
+.ds-val { font-family: Georgia, serif; font-size: 20px; color: var(--text); margin-top: 3px; }
+.cl { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.cl li { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; line-height: 1.4; }
+.cl-box { display: block; width: 14px; height: 14px; min-width: 14px; border: 1.5px solid var(--accent); border-radius: 3px; margin-top: 1px; flex-shrink: 0; }
+.detail-close {
+  position: absolute; top: 14px; right: 16px;
+  background: none; border: none; font-size: 18px; cursor: pointer;
+  color: var(--ink-mid); line-height: 1; padding: 2px 6px; border-radius: 3px;
+}
+.detail-close:hover { background: var(--tint); }
+
+/* PORTFOLIO */
+.port-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; margin-bottom: 20px; }
+.proj-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.proj-card { background: var(--tint); border: 1px solid var(--tint-mid); border-radius: 5px; padding: 14px 16px; }
+.pc-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-mid); }
+.pc-val { font-family: Georgia, serif; font-size: 24px; font-variant-numeric: tabular-nums; color: var(--text); margin-top: 4px; }
+.pc-bear { color: var(--warn); }
+.pc-bull { color: var(--success); }
+.tier-pill { display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.t-core { background: var(--tint-mid); color: var(--accent-dark); }
+.t-sat { background: #DBEAFE; color: #1D4ED8; }
+.t-local { background: #F3E8FF; color: #6B21A8; }
+.phase-tag { font-family: ui-monospace, monospace; font-size: 11px; color: var(--ink-mid); background: var(--ground); padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border); }
+.pbar-row { display: flex; align-items: center; gap: 8px; }
+.pbar { height: 4px; background: var(--tint-mid); border-radius: 2px; flex: 1; max-width: 80px; }
+.pbar-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+
+/* PLAYBOOKS */
+.pb-layout { display: grid; grid-template-columns: 200px 1fr; gap: 20px; }
+.pb-list { display: flex; flex-direction: column; gap: 3px; }
+.pb-item { padding: 9px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; color: var(--ink-mid); transition: all 0.12s; border: 1px solid transparent; }
+.pb-item:hover { background: var(--tint); border-color: var(--tint-mid); }
+.pb-item.active { background: var(--tint); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.pb-content { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 24px 28px; min-height: 300px; font-size: 13.5px; line-height: 1.65; overflow-x: auto; }
+.pb-content h1 { font-family: Georgia, serif; font-weight: normal; font-size: 20px; color: var(--accent-dark); margin: 0 0 16px; }
+.pb-content h2 { font-family: Georgia, serif; font-weight: normal; font-size: 16px; color: var(--accent-dark); margin: 18px 0 8px; }
+.pb-content h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-mid); margin: 14px 0 6px; font-weight: 600; }
+.pb-content ul, .pb-content ol { padding-left: 22px; margin: 8px 0; }
+.pb-content li { margin: 4px 0; }
+.pb-content p { margin: 8px 0; }
+.pb-content hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+.pb-content strong { font-weight: 600; }
+.pb-content code { font-family: ui-monospace, monospace; font-size: 12px; background: var(--tint); padding: 1px 4px; border-radius: 3px; }
+
+/* EMPTY + LOADING */
+.empty { text-align: center; padding: 60px 20px; color: var(--ink-mid); }
+.empty h3 { font-family: Georgia, serif; font-size: 18px; font-weight: normal; margin-bottom: 8px; color: var(--text); }
+.empty p { font-size: 13px; max-width: 360px; margin: 0 auto; }
+.loading { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 48px; color: var(--ink-mid); }
+.spin { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: rot 0.7s linear infinite; flex-shrink: 0; }
+@keyframes rot { to { transform: rotate(360deg); } }
+.spin-sm { width: 14px; height: 14px; }
+
+/* MISC */
+.row { display: flex; align-items: center; gap: 10px; }
+.row-sb { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mt { margin-top: 14px; }
+.muted { color: var(--ink-mid); }
+.sm { font-size: 12px; }
+.mono { font-family: ui-monospace, monospace; font-size: 11px; }
+.bold { font-weight: 600; }
+</style>
+</head>
+<body x-data="app()" x-init="init()">
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <h1>Passive Income<br>Analyzer</h1>
+    <p>personal · v0.1</p>
+  </div>
+  <div class="nav-items">
+    <div class="nav-item" :class="{ active: tab==='profile' }" @click="tab='profile'">
+      <span class="nav-icon">◎</span> Profile
+    </div>
+    <div class="nav-item" :class="{ active: tab==='results', locked: !results }" @click="if(results) tab='results'">
+      <span class="nav-icon">≡</span> Results
+    </div>
+    <div class="nav-item" :class="{ active: tab==='portfolio', locked: !results }" @click="if(results) tab='portfolio'">
+      <span class="nav-icon">◑</span> Portfolio
+    </div>
+    <div class="nav-item" :class="{ active: tab==='playbooks', locked: !results }" @click="if(results) tab='playbooks'">
+      <span class="nav-icon">▤</span> Playbooks
+    </div>
+  </div>
+  <div class="nav-status">
+    <template x-if="results">
+      <span><span class="dot"></span><span x-text="results.ranked_streams.filter(s=>!s.disqualified).length"></span> streams ranked</span>
+    </template>
+    <template x-if="!results">
+      <span><span class="dot off"></span>no analysis</span>
+    </template>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+  <!-- PROFILE TAB -->
+  <section class="section" :class="{ active: tab==='profile' }">
+    <div class="page-title">Your Profile</div>
+    <div class="page-sub">Configure your situation, or describe it in plain English.</div>
+
+    <div class="mode-bar">
+      <div class="mode-tab" :class="{ active: mode==='form' }" @click="mode='form'">Structured Form</div>
+      <div class="mode-tab" :class="{ active: mode==='ai' }" @click="mode='ai'">AI Intake</div>
+    </div>
+
+    <div x-show="mode==='form'">
+
+      <div class="card">
+        <div class="card-title">Capital &amp; Financial</div>
+        <div class="fg2">
+          <div class="fg">
+            <label>Min. Deployable Capital ($)</label>
+            <input type="number" x-model.number="f.capital_min" min="0" step="100" placeholder="0">
+          </div>
+          <div class="fg">
+            <label>Max. Deployable Capital ($)</label>
+            <input type="number" x-model.number="f.capital_max" min="0" step="500" placeholder="5000">
+          </div>
+          <div class="fg">
+            <label>Emergency Fund (months)</label>
+            <input type="number" x-model.number="f.emergency_months" min="0" max="36" step="0.5" placeholder="3">
+          </div>
+          <div class="fg">
+            <label>High-Interest Debt ($ — 0 if none)</label>
+            <input type="number" x-model.number="f.debt_usd" min="0" step="100" placeholder="0">
+          </div>
+          <div class="fg">
+            <label>Monthly Income Target ($)</label>
+            <input type="number" x-model.number="f.target_monthly" min="0" step="100" placeholder="1000">
+          </div>
+          <div class="fg">
+            <label>Deadline (months)</label>
+            <input type="number" x-model.number="f.deadline_months" min="1" max="120" step="1" placeholder="24">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Time Availability</div>
+        <div class="fg2">
+          <div class="fg">
+            <label>Setup Hours / Week (first 90 days)</label>
+            <div class="range-row">
+              <input type="range" x-model.number="f.setup_hrs" min="0" max="40" step="1">
+              <div class="range-val" x-text="f.setup_hrs + 'h'"></div>
+            </div>
+            <div class="range-hints"><span>0</span><span>40h/wk</span></div>
+          </div>
+          <div class="fg">
+            <label>Maintenance Hours / Month</label>
+            <div class="range-row">
+              <input type="range" x-model.number="f.maint_hrs" min="0" max="80" step="1">
+              <div class="range-val" x-text="f.maint_hrs + 'h'"></div>
+            </div>
+            <div class="range-hints"><span>0</span><span>80h/mo</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Risk</div>
+        <div class="fg">
+          <label>Risk Score</label>
+          <div class="range-row">
+            <input type="range" x-model.number="f.risk_score" min="1" max="10" step="1" style="max-width:340px">
+            <div class="range-val" x-text="f.risk_score + '/10'"></div>
+            <span class="muted sm" x-text="riskLabel(f.risk_score)"></span>
+          </div>
+          <div class="range-hints" style="max-width:340px"><span>Conservative</span><span>Aggressive</span></div>
+        </div>
+        <hr class="divider">
+        <div class="fg">
+          <label>Exclude Categories</label>
+          <div class="chip-row">
+            <template x-for="cat in ['crypto','adult','p2p','leveraged_re']" :key="cat">
+              <div class="chip" :class="{ on: f.exclusions.includes(cat) }" @click="toggleExclusion(cat)" x-text="cat.replace('_',' ')"></div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Skills (0 = none · 10 = expert)</div>
+        <div class="fg5">
+          <template x-for="sk in skillKeys" :key="sk">
+            <div class="skill-item">
+              <div class="skill-label" x-text="sk.replace(/_/g,' ')"></div>
+              <div class="skill-num" x-text="f.skills[sk]"></div>
+              <input type="range" x-model.number="f.skills[sk]" min="0" max="10" step="1" style="width:100%">
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Goals &amp; Constraints</div>
+        <div class="fg2">
+          <div class="fg">
+            <label>Primary Goal</label>
+            <select x-model="f.primary_goal">
+              <option value="cash_flow">Cash Flow</option>
+              <option value="wealth">Wealth Accumulation</option>
+              <option value="freedom">Freedom / Autonomy</option>
+              <option value="legacy">Legacy Building</option>
+              <option value="tax_efficiency">Tax Efficiency</option>
+            </select>
+          </div>
+          <div class="fg" style="justify-content:center; gap:10px;">
+            <label style="margin-bottom:4px;">Constraints</label>
+            <label style="text-transform:none; letter-spacing:0; font-weight:400; font-size:13px; display:flex; gap:8px; cursor:pointer;">
+              <input type="checkbox" x-model="f.no_public_face"> No public face / anonymous
+            </label>
+            <label style="text-transform:none; letter-spacing:0; font-weight:400; font-size:13px; display:flex; gap:8px; cursor:pointer;">
+              <input type="checkbox" x-model="f.no_cs"> No customer support requirements
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <template x-if="analysisError">
+        <div class="alert alert-danger">
+          <span class="ai">✕</span>
+          <div><strong>Error:</strong> <span x-text="analysisError"></span></div>
+        </div>
+      </template>
+
+      <div class="row mt">
+        <button class="btn btn-primary" @click="runAnalysis()" :disabled="loading">
+          <template x-if="!loading"><span>Run Analysis →</span></template>
+          <template x-if="loading">
+            <span class="row" style="gap:6px;">
+              <span class="spin spin-sm" style="border-color:rgba(255,255,255,0.3);border-top-color:#fff;"></span>
+              <span>Scoring…</span>
+            </span>
+          </template>
+        </button>
+        <span class="muted sm" x-show="!loading">36 streams · 7 factors · bear / base / bull</span>
+      </div>
+    </div>
+
+    <!-- AI INTAKE MODE -->
+    <div x-show="mode==='ai'">
+      <div class="card">
+        <div class="card-title">Describe Your Situation</div>
+        <div class="fg">
+          <label>Free-form description</label>
+          <textarea x-model="aiText" placeholder="E.g.: I have about $3,000 to invest, strong AI and content skills (around 8/10), can spend 8 hours a week setting things up, and want mostly passive income. I'm moderate risk (6/10). No desire to show my face on video. Goal is cash flow…"></textarea>
+        </div>
+        <div class="row mt" style="flex-wrap:wrap;">
+          <button class="btn btn-primary" @click="runAIIntake()" :disabled="loading || !aiText.trim()">
+            <span x-show="!loading">Extract &amp; Analyze →</span>
+            <span x-show="loading">Processing…</span>
+          </button>
+          <span class="muted sm">Requires ANTHROPIC_API_KEY in .env</span>
+        </div>
+      </div>
+      <template x-if="aiError">
+        <div class="alert alert-warn">
+          <span class="ai">⚠</span>
+          <div>
+            <strong>AI intake note:</strong> <span x-text="aiError"></span><br>
+            <span class="sm">Add <code>ANTHROPIC_API_KEY=sk-ant-...</code> to a <code>.env</code> file in the project root, then restart uvicorn. Use the Structured Form tab in the meantime.</span>
+          </div>
+        </div>
+      </template>
+    </div>
+  </section>
+
+  <!-- RESULTS TAB -->
+  <section class="section" :class="{ active: tab==='results' }">
+    <div class="page-title">Ranked Streams</div>
+    <div class="page-sub" x-show="results">
+      <span x-text="results?.ranked_streams?.filter(s=>!s.disqualified).length"></span> qualified ·
+      <span x-text="results?.ranked_streams?.filter(s=>s.disqualified).length"></span> disqualified
+    </div>
+
+    <template x-if="!results">
+      <div class="empty"><h3>No analysis yet</h3><p>Fill in your profile and click "Run Analysis" to see ranked streams.</p></div>
+    </template>
+
+    <template x-if="results">
+      <div>
+        <template x-if="results.debt_gate_active">
+          <div class="alert alert-warn">
+            <span class="ai">⚠</span>
+            <div><strong>Debt Gate Active —</strong> <span x-text="results.debt_gate_message"></span></div>
+          </div>
+        </template>
+
+        <!-- DETAIL PANEL — shown above table when a stream is selected -->
+        <template x-if="expandedId">
+          <div class="detail-card" x-data="{ s: getStream(expandedId) }">
+            <button class="detail-close" @click="expandedId = null">✕</button>
+            <div class="row-sb" style="margin-bottom:16px; align-items:flex-start;">
+              <div>
+                <div style="font-family:Georgia,serif; font-size:18px;" x-text="s.name"></div>
+                <div class="row" style="gap:8px; margin-top:4px;">
+                  <span class="badge b-gray" x-text="s.category.replace('_',' ')"></span>
+                  <span class="muted sm" x-text="'PI ' + s.passivity_index + '/10 · ' + s.passivity_label"></span>
+                </div>
+              </div>
+              <button class="btn btn-outline btn-sm" @click="openPlaybook(s); tab='playbooks'">View Playbook →</button>
+            </div>
+            <div class="detail-grid3">
+              <div>
+                <div class="ds-label">RAS Score</div>
+                <div class="ds-val" style="color:var(--accent);" x-text="s.ras.toFixed(1)"></div>
+              </div>
+              <div>
+                <div class="ds-label">Fit Score</div>
+                <div class="ds-val" x-text="s.fit_score.toFixed(0) + '/100'"></div>
+              </div>
+              <div>
+                <div class="ds-label">Suggested Allocation</div>
+                <div class="ds-val" x-text="'$' + (s.capital_suggested_usd || 0).toLocaleString()"></div>
+              </div>
+            </div>
+            <template x-if="s.explain && s.explain.length">
+              <div style="margin-bottom:16px;">
+                <div class="ds-label" style="margin-bottom:6px;">Score Explanation</div>
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                  <template x-for="(e, ei) in s.explain" :key="ei">
+                    <div style="font-size:12.5px; padding:5px 10px; background:var(--ground); border-radius:4px; border:1px solid var(--border);" x-text="e"></div>
+                  </template>
+                </div>
+              </div>
+            </template>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+              <template x-if="s.startup_checklist && s.startup_checklist.length">
+                <div>
+                  <div class="ds-label" style="margin-bottom:8px;">Startup Checklist</div>
+                  <ul class="cl">
+                    <template x-for="(item, ii) in s.startup_checklist" :key="ii">
+                      <li><span class="cl-box"></span><span x-text="item"></span></li>
+                    </template>
+                  </ul>
+                </div>
+              </template>
+              <div>
+                <template x-if="s.kpis && s.kpis.length">
+                  <div style="margin-bottom:14px;">
+                    <div class="ds-label" style="margin-bottom:6px;">KPIs</div>
+                    <template x-for="(k, ki) in s.kpis" :key="ki">
+                      <div class="sm" style="margin:3px 0;" x-text="'→ ' + k"></div>
+                    </template>
+                  </div>
+                </template>
+                <template x-if="s.kill_criteria && s.kill_criteria.length">
+                  <div>
+                    <div class="ds-label" style="margin-bottom:6px; color:var(--danger);">Kill Criteria</div>
+                    <template x-for="(k, ki) in s.kill_criteria" :key="ki">
+                      <div class="sm" style="margin:3px 0; color:var(--warn);" x-text="'✕ ' + k"></div>
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <div class="r-controls">
+          <div class="chip" :class="{ on: catFilter==='' }" @click="catFilter=''">All</div>
+          <template x-for="cat in streamCats()" :key="cat">
+            <div class="chip" :class="{ on: catFilter===cat }" @click="catFilter=cat" x-text="cat.replace('_',' ')"></div>
+          </template>
+          <label class="show-disq">
+            <input type="checkbox" x-model="showDisq"> Show disqualified
+          </label>
+        </div>
+
+        <div class="tbl-wrap">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Stream</th>
+                <th>Category</th>
+                <th>Passivity</th>
+                <th>Fit</th>
+                <th>RAS</th>
+                <th>Bear / Base / Bull</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="(s, idx) in filteredStreams()" :key="s.stream_id">
+                <tr :class="{ disq: s.disqualified, sel: expandedId===s.stream_id }"
+                    @click="expandedId = expandedId===s.stream_id ? null : s.stream_id; if(expandedId) $nextTick(()=>document.querySelector('.detail-card')?.scrollIntoView({behavior:'smooth',block:'nearest'}))">
+                  <td class="n muted" x-text="idx+1"></td>
+                  <td>
+                    <div class="bold" x-text="s.name"></div>
+                    <div class="mono muted" x-text="s.stream_id"></div>
+                    <template x-if="s.is_stale">
+                      <span class="badge b-warn" style="margin-top:3px;">Unverified</span>
+                    </template>
+                  </td>
+                  <td><span class="badge b-gray" x-text="s.category.replace('_',' ')"></span></td>
+                  <td>
+                    <div class="pdots">
+                      <template x-for="pi in [1,2,3,4,5,6,7,8,9,10]" :key="pi">
+                        <span class="pdot" :class="{ f: pi <= s.passivity_index }"></span>
+                      </template>
+                    </div>
+                    <div class="sm muted" x-text="s.passivity_index + '/10'"></div>
+                  </td>
+                  <td class="n" x-text="s.fit_score.toFixed(0)"></td>
+                  <td class="n bold" style="color:var(--accent);" x-text="s.ras.toFixed(0)"></td>
+                  <td class="n sm">
+                    <span style="color:var(--warn);" x-text="fmtY(s.yield_bear, s.yield_unit)"></span>
+                    <span class="muted"> / </span>
+                    <span class="bold" x-text="fmtY(s.yield_base, s.yield_unit)"></span>
+                    <span class="muted"> / </span>
+                    <span style="color:var(--success);" x-text="fmtY(s.yield_bull, s.yield_unit)"></span>
+                  </td>
+                  <td>
+                    <template x-if="!s.disqualified">
+                      <span class="badge b-ok">Qualified</span>
+                    </template>
+                    <template x-if="s.disqualified">
+                      <span class="badge b-ng" :title="s.disqualify_reason">Disqualified</span>
+                    </template>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </template>
+  </section>
+
+  <!-- PORTFOLIO TAB -->
+  <section class="section" :class="{ active: tab==='portfolio' }">
+    <div class="page-title">Portfolio Blueprint</div>
+    <div class="page-sub">Core / satellite / local allocation with bear–base–bull projections.</div>
+
+    <div x-show="!results">
+      <div class="empty"><h3>No analysis yet</h3><p>Run an analysis to see portfolio allocation.</p></div>
+    </div>
+
+    <!-- canvases always in DOM so Chart.js never loses its context -->
+    <div x-show="!!results">
+      <div x-show="results?.debt_gate_active" class="alert alert-warn">
+        <span class="ai">⚠</span>
+        <div><strong>Debt Gate —</strong> <span x-text="results?.debt_gate_message"></span></div>
+      </div>
+
+      <div class="proj-row">
+        <div class="proj-card">
+          <div class="pc-label">Bear — Month 12</div>
+          <div class="pc-val pc-bear" x-text="'$' + (results?.monthly_projections?.bear||0).toLocaleString('en',{maximumFractionDigits:0}) + '/mo'"></div>
+        </div>
+        <div class="proj-card">
+          <div class="pc-label">Base — Month 12</div>
+          <div class="pc-val" x-text="'$' + (results?.monthly_projections?.base||0).toLocaleString('en',{maximumFractionDigits:0}) + '/mo'"></div>
+        </div>
+        <div class="proj-card">
+          <div class="pc-label">Bull — Month 12</div>
+          <div class="pc-val pc-bull" x-text="'$' + (results?.monthly_projections?.bull||0).toLocaleString('en',{maximumFractionDigits:0}) + '/mo'"></div>
+        </div>
+      </div>
+
+      <div class="port-grid">
+        <div class="card" style="display:flex;flex-direction:column;align-items:center;padding:20px;">
+          <div class="card-title" style="text-align:center;">Tier Allocation</div>
+          <div style="width:200px;height:200px;">
+            <canvas id="donutChart"></canvas>
+          </div>
+          <div style="margin-top:16px;width:100%;display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;">
+              <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#1E6B45;display:inline-block;"></span>Core</span>
+              <span class="n" x-text="tierPct('core') + '%'"></span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;">
+              <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#5BA88C;display:inline-block;"></span>Satellite</span>
+              <span class="n" x-text="tierPct('satellite') + '%'"></span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;">
+              <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#A8D5BB;display:inline-block;"></span>Local</span>
+              <span class="n" x-text="tierPct('local') + '%'"></span>
+            </div>
+          </div>
+          <div style="margin-top:16px;text-align:center;">
+            <div class="muted sm">Total Deployed</div>
+            <div style="font-family:Georgia,serif;font-size:22px;font-variant-numeric:tabular-nums;" x-text="'$' + (results?.portfolio?.total_deployed||0).toLocaleString()"></div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:20px;">
+          <div class="card-title">24-Month Projection (Paper Assets)</div>
+          <div style="height:250px;position:relative;">
+            <canvas id="projChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Allocation Detail</div>
+        <div class="tbl-wrap">
+          <table class="stbl">
+            <thead>
+              <tr>
+                <th>Stream</th><th>Tier</th><th>Phase</th><th>Amount</th>
+                <th>% Portfolio</th><th>Passivity</th><th>RAS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="item in (results?.portfolio?.allocations||[])" :key="item.stream_id">
+                <tr style="cursor:default;">
+                  <td>
+                    <div class="bold" x-text="item.stream_name"></div>
+                    <div class="mono muted" x-text="item.stream_id"></div>
+                  </td>
+                  <td><span class="tier-pill" :class="'t-' + item.tier" x-text="item.tier"></span></td>
+                  <td><span class="phase-tag" x-text="item.phase"></span></td>
+                  <td class="n bold" x-text="'$' + item.allocation_usd.toLocaleString()"></td>
+                  <td>
+                    <div class="pbar-row">
+                      <div class="pbar"><div class="pbar-fill" :style="'width:' + Math.min(item.allocation_pct, 100) + '%'"></div></div>
+                      <span class="n sm" x-text="item.allocation_pct.toFixed(1) + '%'"></span>
+                    </div>
+                  </td>
+                  <td class="n" x-text="item.passivity_index + '/10'"></td>
+                  <td class="n" style="color:var(--accent);" x-text="item.ras.toFixed(0)"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <hr class="divider">
+        <div class="card-title">Phase Summary</div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;">
+          <template x-for="[phase, amt] in Object.entries(results?.portfolio?.phase_summary||{})" :key="phase">
+            <div x-show="amt > 0" style="padding:10px 16px;background:var(--tint);border-radius:5px;border:1px solid var(--tint-mid);">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-mid);" x-text="phase"></div>
+              <div style="font-family:Georgia,serif;font-size:18px;margin-top:3px;font-variant-numeric:tabular-nums;" x-text="'$' + amt.toLocaleString()"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAYBOOKS TAB -->
+  <section class="section" :class="{ active: tab==='playbooks' }">
+    <div class="page-title">Playbooks</div>
+    <div class="page-sub">90-day launch plans. AI-generated when ANTHROPIC_API_KEY is set.</div>
+
+    <template x-if="!results">
+      <div class="empty"><h3>No analysis yet</h3><p>Run an analysis first, then playbooks will appear here.</p></div>
+    </template>
+
+    <template x-if="results">
+      <div class="pb-layout">
+        <div class="pb-list">
+          <template x-for="s in qualStreams()" :key="s.stream_id">
+            <div class="pb-item" :class="{ active: selectedPB && selectedPB.stream_id===s.stream_id }" @click="loadPlaybook(s)">
+              <div class="bold sm" x-text="s.name"></div>
+              <div class="mono muted" x-text="s.stream_id"></div>
+            </div>
+          </template>
+        </div>
+        <div>
+          <template x-if="!selectedPB">
+            <div class="pb-content empty"><h3>Select a stream</h3><p>Click any stream from the list to view its playbook.</p></div>
+          </template>
+          <template x-if="selectedPB && pbLoading">
+            <div class="pb-content loading"><div class="spin"></div><span>Generating playbook…</span></div>
+          </template>
+          <template x-if="selectedPB && !pbLoading && pbContent">
+            <div>
+              <div class="row-sb" style="margin-bottom:12px;">
+                <div>
+                  <div style="font-family:Georgia,serif;font-size:18px;" x-text="selectedPB.name"></div>
+                  <div class="muted sm" x-text="selectedPB.category + ' · PI ' + selectedPB.passivity_index + '/10'"></div>
+                </div>
+                <button class="btn btn-outline btn-sm" @click="loadPlaybook(selectedPB, true)">↺ Regenerate</button>
+              </div>
+              <div class="pb-content" x-html="md(pbContent)"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </template>
+  </section>
+
+</main>
+
+<script>
+function app() {
+  // Chart instances live outside Alpine's reactive proxy to prevent deep-proxying
+  let _donut = null, _proj = null;
+  return {
+    tab: 'profile',
+    mode: 'form',
+    loading: false,
+    results: null,
+    analysisError: null,
+    aiText: '',
+    aiError: null,
+    catFilter: '',
+    showDisq: false,
+    expandedId: null,
+    selectedPB: null,
+    pbContent: '',
+    pbLoading: false,
+
+    skillKeys: ['ai_ml','content','video','software','marketing','real_estate','copywriting','design','sales','ops_automation'],
+
+    f: {
+      capital_min: 0,
+      capital_max: 3000,
+      emergency_months: 3,
+      debt_usd: 0,
+      target_monthly: 1000,
+      deadline_months: 24,
+      setup_hrs: 5,
+      maint_hrs: 10,
+      risk_score: 5,
+      exclusions: ['crypto','p2p','leveraged_re','adult'],
+      skills: { ai_ml:0, content:0, video:0, software:0, marketing:0, real_estate:0, copywriting:0, design:0, sales:0, ops_automation:0 },
+      primary_goal: 'cash_flow',
+      no_public_face: false,
+      no_cs: false,
+    },
+
+    init() {
+      this.$watch('tab', newTab => {
+        setTimeout(() => {
+          if (newTab !== 'portfolio') {
+            if (_donut) { _donut.destroy(); _donut = null; }
+            if (_proj) { _proj.destroy(); _proj = null; }
+          } else {
+            this.renderCharts();
+          }
+        }, 0);
+      });
+    },
+
+    renderCharts() {
+      if (!this.results || this.tab !== 'portfolio') return;
+      this.renderDonut();
+      this.renderProj();
+    },
+
+    riskLabel(v) {
+      if (v <= 2) return 'Very conservative';
+      if (v <= 4) return 'Conservative';
+      if (v <= 6) return 'Moderate';
+      if (v <= 8) return 'Aggressive';
+      return 'Very aggressive';
+    },
+
+    toggleExclusion(cat) {
+      const i = this.f.exclusions.indexOf(cat);
+      if (i >= 0) this.f.exclusions.splice(i, 1);
+      else this.f.exclusions.push(cat);
+    },
+
+    buildProfile() {
+      return {
+        profile_id: 'web-' + Date.now(),
+        created_at: new Date().toISOString().slice(0,10),
+        financial: {
+          liquid_deployable_usd: { min: this.f.capital_min, max: this.f.capital_max },
+          emergency_fund_months: this.f.emergency_months,
+          high_interest_debt_usd: this.f.debt_usd,
+          target_monthly_passive_usd: this.f.target_monthly,
+          target_deadline_months: this.f.deadline_months,
+        },
+        time: {
+          setup_hours_per_week_90d: this.f.setup_hrs,
+          maintenance_hours_per_month_steady: this.f.maint_hrs,
+        },
+        risk: { score_1_to_10: this.f.risk_score, exclusions: this.f.exclusions },
+        skills: Object.assign({}, this.f.skills),
+        goals: { primary: this.f.primary_goal },
+        constraints: { no_public_face: this.f.no_public_face, no_customer_support: this.f.no_cs },
+      };
+    },
+
+    async runAnalysis() {
+      this.loading = true;
+      this.analysisError = null;
+      try {
+        const r = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile: this.buildProfile() }),
+        });
+        if (!r.ok) {
+          const err = await r.json().catch(() => ({ detail: 'Server error' }));
+          throw new Error(err.detail || 'Analysis failed');
+        }
+        this.results = await r.json();
+        this.expandedId = null;
+        this.tab = 'results';
+      } catch(e) {
+        this.analysisError = e.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async runAIIntake() {
+      this.aiError = 'AI intake from the web form is not yet wired to the backend. Use the Structured Form, or run `pia chat` in the terminal for full AI intake via Claude.';
+    },
+
+    filteredStreams() {
+      if (!this.results) return [];
+      return this.results.ranked_streams.filter(s => {
+        if (!this.showDisq && s.disqualified) return false;
+        if (this.catFilter && s.category !== this.catFilter) return false;
+        return true;
+      });
+    },
+
+    qualStreams() {
+      if (!this.results) return [];
+      return this.results.ranked_streams.filter(s => !s.disqualified).slice(0, 18);
+    },
+
+    streamCats() {
+      if (!this.results) return [];
+      return [...new Set(this.results.ranked_streams.map(s => s.category))].sort();
+    },
+
+    getStream(id) {
+      if (!this.results) return {};
+      return this.results.ranked_streams.find(s => s.stream_id === id) || {};
+    },
+
+    fmtY(val, unit) {
+      if (val === null || val === undefined) return '—';
+      if (unit === 'annual_pct_on_capital') return val.toFixed(1) + '%';
+      return '$' + val.toLocaleString('en', { maximumFractionDigits: 0 }) + '/mo';
+    },
+
+    tierPct(tier) {
+      if (!this.results || !this.results.portfolio.total_deployed) return 0;
+      const t = this.results.portfolio.allocations.filter(a => a.tier === tier).reduce((s,a) => s + a.allocation_usd, 0);
+      return (t / this.results.portfolio.total_deployed * 100).toFixed(0);
+    },
+
+    openPlaybook(stream) {
+      this.selectedPB = stream;
+      this.pbContent = '';
+    },
+
+    async loadPlaybook(stream, force) {
+      if (!force && this.selectedPB && this.selectedPB.stream_id === stream.stream_id && this.pbContent) return;
+      this.selectedPB = stream;
+      this.pbContent = '';
+      this.pbLoading = true;
+      try {
+        const r = await fetch('/api/playbook/' + stream.stream_id, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile: this.buildProfile() }),
+        });
+        if (!r.ok) throw new Error('Request failed (' + r.status + ')');
+        const d = await r.json();
+        this.pbContent = d.content;
+      } catch(e) {
+        this.pbContent = '## Error\nCould not load playbook: ' + e.message;
+      } finally {
+        this.pbLoading = false;
+      }
+    },
+
+    md(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+        .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+        .replace(/^# (.+)$/gm,'<h1>$1</h1>')
+        .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g,'<em>$1</em>')
+        .replace(/`(.+?)`/g,'<code>$1</code>')
+        .replace(/^---$/gm,'<hr>')
+        .replace(/^- (.+)$/gm,'<li>$1</li>')
+        .replace(/(<li>.*<\/li>\n?)+/g, m => '<ul>' + m + '</ul>')
+        .replace(/\n\n/g,'\n<p></p>\n');
+    },
+
+    renderDonut() {
+      const ctx = document.getElementById('donutChart');
+      if (!ctx || !this.results) return;
+      if (_donut) { _donut.destroy(); _donut = null; }
+      const allocs = this.results.portfolio.allocations;
+      const tiers = {};
+      allocs.forEach(a => { tiers[a.tier] = (tiers[a.tier] || 0) + a.allocation_usd; });
+      const labels = Object.keys(tiers).filter(k => tiers[k] > 0);
+      const colors = { core: '#1E6B45', satellite: '#5BA88C', local: '#A8D5BB' };
+      if (!labels.length) return;
+      _donut = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{ data: labels.map(l => tiers[l]), backgroundColor: labels.map(l => colors[l] || '#C8D5CA'), borderWidth: 2, borderColor: '#fff' }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: true, cutout: '65%',
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: c => ' ' + c.label + ': $' + c.raw.toLocaleString() } }
+          }
+        }
+      });
+    },
+
+    renderProj() {
+      const ctx = document.getElementById('projChart');
+      if (!ctx || !this.results) return;
+      if (_proj) { _proj.destroy(); _proj = null; }
+      const ser = this.results.projection_series;
+      if (!ser || !ser.base || !ser.base.length) return;
+      const labels = ser.base.map((_, i) => 'M' + (i + 1));
+      _proj = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Bear', data: ser.bear, borderColor: '#B45309', borderDash: [4,3], borderWidth: 1.5, pointRadius: 0, tension: 0.35 },
+            { label: 'Base', data: ser.base, borderColor: '#1E6B45', backgroundColor: 'rgba(30,107,69,0.07)', borderWidth: 2.5, pointRadius: 0, tension: 0.35, fill: true },
+            { label: 'Bull', data: ser.bull, borderColor: '#065F46', borderDash: [2,2], borderWidth: 1.5, pointRadius: 0, tension: 0.35 },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 14, usePointStyle: true } },
+            tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': $' + c.raw.toLocaleString('en',{maximumFractionDigits:0}) + '/mo' } }
+          },
+          scales: {
+            x: { grid: { color: 'rgba(200,213,202,0.4)' }, ticks: { font: { size: 10 }, color: '#3D5A42' } },
+            y: { grid: { color: 'rgba(200,213,202,0.4)' }, ticks: { font: { size: 10 }, color: '#3D5A42', callback: v => '$' + v.toLocaleString() } }
+          }
+        }
+      });
+    },
+  };
+}
+</script>
+</body>
+</html>

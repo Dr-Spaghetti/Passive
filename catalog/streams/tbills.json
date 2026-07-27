@@ -1,0 +1,47 @@
+{
+  "stream_id": "tbills",
+  "name": "US Treasury Bills / T-Bills",
+  "category": "paper",
+  "passivity_index": 10,
+  "capital_usd": { "min": 100, "typical": 10000, "scale_tiers": [50000, 250000] },
+  "setup": { "hours": 1, "calendar_weeks": 0.25 },
+  "maintenance_hours_per_month": { "steady": 0.2, "year_1_avg": 0.5 },
+  "yield": {
+    "unit": "annual_pct_on_capital",
+    "bear": 4.2, "base": 5.0, "bull": 5.8,
+    "notes": "Backed by US government. State income tax exempt. Federal ordinary income applies.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 90, "base": 30, "bull": 4 },
+  "risk": {
+    "principal_loss": "low", "platform": "low", "regulatory": "low",
+    "liquidity": "med", "complexity": "low",
+    "flags": ["Backed by full faith and credit of the US government", "Treasury interest exempt from state income tax", "Locked until maturity (4-week to 52-week options)"]
+  },
+  "skills_leveraged": [],
+  "scalability": "linear_capital",
+  "tax_character": ["ordinary"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["rates"],
+  "prerequisites": ["TreasuryDirect.gov account or brokerage account"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Open TreasuryDirect.gov account or use existing brokerage (Fidelity, Schwab, Vanguard)",
+    "Choose maturity: 4-week (most liquid), 13-week, 26-week, or 52-week",
+    "Set up auto-rollover (reinvest at maturity) to reduce maintenance",
+    "Track maturity dates in calendar to avoid cash gaps"
+  ],
+  "failure_modes": [
+    "Cash flow gap when bills mature before reinvestment",
+    "Rate lock-in during Fed rate cut cycle"
+  ],
+  "kill_criteria": [
+    "APY drops below HYSA rate — roll to HYSA for equivalent safety with better liquidity",
+    "Emergency need requires liquidation before maturity"
+  ],
+  "kpis": ["Current yield vs HYSA benchmark", "Annualized income", "Portfolio maturity ladder"],
+  "tool_stack_examples": ["TreasuryDirect.gov", "Fidelity", "Charles Schwab", "Vanguard"],
+  "playbook_ref": "tbills",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Rates from TreasuryDirect.gov auction results."
+}

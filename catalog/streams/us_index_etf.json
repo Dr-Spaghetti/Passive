@@ -1,0 +1,48 @@
+{
+  "stream_id": "us_index_etf",
+  "name": "US Total Market Index ETF (Wealth Accumulation)",
+  "category": "paper",
+  "passivity_index": 9,
+  "capital_usd": { "min": 1, "typical": 10000, "scale_tiers": [50000, 250000] },
+  "setup": { "hours": 1, "calendar_weeks": 0.5 },
+  "maintenance_hours_per_month": { "steady": 0.1, "year_1_avg": 0.2 },
+  "yield": {
+    "unit": "annual_pct_on_capital",
+    "bear": 1.2, "base": 1.5, "bull": 1.9,
+    "notes": "Dividend yield only shown here. Total return (7-10% historically) excluded — this is a wealth stream, not a cash-flow stream. Use SWR plan for income.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 90, "base": 90, "bull": 30 },
+  "risk": {
+    "principal_loss": "med", "platform": "low", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Primary use: wealth accumulation, not immediate cash flow", "Short-term volatility: S&P 500 drawdowns of 20-50% are normal", "Cash flow only if selling shares per SWR plan (4% rule)"]
+  },
+  "skills_leveraged": [],
+  "scalability": "linear_capital",
+  "tax_character": ["qualified_dividends", "cap_gains"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["equity"],
+  "prerequisites": ["Brokerage account (Fidelity, Vanguard, Schwab, or Robinhood)"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Open brokerage account if you don't have one (Fidelity or Vanguard recommended)",
+    "Choose fund: VTI (Vanguard), FSKAX (Fidelity), SWTSX (Schwab) — all near-zero expense ratios",
+    "Set up automatic monthly investment (dollar-cost averaging)",
+    "Enable dividend reinvestment (DRIP) to compound returns",
+    "Ignore short-term price movements — review allocation annually only"
+  ],
+  "failure_modes": [
+    "Panic-selling during market correction locks in losses",
+    "Treating this as cash-flow stream leads to selling at wrong time"
+  ],
+  "kill_criteria": [
+    "Cash flow emergency forces selling at market low",
+    "Better long-term vehicle identified (unlikely for most investors)"
+  ],
+  "kpis": ["Portfolio value", "Annual dividend received", "Expense ratio", "YTD return vs benchmark"],
+  "tool_stack_examples": ["Vanguard", "Fidelity", "Schwab", "Robinhood"],
+  "playbook_ref": "us_index_etf",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Dividend yields from ETF provider data. Historical returns from Morningstar."
+}

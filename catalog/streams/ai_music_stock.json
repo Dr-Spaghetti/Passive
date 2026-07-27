@@ -1,0 +1,49 @@
+{
+  "stream_id": "ai_music_stock",
+  "name": "AI-Generated Stock Music / Licensing",
+  "category": "digital",
+  "passivity_index": 7,
+  "capital_usd": { "min": 0, "typical": 20, "scale_tiers": [0, 200] },
+  "setup": { "hours": 8, "calendar_weeks": 2 },
+  "maintenance_hours_per_month": { "steady": 2, "year_1_avg": 4 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 5, "base": 60, "bull": 300,
+    "notes": "Per-track royalties very low ($0.02-$2). Requires large catalog. Licensing deals more lucrative but harder to land.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 90, "base": 30, "bull": 14 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "med",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["AI music copyright ownership legally contested", "Streaming platforms may restrict AI music (Spotify policy changes)", "Suno/Udio terms of service regarding commercial licensing"]
+  },
+  "skills_leveraged": ["ai_ml"],
+  "scalability": "linear_audience",
+  "tax_character": ["royalties", "self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["digital_products"],
+  "prerequisites": ["Suno.ai, Udio, or Mubert account ($0-$30/mo depending on commercial tier)"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Choose target market: YouTube creators, ad agencies, podcasters, game developers",
+    "Generate 50+ tracks in commercially useful genres (background, lo-fi, corporate)",
+    "Upload to Pond5, AudioJungle, or Artlist",
+    "Review AI copyright policy on each platform before uploading",
+    "Build catalog to 200+ tracks for meaningful passive income"
+  ],
+  "failure_modes": [
+    "Platform bans AI music mid-catalog build",
+    "Copyright dispute over AI-generated melodies",
+    "Market oversaturated before catalog is built"
+  ],
+  "kill_criteria": [
+    "Less than $20/month after 200+ tracks published",
+    "Platform removes AI music category"
+  ],
+  "kpis": ["Tracks live", "Monthly licensing revenue", "Downloads/plays per track", "Catalog approval rate"],
+  "tool_stack_examples": ["Suno.ai", "Udio", "Pond5", "AudioJungle", "Artlist"],
+  "playbook_ref": "ai_music_stock",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Royalty rates from stock music platform published payout data."
+}

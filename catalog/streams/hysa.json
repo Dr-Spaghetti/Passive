@@ -1,0 +1,49 @@
+{
+  "stream_id": "hysa",
+  "name": "High-Yield Savings Account / Money Market",
+  "category": "paper",
+  "passivity_index": 10,
+  "capital_usd": { "min": 0, "typical": 10000, "scale_tiers": [10000, 100000, 500000] },
+  "setup": { "hours": 1, "calendar_weeks": 0.25 },
+  "maintenance_hours_per_month": { "steady": 0.1, "year_1_avg": 0.2 },
+  "yield": {
+    "unit": "annual_pct_on_capital",
+    "bear": 3.5, "base": 4.5, "bull": 5.5,
+    "notes": "Fed funds rate dependent. Verify current top rates before allocating.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 30, "base": 7, "bull": 1 },
+  "risk": {
+    "principal_loss": "low", "platform": "low", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["FDIC insured up to $250k per institution", "Rate moves with Fed policy"]
+  },
+  "skills_leveraged": [],
+  "scalability": "linear_capital",
+  "tax_character": ["ordinary"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["rates"],
+  "prerequisites": ["Bank account", "SSN for account opening"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Compare current rates at bankrate.com or nerdwallet.com",
+    "Open account at highest-rate FDIC-insured bank (SoFi, Marcus, Ally, Discover)",
+    "Set up ACH transfer from checking",
+    "Enable auto-transfer of monthly surplus",
+    "Set calendar reminder to re-compare rates quarterly"
+  ],
+  "failure_modes": [
+    "Rate drops after Fed cuts without notice",
+    "Teaser rate expires; institution silently drops rate",
+    "Balance exceeds $250k FDIC limit at single institution"
+  ],
+  "kill_criteria": [
+    "APY drops below 2% AND better risk-equivalent yield available (Treasuries, CDs)",
+    "Institution loses FDIC insurance status"
+  ],
+  "kpis": ["Current APY vs market benchmark", "Monthly interest earned USD", "Balance vs target"],
+  "tool_stack_examples": ["SoFi", "Marcus by Goldman Sachs", "Ally Bank", "Discover Online Savings"],
+  "playbook_ref": "hysa",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Rates from Bankrate/NerdWallet survey. Verify before allocating."
+}

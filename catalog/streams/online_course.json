@@ -1,0 +1,49 @@
+{
+  "stream_id": "online_course",
+  "name": "Online Course (Teachable / Gumroad / Udemy)",
+  "category": "digital",
+  "passivity_index": 7,
+  "capital_usd": { "min": 0, "typical": 100, "scale_tiers": [500, 2000] },
+  "setup": { "hours": 60, "calendar_weeks": 6 },
+  "maintenance_hours_per_month": { "steady": 3, "year_1_avg": 8 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 50, "base": 500, "bull": 5000,
+    "notes": "Requires existing audience or strong SEO/ads. Self-hosted (Teachable) vs marketplace (Udemy) tradeoffs in reach vs revenue share.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 180, "base": 90, "bull": 30 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "med",
+    "flags": ["Udemy race-to-bottom pricing (frequent 90% discount sales)", "Teachable charges 0-10% transaction fee depending on plan", "Course content can become outdated requiring updates"]
+  },
+  "skills_leveraged": ["ai_ml", "content", "video", "copywriting"],
+  "scalability": "exponential_product",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["attention", "digital_products"],
+  "prerequisites": ["Screen recording software (Loom free, OBS free)", "Teachable or Gumroad account"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Choose topic where you have genuine expertise (at least 12 months experience)",
+    "Validate demand: search Udemy and Teachable for similar courses with students enrolled",
+    "Outline curriculum (5-10 modules, 3-7 lessons each)",
+    "Record first module, get feedback from 3 beta testers before completing course",
+    "Launch with early-bird pricing to first 10 students; collect testimonials"
+  ],
+  "failure_modes": [
+    "Course attracts no students without existing audience",
+    "Udemy algorithm buries course in competitive category",
+    "Refund rate >10% signals course quality issues"
+  ],
+  "kill_criteria": [
+    "Less than 10 paid students after 6 months of promotion",
+    "Refund rate consistently above 15%"
+  ],
+  "kpis": ["Enrolled students", "Completion rate", "Average rating", "Monthly revenue", "Refund rate"],
+  "tool_stack_examples": ["Teachable", "Gumroad", "Udemy", "Loom", "OBS Studio"],
+  "playbook_ref": "online_course",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Revenue ranges from Teachable/Udemy creator community data."
+}

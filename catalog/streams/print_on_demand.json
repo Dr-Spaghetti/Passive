@@ -1,0 +1,49 @@
+{
+  "stream_id": "print_on_demand",
+  "name": "Print-on-Demand (Merch, Apparel, Gifts)",
+  "category": "digital",
+  "passivity_index": 7,
+  "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 500] },
+  "setup": { "hours": 15, "calendar_weeks": 2 },
+  "maintenance_hours_per_month": { "steady": 2, "year_1_avg": 4 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 20, "base": 150, "bull": 800,
+    "notes": "Per-design earnings are low ($2–$5 profit margin per sale). Scale requires large design catalog.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 60, "base": 30, "bull": 14 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Merch by Amazon is invite-only (start with Redbubble/Printify instead)", "Thin margins: $2-5 per item after platform cuts", "AI-generated art policy varies by platform"]
+  },
+  "skills_leveraged": ["ai_ml", "design", "content"],
+  "scalability": "linear_audience",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["digital_products", "platform_dependency"],
+  "prerequisites": ["Design tool (Canva free, Adobe Express, or Midjourney for AI art)"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Create accounts on Redbubble and Printify (free, no invite needed)",
+    "Research trending niches using Everbee or manual search on Etsy/Redbubble",
+    "Use Canva or AI image generation to create first 20 designs in niche",
+    "Upload designs across multiple product types (t-shirt, mug, phone case, tote)",
+    "Tag designs with SEO-optimized titles and descriptions"
+  ],
+  "failure_modes": [
+    "Designs don't find niche audience — no organic sales",
+    "Platform changes algorithm or removes products",
+    "AI art flagged for copyright issues"
+  ],
+  "kill_criteria": [
+    "Less than 5 sales after 90 days with 50+ designs published",
+    "Platform bans account for policy violation"
+  ],
+  "kpis": ["Total designs live", "Sales per month", "Revenue per design", "Top-performing niches"],
+  "tool_stack_examples": ["Redbubble", "Printify", "Merch by Amazon", "Canva", "Midjourney"],
+  "playbook_ref": "print_on_demand",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Margin estimates from Printify and Redbubble published payout calculators."
+}

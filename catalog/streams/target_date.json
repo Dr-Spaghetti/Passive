@@ -1,0 +1,47 @@
+{
+  "stream_id": "target_date",
+  "name": "Target-Date Retirement Fund",
+  "category": "paper",
+  "passivity_index": 10,
+  "capital_usd": { "min": 1, "typical": 10000, "scale_tiers": [50000, 500000] },
+  "setup": { "hours": 0.5, "calendar_weeks": 0.25 },
+  "maintenance_hours_per_month": { "steady": 0, "year_1_avg": 0 },
+  "yield": {
+    "unit": "annual_pct_on_capital",
+    "bear": 1.0, "base": 1.8, "bull": 2.5,
+    "notes": "Designed for retirement accumulation, not near-term cash flow. Automatically rebalances over time.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 90, "base": 90, "bull": 90 },
+  "risk": {
+    "principal_loss": "med", "platform": "low", "regulatory": "low",
+    "liquidity": "med", "complexity": "low",
+    "flags": ["Optimal in tax-advantaged accounts (401k, IRA)", "Not designed for near-term income generation", "Fund gradually shifts to bonds as target date approaches"]
+  },
+  "skills_leveraged": [],
+  "scalability": "linear_capital",
+  "tax_character": ["ordinary", "qualified_dividends", "cap_gains"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["equity", "rates"],
+  "prerequisites": ["401k or IRA account"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Open IRA if not already using employer 401k (Vanguard, Fidelity, Schwab)",
+    "Choose target date fund matching expected retirement year (e.g., 2050 if retiring in ~25 years)",
+    "Set up automatic contribution (even $50/mo to start)",
+    "Do not touch until retirement — this is long-term accumulation"
+  ],
+  "failure_modes": [
+    "Withdrawing early triggers penalties and taxes",
+    "Wrong target year leads to overly conservative allocation"
+  ],
+  "kill_criteria": [
+    "Better retirement vehicle available (e.g., self-directed IRA for specific investments)",
+    "Expense ratio above 0.2% (switch to lower-cost equivalent)"
+  ],
+  "kpis": ["Account balance", "Annual contribution", "Expense ratio", "Allocation vs target"],
+  "tool_stack_examples": ["Vanguard Target Retirement Funds", "Fidelity Freedom Funds", "Schwab Target Funds"],
+  "playbook_ref": "target_date",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Fund data from Vanguard, Fidelity, and Schwab prospectuses."
+}

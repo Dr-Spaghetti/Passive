@@ -1,0 +1,49 @@
+{
+  "stream_id": "ai_art_stock",
+  "name": "AI-Generated Stock Photography / Illustrations",
+  "category": "digital",
+  "passivity_index": 7,
+  "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 200] },
+  "setup": { "hours": 10, "calendar_weeks": 2 },
+  "maintenance_hours_per_month": { "steady": 2, "year_1_avg": 4 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 10, "base": 80, "bull": 400,
+    "notes": "Per-image earnings are very low ($0.10-$2). Volume game — needs 500+ accepted images.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 60, "base": 30, "bull": 14 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "med",
+    "liquidity": "high", "complexity": "med",
+    "flags": ["Shutterstock/Adobe Stock have AI content policies — check before submitting", "Copyright of AI images legally contested in some jurisdictions", "Submission approval process can be slow (1-4 weeks)"]
+  },
+  "skills_leveraged": ["ai_ml", "design"],
+  "scalability": "linear_audience",
+  "tax_character": ["royalties", "self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["digital_products"],
+  "prerequisites": ["Midjourney, DALL-E, or Stable Diffusion account", "Adobe Creative Cloud or free alternatives for post-processing"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Review AI art submission policies for target platform (Adobe Stock, Shutterstock, Getty)",
+    "Generate first 100 images in commercially-viable niches (business, lifestyle, abstract)",
+    "Post-process images to meet technical requirements (minimum 4MP, no watermarks)",
+    "Submit batch and track approval rates",
+    "Scale to 500+ images once approval workflow is confirmed"
+  ],
+  "failure_modes": [
+    "Platform rejects AI submissions or changes policy",
+    "Images fail technical review (resolution, artifacts)",
+    "Market flooded with AI art, per-image rates drop"
+  ],
+  "kill_criteria": [
+    "Approval rate below 50% after first 100 submissions",
+    "Monthly earnings below $20 after 500 live images"
+  ],
+  "kpis": ["Images live", "Approval rate", "Monthly downloads", "Earnings per image"],
+  "tool_stack_examples": ["Midjourney", "Adobe Stock", "Shutterstock", "Getty Images", "Canva"],
+  "playbook_ref": "ai_art_stock",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Earnings data from stock photography creator forums and published case studies."
+}

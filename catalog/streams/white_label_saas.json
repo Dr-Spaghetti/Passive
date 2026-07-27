@@ -1,0 +1,49 @@
+{
+  "stream_id": "white_label_saas",
+  "name": "White-Label SaaS Reselling",
+  "category": "digital",
+  "passivity_index": 5,
+  "capital_usd": { "min": 200, "typical": 500, "scale_tiers": [2000, 10000] },
+  "setup": { "hours": 20, "calendar_weeks": 4 },
+  "maintenance_hours_per_month": { "steady": 5, "year_1_avg": 8 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 0, "base": 300, "bull": 2000,
+    "notes": "Resell existing SaaS tools (HighLevel, etc.) under your brand. Margin is the spread between your cost and client price.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 180, "base": 90, "bull": 30 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "med",
+    "flags": ["Dependent on underlying SaaS vendor terms", "Client acquisition cost can be high", "Requires sales effort — not passive without clients"]
+  },
+  "skills_leveraged": ["software", "marketing", "sales", "ai_ml"],
+  "scalability": "linear_audience",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["digital_products"],
+  "prerequisites": ["White-label SaaS platform account (HighLevel, Vendasta)", "Target vertical or niche identified"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Choose white-label platform: HighLevel ($497/mo with unlimited sub-accounts), Vendasta",
+    "Define target niche: local businesses, agencies, specific industry",
+    "Configure and brand the platform with your agency name and domain",
+    "Set pricing: typically $97-297/mo per client for $297-500/mo platform cost",
+    "Acquire first 3 clients through direct outreach, ads, or referrals"
+  ],
+  "failure_modes": [
+    "Can't acquire clients to cover platform subscription cost",
+    "Client churn exceeds new client acquisition",
+    "Underlying platform raises prices or changes terms"
+  ],
+  "kill_criteria": [
+    "Less than 3 paying clients after 6 months of active sales effort",
+    "Net margin below 30% after platform costs"
+  ],
+  "kpis": ["MRR", "Client count", "Churn rate", "Net margin", "CAC vs LTV"],
+  "tool_stack_examples": ["HighLevel (GoHighLevel)", "Vendasta", "Simvoly"],
+  "playbook_ref": "white_label_saas",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Platform pricing from HighLevel official pricing page."
+}

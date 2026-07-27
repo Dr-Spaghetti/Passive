@@ -1,0 +1,49 @@
+{
+  "stream_id": "longterm_rental_pm",
+  "name": "Long-Term Rental with Property Manager",
+  "category": "real_asset",
+  "passivity_index": 6,
+  "capital_usd": { "min": 20000, "typical": 50000, "scale_tiers": [100000, 500000] },
+  "setup": { "hours": 40, "calendar_weeks": 16 },
+  "maintenance_hours_per_month": { "steady": 3, "year_1_avg": 6 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 200, "base": 500, "bull": 1200,
+    "notes": "Net after mortgage (if applicable), PM fee (8-12%), maintenance reserve (10% gross), and vacancy. Leverage amplifies returns and risks.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 180, "base": 120, "bull": 90 },
+  "risk": {
+    "principal_loss": "med", "platform": "low", "regulatory": "med",
+    "liquidity": "low", "complexity": "high",
+    "flags": ["PM fee 8-12% of gross rent", "Maintenance reserve: budget 10-15% of gross rent", "Landlord-tenant laws vary by state — critical to understand"]
+  },
+  "skills_leveraged": ["real_estate"],
+  "scalability": "linear_capital",
+  "tax_character": ["ordinary", "depreciation"],
+  "location_sensitivity": "high",
+  "correlation_tags": ["real_estate", "local_economy"],
+  "prerequisites": ["Significant capital for down payment (20-25% for investment property)", "Access to mortgage financing"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Research landlord-friendly markets with strong rent-to-price ratios (rent/price > 0.8%)",
+    "Get investment property mortgage pre-approval (typically 20-25% down)",
+    "Hire property manager before closing — interview 3, check references",
+    "Run numbers: gross rent - mortgage - PM fee - maintenance - vacancy = net cash flow",
+    "Ensure positive cash flow of at least $200/mo before purchasing"
+  ],
+  "failure_modes": [
+    "Negative cash flow due to high expenses or vacancy",
+    "Major capital repair wipes years of income",
+    "Problem tenant with long eviction process"
+  ],
+  "kill_criteria": [
+    "Cash flow negative for 3+ consecutive quarters",
+    "Local rental market deteriorates significantly"
+  ],
+  "kpis": ["Monthly net cash flow", "Cap rate", "Cash-on-cash return", "Vacancy rate", "Gross rent multiplier"],
+  "tool_stack_examples": ["Zillow", "BiggerPockets calculator", "Avail or AppFolio for PM software"],
+  "playbook_ref": "longterm_rental_pm",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Strategy from BiggerPockets real estate investing community."
+}

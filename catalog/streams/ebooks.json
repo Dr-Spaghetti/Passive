@@ -1,0 +1,49 @@
+{
+  "stream_id": "ebooks",
+  "name": "eBooks (Self-Published, AI-Assisted)",
+  "category": "digital",
+  "passivity_index": 8,
+  "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 200] },
+  "setup": { "hours": 20, "calendar_weeks": 3 },
+  "maintenance_hours_per_month": { "steady": 1, "year_1_avg": 3 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 20, "base": 150, "bull": 800,
+    "notes": "Revenue from Amazon KDP, Gumroad, or Payhip. AI assistance dramatically speeds drafting.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 60, "base": 30, "bull": 14 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Amazon AI content disclosure policy applies", "Refund rates can be high if quality is poor", "Niche saturation growing rapidly"]
+  },
+  "skills_leveraged": ["ai_ml", "content", "copywriting"],
+  "scalability": "exponential_product",
+  "tax_character": ["self_employment", "royalties"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["digital_products"],
+  "prerequisites": ["Word processor or Google Docs", "KDP account or Gumroad account"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Research 3 niche topics where you have knowledge or can use AI effectively",
+    "Outline book structure (7-10 chapters) and draft with AI assistance",
+    "Review, edit, and add original insights or personal experience",
+    "Design cover in Canva (buyer judge heavily by cover)",
+    "Publish on KDP and/or Gumroad; price $7–$27 depending on length and niche"
+  ],
+  "failure_modes": [
+    "Cover or title fails to attract clicks — no sales",
+    "Poor reviews reduce discoverability on Amazon",
+    "AI-only content with no original value earns nothing"
+  ],
+  "kill_criteria": [
+    "Less than $50/month after 3 books published and 90 days of promotion",
+    "Amazon removes book for AI content policy violation"
+  ],
+  "kpis": ["Sales per title per month", "Average review rating", "Refund rate", "Royalty per sale"],
+  "tool_stack_examples": ["Amazon KDP", "Gumroad", "Canva", "Scrivener", "Claude/ChatGPT for drafting"],
+  "playbook_ref": "ebooks",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Earnings estimates from KDP creator community data."
+}

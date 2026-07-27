@@ -1,0 +1,49 @@
+{
+  "stream_id": "faceless_youtube",
+  "name": "Faceless YouTube Channel (AI-Assisted)",
+  "category": "content",
+  "passivity_index": 6,
+  "capital_usd": { "min": 0, "typical": 100, "scale_tiers": [500, 2000] },
+  "setup": { "hours": 40, "calendar_weeks": 8 },
+  "maintenance_hours_per_month": { "steady": 8, "year_1_avg": 15 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 0, "base": 300, "bull": 3000,
+    "notes": "Requires 1,000 subscribers + 4,000 watch hours for monetization. Revenue from AdSense + sponsorships + affiliate links.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 365, "base": 180, "bull": 90 },
+  "risk": {
+    "principal_loss": "low", "platform": "high", "regulatory": "low",
+    "liquidity": "high", "complexity": "med",
+    "flags": ["YouTube can demonetize channels without warning", "Algorithm changes can crater views overnight", "AdSense payment threshold: $100"]
+  },
+  "skills_leveraged": ["ai_ml", "content", "video"],
+  "scalability": "linear_audience",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["attention", "platform_dependency"],
+  "prerequisites": ["Google account", "Basic video editing software (DaVinci Resolve free, CapCut free)"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Choose evergreen niche with search demand (finance, history, how-to, listicles)",
+    "Create channel and optimize About section, banner, and icon",
+    "Produce 10 videos in first 30 days using AI voiceover + stock footage + AI scripts",
+    "Optimize titles and thumbnails for click-through rate",
+    "Enable monetization as soon as threshold is reached; add affiliate links from day 1"
+  ],
+  "failure_modes": [
+    "Channel never reaches monetization threshold",
+    "Niche too competitive — videos buried in search",
+    "AI voiceover flagged as spam by YouTube"
+  ],
+  "kill_criteria": [
+    "After 50 videos and 12 months, fewer than 500 subscribers",
+    "Channel strike or termination by platform"
+  ],
+  "kpis": ["Subscribers", "Watch hours", "RPM (revenue per 1k views)", "CTR (click-through rate)", "Monthly revenue"],
+  "tool_stack_examples": ["ElevenLabs", "Pictory.ai", "InVideo", "DaVinci Resolve", "TubeBuddy"],
+  "playbook_ref": "faceless_youtube",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Monetization thresholds from YouTube Partner Program official docs."
+}

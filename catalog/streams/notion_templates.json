@@ -1,0 +1,49 @@
+{
+  "stream_id": "notion_templates",
+  "name": "Notion Templates / Digital Products",
+  "category": "digital",
+  "passivity_index": 8,
+  "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 500] },
+  "setup": { "hours": 20, "calendar_weeks": 2 },
+  "maintenance_hours_per_month": { "steady": 2, "year_1_avg": 4 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 50, "base": 300, "bull": 1500,
+    "notes": "Wide range: most templates earn <$100/mo; viral or niche templates can earn $1k+/mo.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 90, "base": 30, "bull": 7 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Gumroad/Lemon Squeezy platform fee 5-10%", "Notion may break templates on major updates"]
+  },
+  "skills_leveraged": ["ai_ml", "content", "design"],
+  "scalability": "exponential_product",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["attention", "digital_products"],
+  "prerequisites": ["Notion account (free)", "Payment processor (Gumroad, Lemon Squeezy, or Payhip)"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Identify a pain point you personally solve with Notion (project tracker, content calendar, budget planner)",
+    "Build template in Notion, duplicate link, set to 'Allow duplicate' in share settings",
+    "Create product listing on Gumroad with screenshots, description, and price ($7–$47)",
+    "Post in 3 relevant communities (Reddit r/Notion, Twitter, LinkedIn) explaining the problem it solves",
+    "Collect 5 testimonials from free beta users before raising price"
+  ],
+  "failure_modes": [
+    "Template gets copied/pirated and shared for free",
+    "Audience too small to generate consistent sales",
+    "Notion platform changes break core functionality"
+  ],
+  "kill_criteria": [
+    "Less than 5 sales after 90 days of consistent promotion",
+    "Platform fee + payment processing eats >40% of revenue"
+  ],
+  "kpis": ["Monthly sales volume", "Average order value", "Refund rate", "Traffic source breakdown"],
+  "tool_stack_examples": ["Gumroad", "Lemon Squeezy", "Payhip", "Notion"],
+  "playbook_ref": "notion_templates",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Income ranges from creator community surveys and public case studies."
+}

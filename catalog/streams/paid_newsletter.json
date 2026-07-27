@@ -1,0 +1,49 @@
+{
+  "stream_id": "paid_newsletter",
+  "name": "Paid Newsletter (Substack / Beehiiv)",
+  "category": "content",
+  "passivity_index": 5,
+  "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 500] },
+  "setup": { "hours": 10, "calendar_weeks": 2 },
+  "maintenance_hours_per_month": { "steady": 8, "year_1_avg": 10 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 0, "base": 200, "bull": 3000,
+    "notes": "Substack takes 10% of paid subscriptions. Beehiiv has flat fee model. $5-15/mo subscription price typical.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 180, "base": 90, "bull": 30 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Subscriber churn: average monthly churn 2-5%", "Substack takes 10% of revenue", "Audience-dependent: starting from zero is very slow"]
+  },
+  "skills_leveraged": ["content", "copywriting", "ai_ml"],
+  "scalability": "linear_audience",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["attention"],
+  "prerequisites": ["Substack or Beehiiv account (free)", "A specific expertise or consistent perspective"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Choose a focused, specific topic you can write about weekly",
+    "Set up Substack or Beehiiv (Beehiiv preferred for monetization tools)",
+    "Write 5 free issues before launching paid tier to demonstrate quality",
+    "Set paid subscription price ($5-15/mo) with a clear value prop",
+    "Cross-post or repurpose content on Twitter/LinkedIn to grow free list"
+  ],
+  "failure_modes": [
+    "Subscriber growth stalls at <100 — too few to monetize",
+    "Writing quality inconsistency causes subscriber churn",
+    "Topic too niche to attract paying audience"
+  ],
+  "kill_criteria": [
+    "Fewer than 50 paid subscribers after 12 months of consistent publishing",
+    "Churn rate consistently above 10%/month"
+  ],
+  "kpis": ["Free subscriber count", "Paid conversion rate", "Monthly recurring revenue", "Churn rate", "Open rate"],
+  "tool_stack_examples": ["Substack", "Beehiiv", "ConvertKit", "Ghost"],
+  "playbook_ref": "paid_newsletter",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Earnings ranges from Substack creator data and community surveys."
+}

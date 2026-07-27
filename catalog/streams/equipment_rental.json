@@ -1,0 +1,49 @@
+{
+  "stream_id": "equipment_rental",
+  "name": "Equipment / Tool Rental (Peer-to-Peer)",
+  "category": "local_physical",
+  "passivity_index": 6,
+  "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [500, 5000] },
+  "setup": { "hours": 5, "calendar_weeks": 1 },
+  "maintenance_hours_per_month": { "steady": 3, "year_1_avg": 5 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 30, "base": 100, "bull": 300,
+    "notes": "For owned tools/equipment only. Camera gear, trailers, camping equipment perform well.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 30, "base": 14, "bull": 7 },
+  "risk": {
+    "principal_loss": "med", "platform": "low", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Equipment damage or theft", "Insurance gap: verify coverage for rental use", "Seasonal demand variation"]
+  },
+  "skills_leveraged": [],
+  "scalability": "capped",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "high",
+  "correlation_tags": ["local_economy"],
+  "prerequisites": ["Equipment you already own: power tools, camera gear, camping gear, trailer"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Inventory owned equipment with condition assessment",
+    "Check insurance coverage — add rider if needed for rental use",
+    "List on Fat Llama, RentOtherStuff, or local Facebook groups",
+    "Set competitive daily/weekly rates based on comparable listings",
+    "Create damage deposit workflow and clear rental agreement"
+  ],
+  "failure_modes": [
+    "Equipment damaged by renter beyond deposit coverage",
+    "Low demand for your specific equipment type in your area",
+    "Insurance claim required — drives up future premiums"
+  ],
+  "kill_criteria": [
+    "Equipment sustains significant damage in first 6 months",
+    "Less than 2 rentals per month despite competitive pricing"
+  ],
+  "kpis": ["Monthly rental income", "Utilization rate", "Damage incidents", "Net income after wear"],
+  "tool_stack_examples": ["Fat Llama", "RentOtherStuff", "Facebook Marketplace", "Craigslist"],
+  "playbook_ref": "equipment_rental",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Income ranges from peer-to-peer rental platform data."
+}

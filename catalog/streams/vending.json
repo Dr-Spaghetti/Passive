@@ -1,0 +1,49 @@
+{
+  "stream_id": "vending",
+  "name": "Vending Machine Business",
+  "category": "local_physical",
+  "passivity_index": 5,
+  "capital_usd": { "min": 1000, "typical": 3000, "scale_tiers": [10000, 50000] },
+  "setup": { "hours": 20, "calendar_weeks": 4 },
+  "maintenance_hours_per_month": { "steady": 8, "year_1_avg": 12 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 50, "base": 200, "bull": 600,
+    "notes": "Per-machine income varies by location quality. High-traffic locations (gyms, offices, schools) earn significantly more.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 90, "base": 60, "bull": 30 },
+  "risk": {
+    "principal_loss": "med", "platform": "low", "regulatory": "low",
+    "liquidity": "low", "complexity": "med",
+    "flags": ["Capital tied up in machine and inventory", "Location agreements can be terminated", "Machine vandalism or theft"]
+  },
+  "skills_leveraged": ["ops_automation", "sales"],
+  "scalability": "linear_capital",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "high",
+  "correlation_tags": ["local_economy"],
+  "prerequisites": ["Capital for machine purchase ($1,000-5,000 new or refurb)", "Vehicle for restocking", "Location agreement"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Research high-traffic locations: gyms, apartment complexes, office parks, laundromats",
+    "Negotiate location agreement (typically 10-20% commission to location owner)",
+    "Purchase machine: refurbished ($500-1,500) or new ($2,000-5,000)",
+    "Stock with high-margin items: beverages, snacks, healthy options",
+    "Set up remote monitoring if available to track inventory levels"
+  ],
+  "failure_modes": [
+    "Poor location — insufficient foot traffic",
+    "Location owner cancels agreement after initial investment",
+    "Machine vandalism or theft"
+  ],
+  "kill_criteria": [
+    "Less than $50/month net profit after location fee and restocking costs",
+    "Location terminated without replacement available"
+  ],
+  "kpis": ["Monthly gross revenue", "Net margin after COGS and location fee", "Restocking frequency", "Spoilage rate"],
+  "tool_stack_examples": ["Nayax cashless payment", "VendSoft inventory tracking", "QuickBooks for accounting"],
+  "playbook_ref": "vending",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Income ranges from vending operator community data."
+}

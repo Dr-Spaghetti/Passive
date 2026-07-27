@@ -1,0 +1,49 @@
+{
+  "stream_id": "affiliate_niche_site",
+  "name": "Affiliate Niche Website / SEO Blog",
+  "category": "content",
+  "passivity_index": 6,
+  "capital_usd": { "min": 50, "typical": 300, "scale_tiers": [1000, 5000] },
+  "setup": { "hours": 60, "calendar_weeks": 12 },
+  "maintenance_hours_per_month": { "steady": 5, "year_1_avg": 12 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 0, "base": 300, "bull": 3000,
+    "notes": "12+ months to meaningful SEO traffic. Affiliate commissions: 2-20% depending on niche.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 365, "base": 180, "bull": 90 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "med",
+    "flags": ["Google algorithm updates (HCU, Panda, Penguin) can destroy organic traffic overnight", "Amazon Associates commission rates change without notice", "AI content detection may penalize thin affiliate content"]
+  },
+  "skills_leveraged": ["content", "copywriting", "software", "ai_ml"],
+  "scalability": "linear_audience",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["attention", "platform_dependency"],
+  "prerequisites": ["Domain name (~$12/yr)", "Hosting (Hostinger/SiteGround ~$5-10/mo)", "WordPress or static site generator"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Choose niche: specific enough to rank, broad enough to monetize (e.g., 'best hiking gear under $50')",
+    "Register domain and set up WordPress or Astro on cheap hosting",
+    "Research 50 low-competition keywords using Ahrefs free tools or Ubersuggest",
+    "Publish 30 high-quality articles in first 90 days (1,500+ words each)",
+    "Apply to Amazon Associates or relevant affiliate programs once 10+ articles live"
+  ],
+  "failure_modes": [
+    "Google update deindexes or penalizes site",
+    "Niche has no buyers — traffic but no clicks",
+    "Content quality too low to rank above established sites"
+  ],
+  "kill_criteria": [
+    "Less than 500 organic visitors/month after 18 months and 50+ articles",
+    "Google manual penalty or deindexing"
+  ],
+  "kpis": ["Organic monthly visitors", "Keyword rankings", "Affiliate clicks", "Monthly affiliate revenue", "RPM"],
+  "tool_stack_examples": ["WordPress", "Ahrefs", "Google Search Console", "Amazon Associates", "Mediavine/AdThrive for display ads"],
+  "playbook_ref": "affiliate_niche_site",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Earnings ranges from niche site builder community surveys."
+}

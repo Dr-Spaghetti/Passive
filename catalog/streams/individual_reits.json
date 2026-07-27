@@ -1,0 +1,49 @@
+{
+  "stream_id": "individual_reits",
+  "name": "Individual REITs (Direct Shares)",
+  "category": "real_asset",
+  "passivity_index": 8,
+  "capital_usd": { "min": 100, "typical": 5000, "scale_tiers": [25000, 100000] },
+  "setup": { "hours": 3, "calendar_weeks": 1 },
+  "maintenance_hours_per_month": { "steady": 0.5, "year_1_avg": 1 },
+  "yield": {
+    "unit": "annual_pct_on_capital",
+    "bear": 3.5, "base": 5.0, "bull": 7.0,
+    "notes": "Monthly-paying REITs like O (Realty Income) provide predictable income. Higher yield but more concentrated risk than ETF.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 30, "base": 30, "bull": 30 },
+  "risk": {
+    "principal_loss": "med", "platform": "low", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Single company risk vs ETF diversification", "REIT dividends mostly ordinary income", "Dividend cuts possible in economic downturns"]
+  },
+  "skills_leveraged": [],
+  "scalability": "linear_capital",
+  "tax_character": ["ordinary", "qualified_dividends"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["real_estate", "rates"],
+  "prerequisites": ["Brokerage account"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Research individual REITs: Realty Income (O), STAG Industrial, National Retail Properties",
+    "Check dividend history, payout ratio, and FFO (Funds From Operations) growth",
+    "Start with 2-3 REITs across different sectors (retail, industrial, net-lease)",
+    "Enable DRIP (dividend reinvestment) or collect as income",
+    "Review quarterly earnings to ensure dividend sustainability"
+  ],
+  "failure_modes": [
+    "REIT dividend cut due to tenant defaults",
+    "Rate hike cycle compresses valuations",
+    "Sector-specific headwinds (retail real estate decline)"
+  ],
+  "kill_criteria": [
+    "Dividend cut or suspension",
+    "Payout ratio consistently above 95% of FFO"
+  ],
+  "kpis": ["Annual dividend yield on cost", "FFO per share trend", "Occupancy rate", "Tenant quality"],
+  "tool_stack_examples": ["Fidelity", "Schwab", "Seeking Alpha for research"],
+  "playbook_ref": "individual_reits",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Yield data from REIT earnings reports and SEC filings."
+}

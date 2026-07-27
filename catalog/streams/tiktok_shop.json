@@ -1,0 +1,49 @@
+{
+  "stream_id": "tiktok_shop",
+  "name": "TikTok Shop Affiliate / Creator",
+  "category": "commerce",
+  "passivity_index": 3,
+  "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 500] },
+  "setup": { "hours": 10, "calendar_weeks": 1 },
+  "maintenance_hours_per_month": { "steady": 20, "year_1_avg": 25 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 0, "base": 200, "bull": 3000,
+    "notes": "Affiliate commissions typically 5-20%. Requires consistent content creation (semi-active, not passive).",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 30, "base": 14, "bull": 7 },
+  "risk": {
+    "principal_loss": "low", "platform": "high", "regulatory": "high",
+    "liquidity": "high", "complexity": "med",
+    "flags": ["TikTok US ban risk (regulatory uncertainty)", "Platform algorithm-dependent", "High content volume required (1-3 videos/day)"]
+  },
+  "skills_leveraged": ["content", "video", "marketing"],
+  "scalability": "linear_audience",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "med",
+  "correlation_tags": ["attention", "platform_dependency"],
+  "prerequisites": ["TikTok account", "Smartphone with decent camera"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Create TikTok Creator account and apply for TikTok Shop affiliate program",
+    "Choose product niche aligned with your content style",
+    "Post first 30 videos in 30 days to establish cadence and test what works",
+    "Add product links to videos as soon as affiliate access is approved",
+    "Track click-through and conversion rates by product"
+  ],
+  "failure_modes": [
+    "TikTok banned or restricted in US market",
+    "Account shadow-banned or suspended",
+    "Videos don't receive algorithmic distribution"
+  ],
+  "kill_criteria": [
+    "US ban makes platform inaccessible",
+    "Less than $100/month after 90 days of consistent posting"
+  ],
+  "kpis": ["Views per video", "Follower growth", "Click-through rate", "Monthly affiliate commissions"],
+  "tool_stack_examples": ["TikTok", "CapCut", "TikTok Shop affiliate portal"],
+  "playbook_ref": "tiktok_shop",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Commission rates from TikTok Shop affiliate program documentation."
+}

@@ -1,0 +1,49 @@
+{
+  "stream_id": "house_hack",
+  "name": "House Hacking (Owner-Occupied Rental)",
+  "category": "real_asset",
+  "passivity_index": 5,
+  "capital_usd": { "min": 10000, "typical": 30000, "scale_tiers": [50000, 150000] },
+  "setup": { "hours": 40, "calendar_weeks": 12 },
+  "maintenance_hours_per_month": { "steady": 8, "year_1_avg": 12 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 300, "base": 800, "bull": 2000,
+    "notes": "Strategy: buy multi-unit property, live in one unit, rent others. FHA loan: 3.5% down. Offset or eliminate mortgage.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 180, "base": 120, "bull": 90 },
+  "risk": {
+    "principal_loss": "low", "platform": "low", "regulatory": "med",
+    "liquidity": "low", "complexity": "high",
+    "flags": ["Tenant management is not truly passive", "Vacancy and repair costs can eliminate profit", "Landlord-tenant law varies significantly by state"]
+  },
+  "skills_leveraged": ["real_estate", "sales"],
+  "scalability": "capped",
+  "tax_character": ["self_employment", "ordinary"],
+  "location_sensitivity": "high",
+  "correlation_tags": ["real_estate", "local_economy"],
+  "prerequisites": ["Credit score 580+ for FHA (620+ recommended)", "3.5-20% down payment", "Property in market with adequate rents"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Get pre-approved for FHA loan (3.5% down on multi-unit property)",
+    "Research rental rates in target neighborhoods using Zillow/Rentometer",
+    "Find 2-4 unit property where rental income covers 75%+ of PITI",
+    "Close purchase and prepare rental unit (paint, deep clean)",
+    "Screen tenants: credit check, income verification, reference check"
+  ],
+  "failure_modes": [
+    "Bad tenant causes eviction costs and property damage",
+    "Vacancy period longer than expected",
+    "Unexpected major repairs (HVAC, roof, foundation)"
+  ],
+  "kill_criteria": [
+    "Monthly net cash flow negative after all expenses for 6+ months",
+    "Major capital repair needed that wipes returns for 2+ years"
+  ],
+  "kpis": ["Monthly cash flow", "Vacancy rate", "Net operating income", "Cap rate", "Repair reserve balance"],
+  "tool_stack_examples": ["Zillow", "Rentometer", "Avail (free landlord software)", "TenantCloud"],
+  "playbook_ref": "house_hack",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Strategy details from BiggerPockets community and FHA guidelines."
+}

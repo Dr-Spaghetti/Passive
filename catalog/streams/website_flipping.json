@@ -1,0 +1,49 @@
+{
+  "stream_id": "website_flipping",
+  "name": "Website Buying & Flipping",
+  "category": "digital",
+  "passivity_index": 4,
+  "capital_usd": { "min": 500, "typical": 3000, "scale_tiers": [10000, 50000] },
+  "setup": { "hours": 20, "calendar_weeks": 4 },
+  "maintenance_hours_per_month": { "steady": 10, "year_1_avg": 15 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 0, "base": 400, "bull": 3000,
+    "notes": "Buy undervalued sites on Flippa/Empire Flippers, improve and sell at higher multiple. Income from interim cash flow + sale.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 365, "base": 180, "bull": 60 },
+  "risk": {
+    "principal_loss": "high", "platform": "med", "regulatory": "low",
+    "liquidity": "low", "complexity": "high",
+    "flags": ["Google penalty risk on acquired sites", "Overpaying for sites with overstated revenue", "Content may need significant investment to grow"]
+  },
+  "skills_leveraged": ["content", "software", "marketing", "ai_ml"],
+  "scalability": "linear_capital",
+  "tax_character": ["cap_gains", "self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["digital_products"],
+  "prerequisites": ["Due diligence skills", "Capital for acquisition", "SEO or monetization expertise"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Learn due diligence basics: verify traffic in GA/GSC, revenue in Stripe/PayPal, backlink profile",
+    "Start with small purchases ($500-2,000) on Flippa to learn the process",
+    "Focus on sites with traffic but undermonetized (easy upside)",
+    "Implement quick wins: better ad placement, affiliate swap, email list capture",
+    "List for sale at 30-40x monthly profit after 6-12 months of improvement"
+  ],
+  "failure_modes": [
+    "Google update tanks traffic after purchase",
+    "Revenue was overstated in seller data",
+    "Site takes longer to improve than expected"
+  ],
+  "kill_criteria": [
+    "Traffic drops >50% in first 90 days post-acquisition",
+    "Site generating zero revenue after 6 months of effort"
+  ],
+  "kpis": ["Monthly revenue", "Traffic trend", "Revenue multiple at sale", "ROI on acquisition"],
+  "tool_stack_examples": ["Flippa", "Empire Flippers", "Motion Invest", "Ahrefs", "Google Search Console"],
+  "playbook_ref": "website_flipping",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Multiple data from Empire Flippers marketplace listings."
+}

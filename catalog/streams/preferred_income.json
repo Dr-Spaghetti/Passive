@@ -1,0 +1,48 @@
+{
+  "stream_id": "preferred_income",
+  "name": "Preferred Stock / Fixed-Income Equities",
+  "category": "paper",
+  "passivity_index": 9,
+  "capital_usd": { "min": 500, "typical": 10000, "scale_tiers": [50000, 200000] },
+  "setup": { "hours": 2, "calendar_weeks": 0.5 },
+  "maintenance_hours_per_month": { "steady": 0.2, "year_1_avg": 0.5 },
+  "yield": {
+    "unit": "annual_pct_on_capital",
+    "bear": 5.0, "base": 6.5, "bull": 8.5,
+    "notes": "Higher yield than common stock but subordinate to bonds in bankruptcy. Fixed dividend but callable.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 30, "base": 30, "bull": 30 },
+  "risk": {
+    "principal_loss": "med", "platform": "low", "regulatory": "low",
+    "liquidity": "med", "complexity": "med",
+    "flags": ["Callable: issuer can redeem at par if rates drop", "Less liquid than common stock", "Rate-sensitive: price drops when rates rise"]
+  },
+  "skills_leveraged": [],
+  "scalability": "linear_capital",
+  "tax_character": ["qualified_dividends", "ordinary"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["rates", "equity"],
+  "prerequisites": ["Brokerage account with access to preferred stock trading"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Research preferred stock screeners on Schwab or Fidelity",
+    "Focus on investment-grade issuers (bank preferreds, utility preferreds)",
+    "Check call date and call price before buying at premium",
+    "Diversify across at least 5 issuers to reduce single-company risk",
+    "Track ex-dividend dates for income planning"
+  ],
+  "failure_modes": [
+    "Issuer suspends preferred dividend",
+    "Purchased at premium; called at par — capital loss"
+  ],
+  "kill_criteria": [
+    "Issuer credit rating downgrade to below investment grade",
+    "Dividend suspension for 2+ consecutive quarters"
+  ],
+  "kpis": ["Current yield", "Yield to call", "Credit rating", "Monthly income received"],
+  "tool_stack_examples": ["Schwab", "Fidelity", "QuantumOnline.com for preferred research"],
+  "playbook_ref": "preferred_income",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Yield ranges from preferred stock market data."
+}

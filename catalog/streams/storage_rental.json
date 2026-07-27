@@ -1,0 +1,49 @@
+{
+  "stream_id": "storage_rental",
+  "name": "Storage Space Rental (Garage / Spare Room)",
+  "category": "local_physical",
+  "passivity_index": 8,
+  "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 2000] },
+  "setup": { "hours": 3, "calendar_weeks": 1 },
+  "maintenance_hours_per_month": { "steady": 1, "year_1_avg": 2 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 50, "base": 150, "bull": 400,
+    "notes": "Highly location-dependent. Urban and suburban markets stronger than rural.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 30, "base": 14, "bull": 7 },
+  "risk": {
+    "principal_loss": "low", "platform": "low", "regulatory": "med",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Renter damage to stored items", "HOA or zoning restrictions on commercial use", "Insurance: verify existing homeowner policy covers or get rider"]
+  },
+  "skills_leveraged": [],
+  "scalability": "capped",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "high",
+  "correlation_tags": ["local_economy"],
+  "prerequisites": ["Unused garage, basement, or spare room", "Check HOA/lease/zoning for restrictions"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Measure available space and check access constraints",
+    "Review HOA, lease, and local zoning for commercial activity restrictions",
+    "List on Neighbor.com with photos, dimensions, and access instructions",
+    "Research comparable listings in your area for pricing",
+    "Add renter damage protection through Neighbor's Host Guarantee or personal umbrella policy"
+  ],
+  "failure_modes": [
+    "HOA prohibits commercial storage activity",
+    "Renter abandons items — legal process to remove",
+    "Damage dispute with renter"
+  ],
+  "kill_criteria": [
+    "HOA or local authority issues cease-and-desist",
+    "Insurance claim negates earnings"
+  ],
+  "kpis": ["Monthly rental income", "Occupancy rate", "Average lease length"],
+  "tool_stack_examples": ["Neighbor.com", "Craigslist", "Facebook Marketplace"],
+  "playbook_ref": "storage_rental",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Income ranges from Neighbor.com marketplace data."
+}

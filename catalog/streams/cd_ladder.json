@@ -1,0 +1,48 @@
+{
+  "stream_id": "cd_ladder",
+  "name": "CD Ladder (Certificate of Deposit)",
+  "category": "paper",
+  "passivity_index": 9,
+  "capital_usd": { "min": 500, "typical": 10000, "scale_tiers": [50000, 200000] },
+  "setup": { "hours": 2, "calendar_weeks": 1 },
+  "maintenance_hours_per_month": { "steady": 0.25, "year_1_avg": 0.5 },
+  "yield": {
+    "unit": "annual_pct_on_capital",
+    "bear": 3.8, "base": 4.6, "bull": 5.4,
+    "notes": "FDIC insured. Rates locked at purchase. Laddering (3/6/12-month) maintains liquidity.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 90, "base": 90, "bull": 30 },
+  "risk": {
+    "principal_loss": "low", "platform": "low", "regulatory": "low",
+    "liquidity": "med", "complexity": "low",
+    "flags": ["FDIC insured up to $250k per institution", "Early withdrawal penalty (typically 60-150 days interest)", "Locked until maturity"]
+  },
+  "skills_leveraged": [],
+  "scalability": "linear_capital",
+  "tax_character": ["ordinary"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["rates"],
+  "prerequisites": ["Bank account at FDIC-insured institution"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Compare CD rates at bankrate.com (look for 'no-penalty CDs' for flexibility)",
+    "Split capital into 3 equal tranches: 3-month, 6-month, 12-month CDs",
+    "Open CDs and set maturity alerts",
+    "At each maturity, roll into new 12-month CD to extend the ladder",
+    "Track in spreadsheet: bank, amount, rate, maturity date"
+  ],
+  "failure_modes": [
+    "Need emergency access — penalty wipes gains",
+    "Rates drop sharply after lock-in"
+  ],
+  "kill_criteria": [
+    "CD maturity rate below HYSA equivalent — roll to HYSA instead",
+    "Institution shows financial instability (monitor FDIC ratings)"
+  ],
+  "kpis": ["Blended ladder yield", "Monthly interest income", "Upcoming maturities"],
+  "tool_stack_examples": ["Marcus by Goldman Sachs", "Ally Bank", "Discover Bank", "Bankrate comparison"],
+  "playbook_ref": "cd_ladder",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Rates from Bankrate CD survey. Verify at time of purchase."
+}

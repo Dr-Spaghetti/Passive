@@ -1,0 +1,48 @@
+{
+  "stream_id": "bond_etf",
+  "name": "Bond ETF (Aggregate / Treasury)",
+  "category": "paper",
+  "passivity_index": 9,
+  "capital_usd": { "min": 1, "typical": 10000, "scale_tiers": [50000, 250000] },
+  "setup": { "hours": 1, "calendar_weeks": 0.5 },
+  "maintenance_hours_per_month": { "steady": 0.1, "year_1_avg": 0.2 },
+  "yield": {
+    "unit": "annual_pct_on_capital",
+    "bear": 3.5, "base": 4.2, "bull": 5.0,
+    "notes": "AGG, BND, TLT type funds. Inverse price/yield relationship.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 30, "base": 30, "bull": 30 },
+  "risk": {
+    "principal_loss": "med", "platform": "low", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Inverse price/yield relationship: price drops as rates rise", "Duration risk: long-term bonds most sensitive to rate changes", "Used as portfolio diversifier, not pure income"]
+  },
+  "skills_leveraged": [],
+  "scalability": "linear_capital",
+  "tax_character": ["ordinary"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["rates"],
+  "prerequisites": ["Brokerage account"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Choose fund type: short-term (BSV, SHY — low rate risk) vs aggregate (BND, AGG)",
+    "Open brokerage account",
+    "Allocate fixed percentage of portfolio (e.g., 20-40% as ballast)",
+    "Set up automatic purchase",
+    "Review duration exposure annually and adjust if rate environment changes"
+  ],
+  "failure_modes": [
+    "Rate hike cycle crushes NAV on long-duration bonds",
+    "Inflation erodes real yield"
+  ],
+  "kill_criteria": [
+    "Real yield (nominal - inflation) turns negative and stays there",
+    "Better risk-adjusted yield available in HYSA/T-Bills with same safety"
+  ],
+  "kpis": ["Current SEC yield", "Duration (years)", "Expense ratio", "Monthly income distribution"],
+  "tool_stack_examples": ["Vanguard BND", "iShares AGG", "Schwab SCHZ"],
+  "playbook_ref": "bond_etf",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Yield data from ETF provider SEC yield disclosures."
+}

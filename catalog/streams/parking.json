@@ -1,0 +1,49 @@
+{
+  "stream_id": "parking",
+  "name": "Parking Space / Driveway Rental",
+  "category": "local_physical",
+  "passivity_index": 8,
+  "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 5000] },
+  "setup": { "hours": 3, "calendar_weeks": 1 },
+  "maintenance_hours_per_month": { "steady": 1, "year_1_avg": 2 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 50, "base": 120, "bull": 250,
+    "notes": "Highly location-dependent. Urban spots near transit/stadiums earn more.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 30, "base": 14, "bull": 7 },
+  "risk": {
+    "principal_loss": "low", "platform": "low", "regulatory": "med",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["HOA or lease may prohibit subletting parking", "Local zoning rules vary", "Liability: review personal umbrella insurance"]
+  },
+  "skills_leveraged": [],
+  "scalability": "capped",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "high",
+  "correlation_tags": ["local_economy"],
+  "prerequisites": ["Own or lease a driveway, garage, or parking spot", "Check local zoning/HOA rules first"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Check HOA/lease agreement for restrictions on subletting parking",
+    "Research comparable rates in your area on SpotHero/Neighbor.com",
+    "List on SpotHero, Neighbor.com, and/or ParkingForMe with clear photos",
+    "Set competitive price slightly below comparable spots to get first bookings",
+    "After first 3 bookings, raise price 10-20% if demand holds"
+  ],
+  "failure_modes": [
+    "HOA sends cease-and-desist",
+    "No demand in your specific location",
+    "Vehicle damage dispute with renter"
+  ],
+  "kill_criteria": [
+    "Zero bookings after 60 days at competitive pricing",
+    "HOA or landlord prohibits the activity"
+  ],
+  "kpis": ["Occupancy rate", "Monthly income", "Booking frequency", "Average booking duration"],
+  "tool_stack_examples": ["SpotHero", "Neighbor.com", "ParkingForMe", "Craigslist"],
+  "playbook_ref": "parking",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Income ranges from SpotHero marketplace data and community reports."
+}

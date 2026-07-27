@@ -1,0 +1,49 @@
+{
+  "stream_id": "evergreen_podcast",
+  "name": "Evergreen Podcast (Ad Revenue + Sponsorships)",
+  "category": "content",
+  "passivity_index": 5,
+  "capital_usd": { "min": 0, "typical": 150, "scale_tiers": [500, 2000] },
+  "setup": { "hours": 20, "calendar_weeks": 4 },
+  "maintenance_hours_per_month": { "steady": 10, "year_1_avg": 15 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 0, "base": 150, "bull": 2000,
+    "notes": "CPM for podcast ads: $15-50 per 1,000 downloads. Sponsorships require 1,000+ downloads/episode.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 365, "base": 180, "bull": 90 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Podcast sponsorship market competitive", "Dynamic ad insertion changes economics", "Requires consistent publishing to maintain audience"]
+  },
+  "skills_leveraged": ["content", "ai_ml"],
+  "scalability": "linear_audience",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["attention"],
+  "prerequisites": ["Microphone ($50+)", "Podcast hosting (Buzzsprout, Anchor free)"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Choose evergreen niche (how-to, history, true crime, self-improvement)",
+    "Record first 5 episodes before launch (backlog reduces churn after subscribe)",
+    "Set up on Buzzsprout or Spotify for Podcasters (free distribution)",
+    "Submit to Apple Podcasts, Spotify, and Google Podcasts",
+    "Apply to Spotify Audience Network or Podcast.co for dynamic ads at 500+ listeners"
+  ],
+  "failure_modes": [
+    "Audience stagnates below monetizable threshold",
+    "Hosting costs exceed revenue at low listener counts",
+    "Burnout from content creation obligations"
+  ],
+  "kill_criteria": [
+    "Less than 200 downloads/episode after 12 months and 50+ episodes",
+    "Sponsorship market dries up in niche"
+  ],
+  "kpis": ["Downloads per episode", "Subscriber count", "Monthly unique listeners", "CPM", "Sponsorship revenue"],
+  "tool_stack_examples": ["Buzzsprout", "Spotify for Podcasters", "Descript", "Auphonic"],
+  "playbook_ref": "evergreen_podcast",
+  "data_freshness": "2026-07-22",
+  "sources_note": "CPM rates from podcast advertising industry reports."
+}

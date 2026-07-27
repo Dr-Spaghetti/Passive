@@ -1,0 +1,49 @@
+{
+  "stream_id": "stock_video",
+  "name": "Stock Video Footage (Shutterstock / Pond5)",
+  "category": "digital",
+  "passivity_index": 7,
+  "capital_usd": { "min": 0, "typical": 100, "scale_tiers": [0, 500] },
+  "setup": { "hours": 15, "calendar_weeks": 3 },
+  "maintenance_hours_per_month": { "steady": 3, "year_1_avg": 5 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 20, "base": 150, "bull": 600,
+    "notes": "Per-clip earnings vary widely by platform and exclusivity. Contributors earn $0.25-$150 per license.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 60, "base": 30, "bull": 14 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Shutterstock contributor earnings have declined over past 5 years", "AI-generated video policies vary and are evolving rapidly"]
+  },
+  "skills_leveraged": ["ai_ml", "video", "design"],
+  "scalability": "linear_audience",
+  "tax_character": ["royalties", "self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["digital_products"],
+  "prerequisites": ["Camera/drone or AI video generation tool (Runway, Pika, Kling)", "Video editing software"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Choose approach: real footage (higher quality, slower) or AI video (faster, policy risks)",
+    "Research top-selling stock footage categories (business, nature, technology, lifestyle)",
+    "Create first 50 clips, 10-30 seconds each",
+    "Upload to Shutterstock, Pond5, and Adobe Stock (non-exclusive to maximize reach)",
+    "Track which clips sell and double down on those categories"
+  ],
+  "failure_modes": [
+    "Footage rejected for technical quality",
+    "Low demand in selected niche",
+    "AI video detected and rejected by platform"
+  ],
+  "kill_criteria": [
+    "Less than $30/month after 100+ clips live",
+    "Platform bans AI-generated video"
+  ],
+  "kpis": ["Clips live", "Monthly downloads", "Earnings per clip", "Approval rate"],
+  "tool_stack_examples": ["Shutterstock", "Pond5", "Adobe Stock", "Runway ML", "Pika Labs"],
+  "playbook_ref": "stock_video",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Earnings data from contributor community forums."
+}

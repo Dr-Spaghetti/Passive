@@ -1,0 +1,18 @@
+{
+  "profile_id": "fixture-c",
+  "created_at": "2026-07-22",
+  "financial": {
+    "liquid_deployable_usd": {"min": 12000, "max": 18000},
+    "monthly_surplus_usd": {"min": 500, "max": 800},
+    "emergency_fund_months": 5,
+    "high_interest_debt_usd": 0,
+    "existing_assets": {"physical": ["parking", "tools"]},
+    "target_monthly_passive_usd": 1000,
+    "target_deadline_months": 18
+  },
+  "time": {"setup_hours_per_week_90d": 6, "maintenance_hours_per_month_steady": 8, "preferred_cadence": "light_ops"},
+  "risk": {"score_1_to_10": 5, "exclusions": ["crypto"], "preferred_classes": ["paper", "local_physical"]},
+  "skills": {"marketing": 6, "ops_automation": 5, "real_estate": 4},
+  "goals": {"primary": "cash_flow"},
+  "constraints": {}
+}

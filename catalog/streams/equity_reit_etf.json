@@ -1,0 +1,47 @@
+{
+  "stream_id": "equity_reit_etf",
+  "name": "Equity REIT ETF (Real Estate Income)",
+  "category": "real_asset",
+  "passivity_index": 8,
+  "capital_usd": { "min": 1, "typical": 10000, "scale_tiers": [50000, 200000] },
+  "setup": { "hours": 1, "calendar_weeks": 0.5 },
+  "maintenance_hours_per_month": { "steady": 0.1, "year_1_avg": 0.2 },
+  "yield": {
+    "unit": "annual_pct_on_capital",
+    "bear": 3.0, "base": 4.0, "bull": 5.5,
+    "notes": "VNQ, SCHH type funds. REITs must distribute 90%+ of taxable income.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 90, "base": 30, "bull": 30 },
+  "risk": {
+    "principal_loss": "med", "platform": "low", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["REIT dividends mostly ordinary income (less tax-efficient)", "Rate-sensitive: REITs tend to fall when interest rates rise", "Exposure to commercial real estate trends (office, retail, residential)"]
+  },
+  "skills_leveraged": [],
+  "scalability": "linear_capital",
+  "tax_character": ["ordinary", "qualified_dividends", "return_of_capital"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["real_estate", "rates", "equity"],
+  "prerequisites": ["Brokerage account"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Choose: VNQ (broad), SCHH (low-cost), O (monthly-paying single REIT) or diversified ETF",
+    "Open brokerage account",
+    "Allocate 5-15% of portfolio as real estate exposure",
+    "Track annual distributions and tax character (some return-of-capital, which is tax-deferred)"
+  ],
+  "failure_modes": [
+    "Commercial real estate downturn reduces REIT distributions",
+    "Rising rates compress valuations"
+  ],
+  "kill_criteria": [
+    "Yield drops below 2.5% for 2 consecutive quarters",
+    "Significant exposure to distressed commercial real estate sector"
+  ],
+  "kpis": ["Annual distribution yield", "NAV per share trend", "Expense ratio", "Sector breakdown"],
+  "tool_stack_examples": ["Vanguard VNQ", "Schwab SCHH", "iShares IYR"],
+  "playbook_ref": "equity_reit_etf",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Yield data from ETF provider distributions."
+}

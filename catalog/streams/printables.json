@@ -1,0 +1,49 @@
+{
+  "stream_id": "printables",
+  "name": "Printables (Etsy / Gumroad Digital Downloads)",
+  "category": "digital",
+  "passivity_index": 8,
+  "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 100] },
+  "setup": { "hours": 10, "calendar_weeks": 1 },
+  "maintenance_hours_per_month": { "steady": 2, "year_1_avg": 4 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 30, "base": 200, "bull": 1200,
+    "notes": "Etsy charges listing fee ($0.20) + transaction fee (6.5%). High-volume stores with 100+ listings earn more.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 60, "base": 30, "bull": 7 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Etsy fee structure: 6.5% transaction + listing fees", "Market saturated in popular niches (wedding, baby shower)", "AI-generated designs have platform-specific policies"]
+  },
+  "skills_leveraged": ["ai_ml", "design", "content"],
+  "scalability": "exponential_product",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["digital_products"],
+  "prerequisites": ["Etsy seller account ($0 to open)", "Canva or design tool"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Open Etsy seller account and Gumroad (dual-list for diversification)",
+    "Research trending printable niches using Everbee or Alura tools",
+    "Create first 10 designs: planners, checklists, wall art, trackers",
+    "Write SEO-optimized titles and tags for each listing",
+    "Run Etsy ads ($1/day budget) for first 30 days to gather data"
+  ],
+  "failure_modes": [
+    "Designs get copied by other sellers",
+    "Etsy search algorithm buries new listings",
+    "High refund/complaint rate damages shop ranking"
+  ],
+  "kill_criteria": [
+    "Less than 10 sales after 60 days with 20+ listings",
+    "Etsy suspends shop for policy violation"
+  ],
+  "kpis": ["Listings live", "Monthly revenue", "Conversion rate", "Views to favorites ratio"],
+  "tool_stack_examples": ["Etsy", "Gumroad", "Canva", "Everbee", "Alura"],
+  "playbook_ref": "printables",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Fee structure from Etsy official seller documentation."
+}

@@ -1,0 +1,49 @@
+{
+  "stream_id": "amazon_kdp",
+  "name": "Amazon KDP — Low-Content & AI-Assisted Books",
+  "category": "digital",
+  "passivity_index": 8,
+  "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 200] },
+  "setup": { "hours": 10, "calendar_weeks": 1 },
+  "maintenance_hours_per_month": { "steady": 2, "year_1_avg": 5 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 30, "base": 200, "bull": 1000,
+    "notes": "Per-title earnings are low; income scales with catalog size. AI-assisted content creation can dramatically speed up catalog building.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 60, "base": 30, "bull": 14 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Amazon can suppress or remove listings without notice", "Royalty rates: 35% (<$2.99 or >$9.99) or 70% ($2.99–$9.99)", "AI content policy: must disclose AI-generated content per Amazon TOS"]
+  },
+  "skills_leveraged": ["ai_ml", "content", "copywriting"],
+  "scalability": "linear_audience",
+  "tax_character": ["self_employment", "royalties"],
+  "location_sensitivity": "low",
+  "correlation_tags": ["digital_products", "platform_dependency"],
+  "prerequisites": ["KDP account at kdp.amazon.com", "ISBN not required (Amazon assigns ASIN)"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Create KDP account at kdp.amazon.com (free)",
+    "Research low-competition niches using Publisher Rocket or free KDP category browsing",
+    "Create first book (journal, planner, or AI-assisted niche book) with Canva or Book Bolt",
+    "Set price at $6.99–$9.99 for 70% royalty tier",
+    "Publish and check sales dashboard weekly for first 30 days"
+  ],
+  "failure_modes": [
+    "Account suspended for violating AI content disclosure policy",
+    "Title ranks poorly due to no keyword optimization",
+    "Low-content books commoditized — price race to bottom"
+  ],
+  "kill_criteria": [
+    "Zero sales after 60 days with ≥10 titles published",
+    "Amazon policy changes make AI content non-viable"
+  ],
+  "kpis": ["Units sold per title per month", "Royalties earned", "KENP reads (Kindle Unlimited)", "Catalog size"],
+  "tool_stack_examples": ["KDP", "Publisher Rocket", "Book Bolt", "Canva", "ChatGPT/Claude for content"],
+  "playbook_ref": "amazon_kdp",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Royalty rates and policies from Amazon KDP official docs."
+}

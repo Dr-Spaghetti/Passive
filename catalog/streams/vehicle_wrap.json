@@ -1,0 +1,49 @@
+{
+  "stream_id": "vehicle_wrap",
+  "name": "Vehicle Advertising Wrap",
+  "category": "local_physical",
+  "passivity_index": 9,
+  "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 500] },
+  "setup": { "hours": 2, "calendar_weeks": 2 },
+  "maintenance_hours_per_month": { "steady": 0, "year_1_avg": 0.5 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 50, "base": 100, "bull": 400,
+    "notes": "Earnings depend on vehicle type, city, mileage driven. Rideshare drivers earn more due to high visibility.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 60, "base": 30, "bull": 14 },
+  "risk": {
+    "principal_loss": "low", "platform": "med", "regulatory": "low",
+    "liquidity": "high", "complexity": "low",
+    "flags": ["Wrap removal costs if campaign ends", "May affect vehicle warranty or lease terms", "Minimum mileage requirements in some contracts"]
+  },
+  "skills_leveraged": [],
+  "scalability": "capped",
+  "tax_character": ["self_employment"],
+  "location_sensitivity": "high",
+  "correlation_tags": ["local_economy"],
+  "prerequisites": ["Own a vehicle", "Clean driving record", "Check vehicle lease terms if applicable"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Apply to Carvertise, Wrapify, or Nickelytics",
+    "Submit vehicle photos and driving history application",
+    "Review contract: campaign duration, minimum miles, removal costs",
+    "Schedule wrap installation at approved shop",
+    "Track monthly payments and campaign end date"
+  ],
+  "failure_modes": [
+    "Campaign cancels early — partial income",
+    "Wrap damages vehicle paint",
+    "Lease violation if vehicle is under lease"
+  ],
+  "kill_criteria": [
+    "Campaign ends and no follow-on available",
+    "Monthly payment falls below $50 — not worth wrap wear"
+  ],
+  "kpis": ["Monthly payment received", "Campaign duration", "Miles driven vs minimum"],
+  "tool_stack_examples": ["Carvertise", "Wrapify", "Nickelytics"],
+  "playbook_ref": "vehicle_wrap",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Income ranges from Carvertise and Wrapify published campaign rates."
+}

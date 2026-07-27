@@ -1,0 +1,16 @@
+{
+  "profile_id": "fixture-d",
+  "created_at": "2026-07-22",
+  "financial": {
+    "liquid_deployable_usd": {"min": 4000, "max": 6000},
+    "monthly_surplus_usd": {"min": 200, "max": 400},
+    "emergency_fund_months": 1,
+    "high_interest_debt_usd": 12000,
+    "target_monthly_passive_usd": 3000,
+    "target_deadline_months": 12
+  },
+  "time": {"setup_hours_per_week_90d": 10, "maintenance_hours_per_month_steady": 15},
+  "risk": {"score_1_to_10": 7, "exclusions": []},
+  "skills": {"content": 5, "marketing": 6},
+  "goals": {"primary": "cash_flow"}
+}

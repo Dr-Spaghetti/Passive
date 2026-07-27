@@ -1,0 +1,49 @@
+{
+  "stream_id": "str_rental",
+  "name": "Short-Term Rental (Airbnb / VRBO)",
+  "category": "real_asset",
+  "passivity_index": 4,
+  "capital_usd": { "min": 5000, "typical": 30000, "scale_tiers": [100000, 500000] },
+  "setup": { "hours": 60, "calendar_weeks": 8 },
+  "maintenance_hours_per_month": { "steady": 15, "year_1_avg": 20 },
+  "yield": {
+    "unit": "monthly_usd_at_typical",
+    "bear": 500, "base": 1500, "bull": 4000,
+    "notes": "Significantly higher gross revenue than long-term rental but much higher time and operational requirements.",
+    "as_of": "2026-07"
+  },
+  "time_to_first_dollar_days": { "bear": 90, "base": 60, "bull": 30 },
+  "risk": {
+    "principal_loss": "low", "platform": "high", "regulatory": "high",
+    "liquidity": "low", "complexity": "high",
+    "flags": ["Local STR ordinances change frequently — some cities ban entirely", "Airbnb can suspend or ban host accounts", "High labor requirements without co-host or management company"]
+  },
+  "skills_leveraged": ["marketing", "ops_automation"],
+  "scalability": "capped",
+  "tax_character": ["self_employment", "ordinary"],
+  "location_sensitivity": "high",
+  "correlation_tags": ["real_estate", "local_economy"],
+  "prerequisites": ["Property with STR permit/license (check local regulations first)", "Quality furnishings and photography"],
+  "exclusions_match": [],
+  "startup_checklist": [
+    "Verify local STR permit requirements and fees before any purchase",
+    "Research occupancy rates and ADR using AirDNA for your market",
+    "Set up professional listing: 20+ photos, detailed description, competitive pricing",
+    "Hire cleaning crew and automate guest communication with Hospitable or Guesty",
+    "Set up dynamic pricing with PriceLabs or Wheelhouse"
+  ],
+  "failure_modes": [
+    "City passes STR ban after significant investment",
+    "Airbnb account suspension",
+    "Poor reviews spiral — booking cliff"
+  ],
+  "kill_criteria": [
+    "Local ordinance eliminates STR permits",
+    "Occupancy below 40% for 3 consecutive months at competitive rates"
+  ],
+  "kpis": ["Occupancy rate", "ADR (average daily rate)", "RevPAR", "Review score", "Net operating income"],
+  "tool_stack_examples": ["Airbnb", "VRBO", "Hospitable", "PriceLabs", "AirDNA"],
+  "playbook_ref": "str_rental",
+  "data_freshness": "2026-07-22",
+  "sources_note": "Market data from AirDNA industry reports."
+}
