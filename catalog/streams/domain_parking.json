@@ -3,6 +3,8 @@
   "name": "Domain Parking & Flipping",
   "category": "digital",
   "passivity_index": 7,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "light",
   "capital_usd": { "min": 10, "typical": 500, "scale_tiers": [2000, 10000] },
   "setup": { "hours": 5, "calendar_weeks": 1 },
   "maintenance_hours_per_month": { "steady": 1, "year_1_avg": 2 },

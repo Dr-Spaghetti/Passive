@@ -8,6 +8,7 @@ from pia.engine.portfolio import PortfolioAllocation, AllocationItem
 def base_stream_dict():
     return {
         "stream_id": "hysa", "name": "HYSA", "category": "paper", "passivity_index": 10,
+        "public_face_requirement": "none", "customer_support_requirement": "none",
         "capital_usd": {"min": 0, "typical": 10000, "scale_tiers": [100000]},
         "setup": {"hours": 1, "calendar_weeks": 0.25},
         "maintenance_hours_per_month": {"steady": 0.1, "year_1_avg": 0.2},

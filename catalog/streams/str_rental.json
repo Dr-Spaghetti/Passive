@@ -3,6 +3,8 @@
   "name": "Short-Term Rental (Airbnb / VRBO)",
   "category": "real_asset",
   "passivity_index": 4,
+  "public_face_requirement": "optional",
+  "customer_support_requirement": "ongoing",
   "capital_usd": { "min": 5000, "typical": 30000, "scale_tiers": [100000, 500000] },
   "setup": { "hours": 60, "calendar_weeks": 8 },
   "maintenance_hours_per_month": { "steady": 15, "year_1_avg": 20 },

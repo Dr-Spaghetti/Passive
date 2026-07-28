@@ -65,6 +65,14 @@ def render_portfolio_blueprint(
     return "\n".join(lines)
 
 
+def render_tracker_csv(scored: list[ScoredStream]) -> str:
+    lines = ["Date,Stream,Gross_USD,Fees_USD,Net_USD,Hours,vs_Plan_Net,vs_Plan_Hours,Notes"]
+    qualified = [s for s in scored if not s.disqualified][:8]
+    for s in qualified:
+        lines.append(f"YYYY-MM-DD,{s.stream.name},0,0,0,0,{s.stream.yield_.base},target_tbd,")
+    return "\n".join(lines)
+
+
 def render_exec_summary(
     profile_id: str,
     alloc: PortfolioAllocation,

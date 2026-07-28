@@ -3,6 +3,8 @@
   "name": "Long-Term Rental with Property Manager",
   "category": "real_asset",
   "passivity_index": 6,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "light",
   "capital_usd": { "min": 20000, "typical": 50000, "scale_tiers": [100000, 500000] },
   "setup": { "hours": 40, "calendar_weeks": 16 },
   "maintenance_hours_per_month": { "steady": 3, "year_1_avg": 6 },

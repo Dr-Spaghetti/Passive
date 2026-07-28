@@ -3,6 +3,8 @@
   "name": "TikTok Shop Affiliate / Creator",
   "category": "commerce",
   "passivity_index": 3,
+  "public_face_requirement": "required",
+  "customer_support_requirement": "ongoing",
   "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 500] },
   "setup": { "hours": 10, "calendar_weeks": 1 },
   "maintenance_hours_per_month": { "steady": 20, "year_1_avg": 25 },

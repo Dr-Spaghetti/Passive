@@ -3,6 +3,8 @@
   "name": "Evergreen Podcast (Ad Revenue + Sponsorships)",
   "category": "content",
   "passivity_index": 5,
+  "public_face_requirement": "required",
+  "customer_support_requirement": "light",
   "capital_usd": { "min": 0, "typical": 150, "scale_tiers": [500, 2000] },
   "setup": { "hours": 20, "calendar_weeks": 4 },
   "maintenance_hours_per_month": { "steady": 10, "year_1_avg": 15 },

@@ -3,6 +3,8 @@
   "name": "Vending Machine Business",
   "category": "local_physical",
   "passivity_index": 5,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "light",
   "capital_usd": { "min": 1000, "typical": 3000, "scale_tiers": [10000, 50000] },
   "setup": { "hours": 20, "calendar_weeks": 4 },
   "maintenance_hours_per_month": { "steady": 8, "year_1_avg": 12 },

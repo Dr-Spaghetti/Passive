@@ -1,18 +1,20 @@
 from __future__ import annotations
 import os
 
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    pass
-
 
 def generate_playbook(profile: "Profile", stream: "Stream") -> str:
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         return _static_playbook(stream)
 
+    try:
+        return _provider_playbook(profile, stream, api_key)
+    except Exception:
+        return _static_playbook(stream, provider_unavailable=True)
+
+
+def _provider_playbook(profile: "Profile", stream: "Stream", api_key: str) -> str:
+    """Generate a playbook with Anthropic; callers own fallback behavior."""
     from anthropic import Anthropic
     client = Anthropic(api_key=api_key)
 
@@ -42,11 +44,11 @@ def generate_playbook(profile: "Profile", stream: "Stream") -> str:
     return response.content[0].text
 
 
-def _static_playbook(stream: "Stream") -> str:
+def _static_playbook(stream: "Stream", provider_unavailable: bool = False) -> str:
     lines = [
         f"# {stream.name} — 90-Day Playbook",
         "",
-        "*(AI playbook unavailable — set ANTHROPIC_API_KEY in .env for full playbook)*",
+        "*(Built-in practical playbook.)*" if provider_unavailable else "*(AI playbook unavailable — set ANTHROPIC_API_KEY in .env for full playbook)*",
         "",
         "## Startup Checklist",
     ]

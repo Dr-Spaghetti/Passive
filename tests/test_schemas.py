@@ -2,6 +2,7 @@ from __future__ import annotations
 import json
 import pytest
 from pathlib import Path
+from pydantic import ValidationError
 from pia.schemas.profile import Profile
 from pia.schemas.stream import Stream
 from pia.catalog.loader import load_catalog
@@ -13,6 +14,8 @@ HYSA_DICT = {
     "name": "HYSA",
     "category": "paper",
     "passivity_index": 10,
+    "public_face_requirement": "none",
+    "customer_support_requirement": "none",
     "capital_usd": {"min": 0, "typical": 10000, "scale_tiers": [100000]},
     "setup": {"hours": 1, "calendar_weeks": 0.25},
     "maintenance_hours_per_month": {"steady": 0.1, "year_1_avg": 0.2},
@@ -52,6 +55,28 @@ def test_debt_gate_fires():
     assert p.has_debt_gate is True
 
 
+def test_negative_existing_assets_are_rejected():
+    with pytest.raises(ValidationError):
+        Profile(profile_id="x", created_at="2026-07-22",
+                financial={"existing_assets": {"brokerage_usd": -1}})
+
+
+def test_negative_audience_counts_are_rejected():
+    with pytest.raises(ValidationError):
+        Profile(profile_id="x", created_at="2026-07-22",
+                financial={"existing_assets": {"audience": {"email": -1}}})
+
+
+def test_max_drawdown_tolerance_out_of_range_is_rejected():
+    with pytest.raises(ValidationError):
+        Profile(profile_id="x", created_at="2026-07-22", risk={"max_drawdown_tolerance_pct": 150})
+
+
+def test_max_platforms_below_one_is_rejected():
+    with pytest.raises(ValidationError):
+        Profile(profile_id="x", created_at="2026-07-22", constraints={"max_platforms": 0})
+
+
 def test_stream_loads():
     s = Stream(**HYSA_DICT)
     assert s.stream_id == "hysa"
@@ -86,6 +111,8 @@ def test_catalog_all_have_required_fields():
         assert s.passivity_index >= 0
         assert s.capital_usd.min >= 0
         assert s.yield_.base >= 0
+        assert s.public_face_requirement in {"none", "optional", "required"}
+        assert s.customer_support_requirement in {"none", "light", "ongoing"}
 
 
 def test_catalog_has_36_streams():

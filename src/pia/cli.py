@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import sys
 import uuid
 from datetime import date
 from pathlib import Path
@@ -10,6 +11,16 @@ try:
 except ImportError:
     pass
 
+if sys.platform == "win32":
+    # Windows consoles default to the system codepage (e.g. cp1252), which can't
+    # encode rich's box-drawing/checkmark characters. Force UTF-8 regardless of
+    # the console's codepage so `pia analyze`'s tables render without crashing.
+    for _stream in (sys.stdout, sys.stderr):
+        try:
+            _stream.reconfigure(encoding="utf-8")
+        except (AttributeError, ValueError):
+            pass
+
 import click
 from rich.console import Console
 from rich.table import Table
@@ -19,7 +30,13 @@ from pia.catalog.loader import load_catalog
 from pia.engine.scorer import rank_streams
 from pia.engine.portfolio import build_portfolio
 from pia.engine.projector import project_paper, reverse_solve
-from pia.output.renderer import render_ranked_table, render_portfolio_blueprint, render_exec_summary
+from pia.output.renderer import (
+    render_ranked_table,
+    render_portfolio_blueprint,
+    render_exec_summary,
+    render_tracker_csv,
+)
+from pia.output.checklist import render_90day_checklist
 from pia.output.exporter import new_run_dir, export_run
 
 console = Console()
@@ -133,7 +150,18 @@ def analyze(acknowledge_risk):
     for item in alloc.allocations:
         match = next((r for r in ranked if r.stream.stream_id == item.stream_id), None)
         if match and match.stream.category == "paper":
-            proj = project_paper(item.allocation_usd, match.stream.yield_.base, 0, 12, reinvest=False)
+            proj = project_paper(
+                item.allocation_usd,
+                match.stream.yield_.base,
+                0,
+                12,
+                reinvest=False,
+                scenario_yields={
+                    "bear": match.stream.yield_.bear,
+                    "base": match.stream.yield_.base,
+                    "bull": match.stream.yield_.bull,
+                },
+            )
             for scenario in ("bear", "base", "bull"):
                 income_key = f"income_month_12"
                 if income_key in proj[scenario]:
@@ -148,8 +176,30 @@ def analyze(acknowledge_risk):
         "ranked_table.md": render_ranked_table(ranked),
         "portfolio_blueprint.md": render_portfolio_blueprint(alloc, monthly_proj),
         "exec_summary.md": render_exec_summary(profile_id, alloc, monthly_proj, qualified_top5, week1),
+        "checklist_90day.md": render_90day_checklist(ranked),
+        "tracker.csv": render_tracker_csv(ranked),
     }
+
+    top_qualified = [r for r in ranked if not r.disqualified][:3]
+    if top_qualified and click.confirm(f"\nGenerate AI playbooks for top {len(top_qualified)} streams? (uses Claude API)"):
+        from pia.ai.playbooks import generate_playbook
+        for scored in top_qualified:
+            with console.status(f"Generating playbook: {scored.stream.name}..."):
+                pb = generate_playbook(profile, scored.stream)
+            artifacts[f"playbook_{scored.stream.stream_id}.md"] = pb
+
     export_run(run_dir, artifacts)
+
+    from pia.storage import save_run
+    save_run(
+        run_id=run_dir.name,
+        profile_id=profile_id,
+        profile_json=artifacts["profile.json"],
+        top5_ids=[r.stream.stream_id for r in qualified_top5],
+        total_deployed=alloc.total_deployed,
+        projected_base=monthly_proj["base"],
+    )
+
     console.print(f"\n[bold green]Done![/bold green] Run saved to: {run_dir}")
     console.print(f"  Bear/Base/Bull monthly (paper): ${monthly_proj['bear']:,.0f} / ${monthly_proj['base']:,.0f} / ${monthly_proj['bull']:,.0f}")
 
@@ -185,6 +235,61 @@ def chat():
             console.print(table)
     except RuntimeError as e:
         console.print(f"[red]{e}[/red]")
+
+
+@cli.command(name="runs")
+def list_runs_cmd():
+    """List all saved analysis runs."""
+    from pia.storage import list_runs
+    runs = list_runs()
+    if not runs:
+        console.print("No runs yet. Run `pia analyze` first.")
+        return
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("Date")
+    table.add_column("Profile")
+    table.add_column("Projected Base/mo")
+    for r in runs:
+        table.add_row(r["date"], r["profile_id"], f"${r['projected_base']:,.0f}")
+    console.print(table)
+
+
+@cli.command()
+@click.argument("stream_id")
+def log(stream_id):
+    """Log actual income for a stream."""
+    from pia.tracker import log_income
+    gross = click.prompt("Gross income ($)", type=float)
+    fees = click.prompt("Fees/costs ($)", type=float, default=0.0)
+    hours = click.prompt("Hours spent", type=float, default=0.0)
+    notes = click.prompt("Notes (optional)", default="")
+    log_income(stream_id, gross, fees, hours, notes)
+    console.print(f"[green]Logged: ${gross - fees:.2f} net for {stream_id}[/green]")
+
+
+@cli.command()
+@click.argument("stream_id")
+@click.option("--plan-net", type=float, required=True, help="Planned monthly net income for this stream")
+@click.option("--plan-hours", type=float, required=True, help="Planned monthly hours for this stream")
+def drift(stream_id, plan_net, plan_hours):
+    """Check a stream for income or time drift vs plan."""
+    from pia.tracker import check_drift
+    alerts = check_drift(stream_id, plan_net, plan_hours)
+    if alerts:
+        for a in alerts:
+            console.print(f"[red]{a}[/red]")
+    else:
+        console.print(f"[green]{stream_id}: no drift detected.[/green]")
+
+
+@cli.command()
+@click.option("--host", default="127.0.0.1", show_default=True)
+@click.option("--port", default=8000, type=int, show_default=True)
+def serve(host, port):
+    """Run the local web dashboard."""
+    import uvicorn
+
+    uvicorn.run("pia.web.server:app", host=host, port=port, reload=False)
 
 
 if __name__ == "__main__":

@@ -36,3 +36,17 @@ def test_projections_never_single_point():
     r = project_paper(10000, 4.5, 0, 12, True)
     for scenario in ("bear", "base", "bull"):
         assert scenario in r
+
+
+def test_paper_projection_uses_explicit_catalog_scenarios_when_given():
+    result = project_paper(
+        principal=120_000,
+        annual_yield_pct=4.5,
+        monthly_contrib=0,
+        months=1,
+        reinvest=False,
+        scenario_yields={"bear": 3.0, "base": 4.5, "bull": 7.0},
+    )
+    assert result["bear"]["income_month_1"] == 300
+    assert result["base"]["income_month_1"] == 450
+    assert result["bull"]["income_month_1"] == 700

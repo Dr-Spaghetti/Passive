@@ -19,6 +19,8 @@ def make_stream(**kwargs) -> Stream:
     defaults = {
         "stream_id": "test", "name": "Test", "category": "paper",
         "passivity_index": 8,
+        "public_face_requirement": "none",
+        "customer_support_requirement": "none",
         "capital_usd": {"min": 1000, "typical": 10000, "scale_tiers": [100000]},
         "setup": {"hours": 2, "calendar_weeks": 0.5},
         "maintenance_hours_per_month": {"steady": 1.0, "year_1_avg": 2.0},
@@ -158,3 +160,60 @@ def test_composite_score_produces_scored_stream():
     assert 0 <= result.fit_score <= 100
     assert result.ras >= 0
     assert result.disqualified is False
+
+
+def preference_profile(**constraints) -> Profile:
+    return Profile(
+        profile_id="preference-test",
+        created_at="2026-07-27",
+        financial={"liquid_deployable_usd": {"min": 5_000, "max": 5_000}, "emergency_fund_months": 6},
+        time={"setup_hours_per_week_90d": 8, "maintenance_hours_per_month_steady": 10},
+        risk={"score_1_to_10": 5},
+        goals={"primary": "cash_flow"},
+        constraints=constraints,
+    )
+
+
+def test_no_public_face_is_a_soft_ranking_preference():
+    profile = preference_profile(no_public_face=True)
+    required = make_stream(stream_id="public-required", public_face_requirement="required")
+    none = make_stream(stream_id="public-none", public_face_requirement="none")
+
+    ranked = rank_streams(profile, [required, none])
+    required_result = next(item for item in ranked if item.stream.stream_id == "public-required")
+
+    assert ranked[0].stream.stream_id == "public-none"
+    assert required_result.disqualified is False
+    assert required_result.fit_score < ranked[0].fit_score
+    assert "Ranked lower because it typically requires a public face." in required_result.explain
+
+
+def test_no_customer_support_is_a_soft_ranking_preference():
+    profile = preference_profile(no_customer_support=True)
+    ongoing = make_stream(stream_id="support-ongoing", customer_support_requirement="ongoing")
+    none = make_stream(stream_id="support-none", customer_support_requirement="none")
+
+    ranked = rank_streams(profile, [ongoing, none])
+    ongoing_result = next(item for item in ranked if item.stream.stream_id == "support-ongoing")
+
+    assert ranked[0].stream.stream_id == "support-none"
+    assert ongoing_result.disqualified is False
+    assert ongoing_result.fit_score < ranked[0].fit_score
+    assert "Ranked lower because it typically requires ongoing customer support." in ongoing_result.explain
+
+
+def test_preference_penalties_do_not_apply_when_preferences_are_off():
+    profile = preference_profile()
+    demanding = make_stream(
+        stream_id="demanding",
+        public_face_requirement="required",
+        customer_support_requirement="ongoing",
+    )
+    low_touch = make_stream(stream_id="low-touch")
+
+    demanding_result = score_stream(profile, demanding, [])
+    low_touch_result = score_stream(profile, low_touch, [])
+
+    assert demanding_result.disqualified is False
+    assert demanding_result.fit_score == low_touch_result.fit_score
+    assert not any("Ranked lower because" in explanation for explanation in demanding_result.explain)

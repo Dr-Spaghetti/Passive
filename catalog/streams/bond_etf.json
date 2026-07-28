@@ -3,6 +3,8 @@
   "name": "Bond ETF (Aggregate / Treasury)",
   "category": "paper",
   "passivity_index": 9,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "none",
   "capital_usd": { "min": 1, "typical": 10000, "scale_tiers": [50000, 250000] },
   "setup": { "hours": 1, "calendar_weeks": 0.5 },
   "maintenance_hours_per_month": { "steady": 0.1, "year_1_avg": 0.2 },

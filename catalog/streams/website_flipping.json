@@ -3,6 +3,8 @@
   "name": "Website Buying & Flipping",
   "category": "digital",
   "passivity_index": 4,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "light",
   "capital_usd": { "min": 500, "typical": 3000, "scale_tiers": [10000, 50000] },
   "setup": { "hours": 20, "calendar_weeks": 4 },
   "maintenance_hours_per_month": { "steady": 10, "year_1_avg": 15 },

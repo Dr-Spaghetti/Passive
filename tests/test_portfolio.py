@@ -15,6 +15,8 @@ def make_scored(stream_id: str, category: str, ras: float, passivity: int, tags:
     base = {
         "stream_id": stream_id, "name": stream_id, "category": category,
         "passivity_index": passivity,
+        "public_face_requirement": "none",
+        "customer_support_requirement": "none",
         "capital_usd": {"min": 0, "typical": 5000, "scale_tiers": [50000]},
         "setup": {"hours": 2, "calendar_weeks": 1},
         "maintenance_hours_per_month": {"steady": 1.0, "year_1_avg": 2.0},

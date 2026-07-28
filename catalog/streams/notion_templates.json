@@ -3,6 +3,8 @@
   "name": "Notion Templates / Digital Products",
   "category": "digital",
   "passivity_index": 8,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "light",
   "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 500] },
   "setup": { "hours": 20, "calendar_weeks": 2 },
   "maintenance_hours_per_month": { "steady": 2, "year_1_avg": 4 },

@@ -3,6 +3,8 @@
   "name": "Paid Newsletter (Substack / Beehiiv)",
   "category": "content",
   "passivity_index": 5,
+  "public_face_requirement": "required",
+  "customer_support_requirement": "ongoing",
   "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 500] },
   "setup": { "hours": 10, "calendar_weeks": 2 },
   "maintenance_hours_per_month": { "steady": 8, "year_1_avg": 10 },

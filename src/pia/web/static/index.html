@@ -6,89 +6,95 @@
 <title>Passive Income Analyzer</title>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; }
+html, body { min-height: 100%; height: auto; overflow-x: hidden; overflow-y: auto; }
 
 :root {
-  --ground: #F4F5F1;
-  --text: #162219;
-  --accent: #1E6B45;
-  --accent-dark: #144D32;
-  --tint: #EBF4EE;
-  --tint-mid: #D4E9DA;
-  --border: #C8D5CA;
-  --ink-mid: #3D5A42;
-  --warn: #92400E;
-  --warn-bg: #FEF3C7;
-  --danger: #991B1B;
-  --danger-bg: #FEE2E2;
-  --success: #065F46;
-  --success-bg: #D1FAE5;
-  --nav-w: 220px;
+  --ground: #0c1017;
+  --surface: #171e2b;
+  --surface-2: #20293a;
+  --text: #f5f7ff;
+  --accent: #7168ff;
+  --accent-dark: #c7c4ff;
+  --tint: #20283a;
+  --tint-mid: #303c55;
+  --border: #303b50;
+  --ink-mid: #bdc8df;
+  --warn: #ffd166;
+  --warn-bg: #3b321e;
+  --danger: #ff6b7a;
+  --danger-bg: #3b2029;
+  --success: #22d3c5;
+  --success-bg: #153c3d;
 }
 
 body {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
   font-size: 14px;
   background: var(--ground);
   color: var(--text);
-  display: flex;
-  height: 100%;
+  display: block;
+  min-height: 100%;
   line-height: 1.5;
 }
 
 /* NAV */
 nav {
-  width: var(--nav-w);
-  min-width: var(--nav-w);
-  background: var(--accent-dark);
+  width: 100%;
+  min-width: 0;
+  background: #151b27;
   color: #fff;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   position: sticky;
   top: 0;
-  height: 100vh;
-  overflow-y: auto;
+  z-index: 10;
+  min-height: 64px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
 }
 .nav-brand {
-  padding: 20px 20px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.12);
+  padding: 0 28px;
+  border: 0;
+  white-space: nowrap;
 }
 .nav-brand h1 {
-  font-family: Georgia, serif;
-  font-size: 15px;
-  font-weight: normal;
-  letter-spacing: 0.02em;
+  font-family: Inter, ui-sans-serif, sans-serif;
+  font-size: 17px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
   color: #fff;
   line-height: 1.3;
 }
-.nav-brand p {
-  font-size: 11px;
-  color: rgba(255,255,255,0.45);
-  margin-top: 3px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.nav-items { padding: 12px 0; flex: 1; }
+.brand-mark { color: #8d86ff; margin: 0 6px 0 2px; }
+.brand-pia { color: #8d86ff; margin-right: 6px; }
+.nav-brand p { display: none; }
+.nav-items { display: flex; align-items: center; gap: 5px; padding: 0; flex: 1; }
 .nav-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 20px;
+  padding: 10px 15px;
   cursor: pointer;
   font-size: 13px;
-  color: rgba(255,255,255,0.6);
+  color: #aeb9d6;
+  border-radius: 7px;
+  white-space: nowrap;
   transition: background 0.15s, color 0.15s;
   user-select: none;
 }
-.nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
-.nav-item.active { background: rgba(255,255,255,0.14); color: #fff; }
+.nav-item:hover { background: #20283a; color: #fff; }
+.nav-item.active { background: #222b40; color: #fff; }
 .nav-item.locked { opacity: 0.35; cursor: default; }
+.nav-item:focus-visible, .mode-tab:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
+.nav-item[data-analysis-nav] { display: none; }
 .nav-icon { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
 .nav-status {
-  padding: 14px 20px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-left: auto;
+  padding: 0 28px;
+  border: 0;
   font-size: 11px;
   color: rgba(255,255,255,0.35);
 }
@@ -96,7 +102,7 @@ nav {
 .dot.off { background: rgba(255,255,255,0.2); }
 
 /* MAIN */
-main { flex: 1; overflow-y: auto; padding: 32px; min-width: 0; }
+main { max-width: 1290px; margin: 0 auto; padding: 46px 32px 64px; min-width: 0; }
 .section { display: none; }
 .section.active { display: block; }
 
@@ -112,7 +118,7 @@ main { flex: 1; overflow-y: auto; padding: 32px; min-width: 0; }
 
 /* CARD */
 .card {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 22px 24px;
@@ -143,7 +149,7 @@ label {
   color: var(--ink-mid);
 }
 input[type="number"], input[type="text"], select, textarea {
-  background: var(--ground);
+  background: #101621;
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 8px 10px;
@@ -173,8 +179,8 @@ textarea { resize: vertical; min-height: 120px; }
   font-size: 13px; font-weight: 600; cursor: pointer;
   border: none; transition: all 0.15s; letter-spacing: 0.01em;
 }
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { background: var(--accent-dark); }
+.btn-primary { background: var(--accent); color: #fff; box-shadow: 0 7px 20px rgba(113,104,255,0.22); }
+.btn-primary:hover { background: #827bff; }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
 .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--tint); }
@@ -200,7 +206,7 @@ textarea { resize: vertical; min-height: 120px; }
   display: inline-flex; align-items: center; gap: 5px;
   padding: 4px 12px; border-radius: 20px;
   border: 1px solid var(--border); font-size: 12px;
-  cursor: pointer; background: #fff; color: var(--ink-mid); transition: all 0.15s;
+  cursor: pointer; background: var(--surface-2); color: var(--text); transition: all 0.15s;
 }
 .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
 .chip:hover:not(.on) { border-color: var(--accent); color: var(--accent); }
@@ -245,7 +251,7 @@ textarea { resize: vertical; min-height: 120px; }
 
 /* DETAIL PANEL */
 .detail-card {
-  background: #fff; border: 1px solid var(--tint-mid); border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
   padding: 22px 24px; margin-bottom: 20px; position: relative;
 }
 .detail-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 18px; }
@@ -284,9 +290,9 @@ textarea { resize: vertical; min-height: 120px; }
 .pb-item { padding: 9px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; color: var(--ink-mid); transition: all 0.12s; border: 1px solid transparent; }
 .pb-item:hover { background: var(--tint); border-color: var(--tint-mid); }
 .pb-item.active { background: var(--tint); border-color: var(--accent); color: var(--accent); font-weight: 600; }
-.pb-content { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 24px 28px; min-height: 300px; font-size: 13.5px; line-height: 1.65; overflow-x: auto; }
-.pb-content h1 { font-family: Georgia, serif; font-weight: normal; font-size: 20px; color: var(--accent-dark); margin: 0 0 16px; }
-.pb-content h2 { font-family: Georgia, serif; font-weight: normal; font-size: 16px; color: var(--accent-dark); margin: 18px 0 8px; }
+.pb-content { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 24px 28px; min-height: 300px; font-size: 13.5px; line-height: 1.65; overflow-x: auto; color: var(--text); }
+.pb-content h1 { font-family: Georgia, serif; font-weight: normal; font-size: 20px; color: var(--accent); margin: 0 0 16px; }
+.pb-content h2 { font-family: Georgia, serif; font-weight: normal; font-size: 16px; color: var(--accent); margin: 18px 0 8px; }
 .pb-content h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-mid); margin: 14px 0 6px; font-weight: 600; }
 .pb-content ul, .pb-content ol { padding-left: 22px; margin: 8px 0; }
 .pb-content li { margin: 4px 0; }
@@ -294,6 +300,27 @@ textarea { resize: vertical; min-height: 120px; }
 .pb-content hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 .pb-content strong { font-weight: 600; }
 .pb-content code { font-family: ui-monospace, monospace; font-size: 12px; background: var(--tint); padding: 1px 4px; border-radius: 3px; }
+
+/* LIGHT DETAIL AND PLAYBOOK SURFACES: explicit dark text avoids inherited dark-theme colors. */
+.detail-card { background: #f8fafc; border-color: #cbd5e1; color: #172033; }
+.detail-card .muted, .detail-card .ds-label { color: #52647d; }
+.detail-card .ds-val { color: #172033; }
+.detail-card .b-gray { background: #e8eef8; color: #40516c; }
+.detail-card .btn-outline { border-color: #93a4bd; color: #26344b; }
+.detail-card .btn-outline:hover { background: #e8eef8; border-color: #7168ff; color: #3e3a91; }
+.detail-card .card { background: #eef3f8; border-color: #cbd5e1; }
+.detail-card .detail-close { color: #40516c; }
+.detail-card .detail-close:hover { background: #e8eef8; }
+.detail-explanation { font-size: 12.5px; padding: 5px 10px; background: #101621; color: #f5f7ff; border-radius: 4px; border: 1px solid #303b50; }
+.detail-stale { color: #8a4b00; font-weight: 600; }
+.detail-kill-label { color: #b4233c !important; }
+.detail-kill-item { color: #8a4b00; }
+.pb-content { background: #f8fafc; border-color: #cbd5e1; color: #172033; }
+.pb-content h1, .pb-content h2 { color: #3e3a91; }
+.pb-content h3 { color: #52647d; }
+.pb-content a { color: #3e3a91; }
+.pb-content code { background: #e8eef8; }
+::selection { background: rgba(113, 104, 255, 0.58); color: #fff; }
 
 /* EMPTY + LOADING */
 .empty { text-align: center; padding: 60px 20px; color: var(--ink-mid); }
@@ -312,6 +339,32 @@ textarea { resize: vertical; min-height: 120px; }
 .sm { font-size: 12px; }
 .mono { font-family: ui-monospace, monospace; font-size: 11px; }
 .bold { font-weight: 600; }
+
+/* DASHBOARD RESTORATION */
+.dash-hero { margin: 4px 0 30px; }
+.dash-hero h2 { font-size: 33px; letter-spacing: -0.04em; line-height: 1.15; margin-bottom: 9px; }
+.dash-hero p { color: var(--ink-mid); font-size: 16px; }
+.dash-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin-bottom: 42px; }
+.dash-action { min-height: 304px; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; padding: 26px 22px; }
+.dash-action i { color: #8d86ff; font-size: 37px; margin-bottom: 18px; }
+.dash-action h3 { font-size: 18px; margin-bottom: 10px; }
+.dash-action p { color: var(--ink-mid); line-height: 1.45; min-height: 58px; margin-bottom: 16px; }
+.dash-action .btn { margin-top: auto; }
+.metric-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; border-radius: 8px; overflow: hidden; background: var(--border); border: 1px solid var(--border); }
+.metric { background: var(--surface); text-align: center; padding: 27px 14px; }
+.metric strong { display: block; font-size: 31px; letter-spacing: -0.04em; }
+.metric span { color: var(--ink-mid); font-size: 12px; }
+.metric.bear strong { color: var(--danger); }.metric.base strong { color: var(--warn); }.metric.bull strong { color: var(--success); }
+.tool-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(310px, .65fr); gap: 20px; }
+.stream-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.stream-card { min-height: 175px; display: flex; flex-direction: column; gap: 10px; }
+.stream-card h3 { font-size: 15px; line-height: 1.3; }.stream-card p { color: var(--ink-mid); font-size: 12px; }
+.stream-meta { display: flex; justify-content: space-between; color: var(--ink-mid); font-size: 12px; margin-top: auto; }
+.form-stack { display: grid; gap: 14px; }.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.list-table { width: 100%; border-collapse: collapse; }.list-table th,.list-table td { padding: 12px 10px; border-bottom: 1px solid var(--border); text-align: left; font-size: 13px; }.list-table th { color: var(--ink-mid); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }.list-table td:last-child,.list-table th:last-child { text-align: right; }
+.empty-inline { color: var(--ink-mid); padding: 18px 0; }.success-note { color: var(--success); font-size: 13px; margin-top: 12px; }
+@media (max-width: 900px) { .dash-grid { grid-template-columns: repeat(2, 1fr); }.stream-grid { grid-template-columns: repeat(2, 1fr); }.tool-grid { grid-template-columns: 1fr; }.nav-brand { padding: 0 16px; }.nav-status { display: none; } }
+@media (max-width: 600px) { main { padding: 28px 16px 48px; }.dash-grid,.stream-grid,.metric-strip,.form-row { grid-template-columns: 1fr; }.dash-hero h2 { font-size: 27px; } .nav { min-width: max-content; } }
 </style>
 </head>
 <body x-data="app()" x-init="init()">
@@ -319,27 +372,50 @@ textarea { resize: vertical; min-height: 120px; }
 <!-- NAV -->
 <nav>
   <div class="nav-brand">
-    <h1>Passive Income<br>Analyzer</h1>
+    <h1><i class="fa-solid fa-sack-dollar brand-mark" aria-hidden="true"></i><span class="brand-pia">PIA</span>Passive Income Analyzer</h1>
     <p>personal · v0.1</p>
   </div>
   <div class="nav-items">
-    <div class="nav-item" :class="{ active: tab==='profile' }" @click="tab='profile'">
+    <div class="nav-item" role="button" tabindex="0" :class="{ active: tab==='dashboard' }" @click="tab='dashboard'; loadDashboard()" @keydown.enter="tab='dashboard'; loadDashboard()" @keydown.space.prevent="tab='dashboard'; loadDashboard()">
+      <i class="fa-solid fa-chart-line nav-icon" aria-hidden="true"></i> Dashboard
+    </div>
+    <div class="nav-item" role="button" tabindex="0" :class="{ active: tab==='profile' }" @click="tab='profile'" @keydown.enter="tab='profile'" @keydown.space.prevent="tab='profile'">
+      <i class="fa-solid fa-magnifying-glass-chart nav-icon" aria-hidden="true"></i> New Analysis
+    </div>
+    <div class="nav-item" data-analysis-nav role="button" tabindex="0" :class="{ active: tab==='profile' }" @click="tab='profile'" @keydown.enter="tab='profile'" @keydown.space.prevent="tab='profile'">
       <span class="nav-icon">◎</span> Profile
     </div>
-    <div class="nav-item" :class="{ active: tab==='results', locked: !results }" @click="if(results) tab='results'">
+    <div class="nav-item" data-analysis-nav role="button" :tabindex="results ? 0 : -1" :aria-disabled="!results" :class="{ active: tab==='results', locked: !results }" @click="if(results) tab='results'" @keydown.enter="if(results) tab='results'" @keydown.space.prevent="if(results) tab='results'">
       <span class="nav-icon">≡</span> Results
     </div>
-    <div class="nav-item" :class="{ active: tab==='portfolio', locked: !results }" @click="if(results) tab='portfolio'">
+    <div class="nav-item" data-analysis-nav role="button" :tabindex="results ? 0 : -1" :aria-disabled="!results" :class="{ active: tab==='portfolio', locked: !results }" @click="if(results) tab='portfolio'" @keydown.enter="if(results) tab='portfolio'" @keydown.space.prevent="if(results) tab='portfolio'">
       <span class="nav-icon">◑</span> Portfolio
     </div>
-    <div class="nav-item" :class="{ active: tab==='playbooks', locked: !results }" @click="if(results) tab='playbooks'">
+    <div class="nav-item" data-analysis-nav role="button" :tabindex="results ? 0 : -1" :aria-disabled="!results" :class="{ active: tab==='playbooks', locked: !results }" @click="if(results) tab='playbooks'" @keydown.enter="if(results) tab='playbooks'" @keydown.space.prevent="if(results) tab='playbooks'">
       <span class="nav-icon">▤</span> Playbooks
+    </div>
+    <div class="nav-item" role="button" tabindex="0" :class="{ active: tab==='streams' }" @click="tab='streams'; loadStreams()" @keydown.enter="tab='streams'; loadStreams()" @keydown.space.prevent="tab='streams'; loadStreams()">
+      <i class="fa-solid fa-layer-group nav-icon" aria-hidden="true"></i> Streams
+    </div>
+    <div class="nav-item" role="button" tabindex="0" :class="{ active: tab==='tracker' }" @click="tab='tracker'; loadTracker()" @keydown.enter="tab='tracker'; loadTracker()" @keydown.space.prevent="tab='tracker'; loadTracker()">
+      <i class="fa-solid fa-receipt nav-icon" aria-hidden="true"></i> Income Tracker
+    </div>
+    <div class="nav-item" role="button" tabindex="0" :class="{ active: tab==='runs' }" @click="tab='runs'; loadRuns()" @keydown.enter="tab='runs'; loadRuns()" @keydown.space.prevent="tab='runs'; loadRuns()">
+      <i class="fa-solid fa-clock-rotate-left nav-icon" aria-hidden="true"></i> Past Runs
+    </div>
+    <div class="nav-item" role="button" tabindex="0" :class="{ active: tab==='reverse' }" @click="tab='reverse'" @keydown.enter="tab='reverse'" @keydown.space.prevent="tab='reverse'">
+      <i class="fa-solid fa-calculator nav-icon" aria-hidden="true"></i> Reverse Solver
     </div>
   </div>
   <div class="nav-status">
     <template x-if="results">
       <span><span class="dot"></span><span x-text="results.ranked_streams.filter(s=>!s.disqualified).length"></span> streams ranked</span>
     </template>
+    <div class="r-controls" x-show="results">
+      <button class="btn btn-outline btn-sm" @click="tab='portfolio'">View Portfolio</button>
+      <button class="btn btn-outline btn-sm" @click="tab='playbooks'">Open Playbooks</button>
+      <button class="btn btn-outline btn-sm" @click="tab='dashboard'">Dashboard</button>
+    </div>
     <template x-if="!results">
       <span><span class="dot off"></span>no analysis</span>
     </template>
@@ -349,17 +425,74 @@ textarea { resize: vertical; min-height: 120px; }
 <!-- MAIN -->
 <main>
 
+  <!-- DASHBOARD TAB -->
+  <section class="section" :class="{ active: tab==='dashboard' }">
+    <div class="dash-hero">
+      <h2>Welcome to Your Passive Income Dashboard</h2>
+      <p>Analyze, track, and grow your passive income streams — <span x-text="streamCatalog.length || 36"></span> strategies available.</p>
+    </div>
+    <div class="dash-grid">
+      <article class="card dash-action"><i class="fa-solid fa-magnifying-glass-chart" aria-hidden="true"></i><h3>New Analysis</h3><p>Answer six questions and receive a personalized, risk-aware portfolio.</p><button class="btn btn-primary" @click="tab='profile'">Start Analysis</button></article>
+      <article class="card dash-action"><i class="fa-solid fa-chart-column" aria-hidden="true"></i><h3>Browse Streams</h3><p>Explore the catalog by yield, risk, passivity, and maintenance demand.</p><button class="btn btn-outline" @click="tab='streams'; loadStreams()">Browse All</button></article>
+      <article class="card dash-action"><i class="fa-solid fa-money-bill-trend-up" aria-hidden="true"></i><h3>Log Income</h3><p>Record real-world results and keep the plan grounded in actual numbers.</p><button class="btn btn-outline" @click="tab='tracker'; loadTracker()">Open Tracker</button></article>
+      <article class="card dash-action"><i class="fa-solid fa-calculator" aria-hidden="true"></i><h3>Reverse Solver</h3><p>Estimate the capital required to support a monthly income target.</p><button class="btn btn-outline" @click="tab='reverse'">Calculate</button></article>
+    </div>
+    <h2 class="page-title" style="margin-bottom:16px;">Latest Analysis</h2>
+    <div class="metric-strip">
+      <div class="metric bear"><strong x-text="money(latestMetrics.bear)">$0</strong><span>Bear / month</span></div>
+      <div class="metric base"><strong x-text="money(latestMetrics.base)">$0</strong><span>Base / month</span></div>
+      <div class="metric bull"><strong x-text="money(latestMetrics.bull)">$0</strong><span>Bull / month</span></div>
+      <div class="metric"><strong x-text="money(latestMetrics.deployed)">$0</strong><span>Capital Deployed</span></div>
+    </div>
+    <p class="muted sm mt" x-text="latestMetrics.caption">Run an analysis to see your latest portfolio snapshot.</p>
+  </section>
+
+  <!-- STREAMS TAB -->
+  <section class="section" :class="{ active: tab==='streams' }">
+    <div class="page-title">Income Streams</div><div class="page-sub">Compare strategies before committing time or capital.</div>
+    <div class="r-controls"><select x-model="streamFilter" @change="loadStreams()"><option value="">All categories</option><option value="paper">Paper assets</option><option value="real_asset">Real assets</option><option value="digital">Digital</option><option value="content">Content</option><option value="commerce">Commerce</option><option value="local_physical">Local physical</option></select><span class="muted sm" x-text="filteredCatalog().length + ' strategies'">Loading strategies…</span></div>
+    <div class="stream-grid">
+      <template x-for="stream in filteredCatalog()" :key="stream.stream_id"><article class="card stream-card"><span class="badge b-gray" x-text="stream.category.replace('_',' ')"></span><h3 x-text="stream.name"></h3><p x-text="stream.yield_unit === 'annual_pct_on_capital' ? 'Base yield: ' + stream.yield_base.toFixed(1) + '% annual' : 'Base yield: $' + stream.yield_base.toLocaleString() + '/mo'"></p><div class="stream-meta"><span x-text="'PI ' + stream.passivity_index + '/10'"></span><span x-text="stream.maintenance_hours_per_month.toFixed(1) + 'h/mo'"></span></div><div class="chip-row"><span class="badge b-gray" x-text="'Public face: ' + stream.public_face_requirement"></span><span class="badge b-gray" x-text="'Support: ' + stream.customer_support_requirement"></span><span class="badge b-warn" x-show="stream.is_stale">Stale data</span></div><p class="muted sm mt" x-text="'Yield as of: ' + (stream.yield_as_of || 'not provided')"></p><p class="muted sm" x-text="stream.sources_note || 'No source note provided.'"></p><p class="muted sm" x-text="stream.data_freshness ? 'Data freshness: ' + stream.data_freshness : 'Data freshness: not provided'"></p></article></template>
+    </div>
+  </section>
+
+  <!-- TRACKER TAB -->
+  <section class="section" :class="{ active: tab==='tracker' }">
+    <div class="page-title">Income Tracker</div><div class="page-sub">Log real income, fees, and time to compare the plan against reality.</div>
+    <div class="tool-grid"><div class="card"><div class="card-title">Add income entry</div><div class="form-stack"><div class="form-row"><div class="fg"><label>Stream</label><select x-model="trackerForm.stream_id"><option value="">Choose a stream</option><template x-for="stream in streamCatalog" :key="stream.stream_id"><option :value="stream.stream_id" x-text="stream.name"></option></template></select></div><div class="fg"><label>Gross income ($)</label><input type="number" min="0" x-model.number="trackerForm.gross_usd"></div></div><div class="form-row"><div class="fg"><label>Fees ($)</label><input type="number" min="0" x-model.number="trackerForm.fees_usd"></div><div class="fg"><label>Hours spent</label><input type="number" min="0" step="0.25" x-model.number="trackerForm.hours"></div></div><div class="fg"><label>Notes (optional)</label><input type="text" maxlength="2000" x-model="trackerForm.notes" placeholder="What changed this period?"></div><div><button class="btn btn-primary" :disabled="trackerSaving || !trackerForm.stream_id" @click="saveTracker()"><span x-text="trackerSaving ? 'Saving…' : 'Log income'"></span></button><p class="success-note" x-show="trackerNotice" x-text="trackerNotice"></p></div></div></div><div class="card"><div class="card-title">Tracker summary</div><div class="metric-strip" style="grid-template-columns:1fr 1fr;"><div class="metric"><strong x-text="money(trackerSummary.total_net_usd)">$0</strong><span>Net logged</span></div><div class="metric"><strong x-text="trackerSummary.total_hours">0</strong><span>Hours logged</span></div></div><p class="muted sm mt">Recent entries feed the CLI drift checks as well.</p></div></div>
+    <div class="card"><div class="card-title">Recent income</div><template x-if="!trackerSummary.entries.length"><p class="empty-inline">No income entries yet. Start with your first real result above.</p></template><table class="list-table" x-show="trackerSummary.entries.length"><thead><tr><th>Date</th><th>Stream</th><th>Net</th><th>Hours</th></tr></thead><tbody><template x-for="entry in trackerSummary.entries" :key="entry.id"><tr><td x-text="entry.date"></td><td x-text="entry.stream_id"></td><td x-text="money(entry.net_usd)"></td><td x-text="entry.hours"></td></tr></template></tbody></table></div>
+  </section>
+
+  <!-- RUNS TAB -->
+  <section class="section" :class="{ active: tab==='runs' }">
+    <div class="page-title">Past Runs</div><div class="page-sub">Saved command-line analyses appear here for easy comparison.</div>
+    <div class="card"><template x-if="!savedRuns.length"><p class="empty-inline">No saved runs yet. Run <code>pia analyze</code> from the CLI to create a durable export.</p></template><table class="list-table" x-show="savedRuns.length"><thead><tr><th>Date</th><th>Profile</th><th>Projected base / month</th></tr></thead><tbody><template x-for="run in savedRuns" :key="run.run_id"><tr><td x-text="run.date"></td><td x-text="run.profile_id"></td><td x-text="money(run.projected_base)"></td></tr></template></tbody></table></div>
+  </section>
+
+  <!-- REVERSE SOLVER TAB -->
+  <section class="section" :class="{ active: tab==='reverse' }">
+    <div class="page-title">Reverse Solver</div><div class="page-sub">Model a base-case capital requirement. Results are planning estimates, not a guarantee.</div>
+    <div class="tool-grid"><div class="card"><div class="card-title">Your target</div><div class="form-stack"><div class="form-row"><div class="fg"><label>Target monthly income ($)</label><input type="number" min="1" x-model.number="reverseForm.target_monthly_usd"></div><div class="fg"><label>Time horizon (months)</label><input type="number" min="1" max="600" x-model.number="reverseForm.months"></div></div><div class="form-row"><div class="fg"><label>Expected annual yield (%)</label><input type="number" min="0" max="100" step="0.1" x-model.number="reverseForm.annual_yield_pct"></div><div class="fg"><label>Monthly contribution ($)</label><input type="number" min="0" x-model.number="reverseForm.monthly_contrib"></div></div><button class="btn btn-primary" @click="solveReverse()">Calculate requirement</button></div></div><div class="card"><div class="card-title">Base-case result</div><template x-if="reverseResult"><div><div class="metric base"><strong x-text="money(reverseResult.required_principal)"></strong><span>Estimated required principal</span></div><p class="muted sm mt" x-text="reverseResult.note"></p></div></template><template x-if="!reverseResult"><p class="empty-inline">Enter an income target to calculate a starting estimate.</p></template></div></div>
+  </section>
+
   <!-- PROFILE TAB -->
   <section class="section" :class="{ active: tab==='profile' }">
     <div class="page-title">Your Profile</div>
     <div class="page-sub">Configure your situation, or describe it in plain English.</div>
 
     <div class="mode-bar">
-      <div class="mode-tab" :class="{ active: mode==='form' }" @click="mode='form'">Structured Form</div>
-      <div class="mode-tab" :class="{ active: mode==='ai' }" @click="mode='ai'">AI Intake</div>
+      <div class="mode-tab" role="button" tabindex="0" :class="{ active: mode==='form' }" @click="mode='form'" @keydown.enter="mode='form'" @keydown.space.prevent="mode='form'">Structured Form</div>
+      <div class="mode-tab" role="button" tabindex="0" :class="{ active: mode==='ai' }" @click="mode='ai'" @keydown.enter="mode='ai'" @keydown.space.prevent="mode='ai'">Smart Intake</div>
     </div>
 
     <div x-show="mode==='form'">
+
+      <template x-if="aiNotice">
+        <div class="alert alert-ok">
+          <span class="ai">✓</span>
+          <div><span x-text="aiNotice"></span> Review the fields below, then click "Run Analysis".</div>
+        </div>
+      </template>
 
       <div class="card">
         <div class="card-title">Capital &amp; Financial</div>
@@ -507,7 +640,7 @@ textarea { resize: vertical; min-height: 120px; }
             <span x-show="!loading">Extract &amp; Analyze →</span>
             <span x-show="loading">Processing…</span>
           </button>
-          <span class="muted sm">Requires ANTHROPIC_API_KEY in .env</span>
+          <span class="muted sm">Private local parsing works offline · add ANTHROPIC_API_KEY for enhanced extraction</span>
         </div>
       </div>
       <template x-if="aiError">
@@ -576,11 +709,18 @@ textarea { resize: vertical; min-height: 120px; }
                 <div class="ds-label" style="margin-bottom:6px;">Score Explanation</div>
                 <div style="display:flex; flex-direction:column; gap:5px;">
                   <template x-for="(e, ei) in s.explain" :key="ei">
-                    <div style="font-size:12.5px; padding:5px 10px; background:var(--ground); border-radius:4px; border:1px solid var(--border);" x-text="e"></div>
+                    <div class="detail-explanation" x-text="e"></div>
                   </template>
                 </div>
               </div>
             </template>
+            <div class="card" style="padding:12px 14px; margin-bottom:16px;">
+              <div class="ds-label" style="margin-bottom:5px;">Data source &amp; freshness</div>
+              <div class="sm" x-text="'Yield as of: ' + (s.yield_as_of || 'not provided')"></div>
+              <div class="sm" x-text="s.data_freshness ? 'Data freshness: ' + s.data_freshness : 'Data freshness: not provided'"></div>
+              <div class="sm detail-stale" x-show="s.is_stale">Stale data — verify before acting.</div>
+              <div class="sm muted" style="margin-top:4px;" x-text="s.sources_note || 'No source note provided.'"></div>
+            </div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
               <template x-if="s.startup_checklist && s.startup_checklist.length">
                 <div>
@@ -603,9 +743,9 @@ textarea { resize: vertical; min-height: 120px; }
                 </template>
                 <template x-if="s.kill_criteria && s.kill_criteria.length">
                   <div>
-                    <div class="ds-label" style="margin-bottom:6px; color:var(--danger);">Kill Criteria</div>
+                    <div class="ds-label detail-kill-label" style="margin-bottom:6px;">Kill Criteria</div>
                     <template x-for="(k, ki) in s.kill_criteria" :key="ki">
-                      <div class="sm" style="margin:3px 0; color:var(--warn);" x-text="'✕ ' + k"></div>
+                      <div class="sm detail-kill-item" style="margin:3px 0;" x-text="'✕ ' + k"></div>
                     </template>
                   </div>
                 </template>
@@ -646,6 +786,7 @@ textarea { resize: vertical; min-height: 120px; }
                   <td>
                     <div class="bold" x-text="s.name"></div>
                     <div class="mono muted" x-text="s.stream_id"></div>
+                    <div class="chip-row" style="margin-top:4px;"><span class="badge b-gray" x-text="'Public face: ' + s.public_face_requirement"></span><span class="badge b-gray" x-text="'Support: ' + s.customer_support_requirement"></span></div>
                     <template x-if="s.is_stale">
                       <span class="badge b-warn" style="margin-top:3px;">Unverified</span>
                     </template>
@@ -847,19 +988,30 @@ function app() {
   // Chart instances live outside Alpine's reactive proxy to prevent deep-proxying
   let _donut = null, _proj = null;
   return {
-    tab: 'profile',
+    tab: 'dashboard',
     mode: 'form',
     loading: false,
     results: null,
     analysisError: null,
     aiText: '',
     aiError: null,
+    aiNotice: null,
     catFilter: '',
     showDisq: false,
     expandedId: null,
     selectedPB: null,
     pbContent: '',
     pbLoading: false,
+    streamCatalog: [],
+    streamFilter: '',
+    savedRuns: [],
+    trackerSaving: false,
+    trackerNotice: '',
+    trackerSummary: { entries: [], total_net_usd: 0, total_hours: 0 },
+    trackerForm: { stream_id: '', gross_usd: 0, fees_usd: 0, hours: 0, notes: '' },
+    reverseForm: { target_monthly_usd: 1000, months: 24, annual_yield_pct: 5, monthly_contrib: 0 },
+    reverseResult: null,
+    latestMetrics: { bear: 0, base: 0, bull: 0, deployed: 0, caption: 'Run an analysis to see your latest portfolio snapshot.' },
 
     skillKeys: ['ai_ml','content','video','software','marketing','real_estate','copywriting','design','sales','ops_automation'],
 
@@ -891,6 +1043,79 @@ function app() {
           }
         }, 0);
       });
+      this.loadDashboard();
+    },
+
+    money(value) {
+      return '$' + Number(value || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
+    },
+
+    async request(url, options) {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Request failed' }));
+        throw new Error(error.detail || 'Request failed');
+      }
+      return response.json();
+    },
+
+    async loadDashboard() {
+      await Promise.all([this.loadStreams(), this.loadRuns(), this.loadTracker()]);
+    },
+
+    async loadStreams() {
+      try {
+        this.streamCatalog = await this.request('/api/streams');
+      } catch (error) {
+        console.error('Could not load streams', error);
+      }
+    },
+
+    filteredCatalog() {
+      return this.streamCatalog.filter(stream => !this.streamFilter || stream.category === this.streamFilter);
+    },
+
+    async loadRuns() {
+      try {
+        const data = await this.request('/api/runs');
+        this.savedRuns = data.runs || [];
+      } catch (error) {
+        console.error('Could not load saved runs', error);
+      }
+    },
+
+    async loadTracker() {
+      try {
+        this.trackerSummary = await this.request('/api/tracker');
+      } catch (error) {
+        console.error('Could not load tracker', error);
+      }
+    },
+
+    async saveTracker() {
+      this.trackerSaving = true;
+      this.trackerNotice = '';
+      try {
+        this.trackerSummary = await this.request('/api/tracker', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.trackerForm),
+        });
+        this.trackerNotice = 'Income entry saved.';
+        this.trackerForm = { stream_id: '', gross_usd: 0, fees_usd: 0, hours: 0, notes: '' };
+      } catch (error) {
+        this.trackerNotice = error.message;
+      } finally {
+        this.trackerSaving = false;
+      }
+    },
+
+    async solveReverse() {
+      try {
+        this.reverseResult = await this.request('/api/reverse-solve', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.reverseForm),
+        });
+      } catch (error) {
+        this.reverseResult = { required_principal: 0, note: error.message };
+      }
     },
 
     renderCharts() {
@@ -949,6 +1174,13 @@ function app() {
           throw new Error(err.detail || 'Analysis failed');
         }
         this.results = await r.json();
+        this.latestMetrics = {
+          bear: this.results.monthly_projections.bear,
+          base: this.results.monthly_projections.base,
+          bull: this.results.monthly_projections.bull,
+          deployed: this.results.portfolio.total_deployed,
+          caption: 'Current profile · ' + this.results.ranked_streams.filter(s => !s.disqualified).slice(0, 3).map(s => s.name).join(', '),
+        };
         this.expandedId = null;
         this.tab = 'results';
       } catch(e) {
@@ -959,7 +1191,63 @@ function app() {
     },
 
     async runAIIntake() {
-      this.aiError = 'AI intake from the web form is not yet wired to the backend. Use the Structured Form, or run `pia chat` in the terminal for full AI intake via Claude.';
+      this.loading = true;
+      this.aiError = null;
+      this.aiNotice = null;
+      try {
+        const r = await fetch('/api/intake', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: this.aiText }),
+        });
+        if (!r.ok) {
+          const err = await r.json().catch(() => ({ detail: 'Server error' }));
+          throw new Error(err.detail || 'Intake failed');
+        }
+        const profile = await r.json();
+        this.applyExtractedProfile(profile);
+        this.aiNotice = profile.intake_source === 'offline'
+          ? 'Profile parsed locally from your description.'
+          : profile.intake_source === 'offline_fallback'
+            ? 'The AI service is temporarily unavailable, so your profile was parsed locally.'
+            : 'Profile extracted from your description.';
+        this.mode = 'form';
+      } catch(e) {
+        this.aiError = e.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    applyExtractedProfile(p) {
+      const fin = p.financial || {};
+      const cap = fin.liquid_deployable_usd || {};
+      if (cap.min !== undefined) this.f.capital_min = cap.min;
+      if (cap.max !== undefined) this.f.capital_max = cap.max;
+      if (fin.emergency_fund_months !== undefined) this.f.emergency_months = fin.emergency_fund_months;
+      if (fin.high_interest_debt_usd !== undefined) this.f.debt_usd = fin.high_interest_debt_usd;
+      if (fin.target_monthly_passive_usd !== undefined) this.f.target_monthly = fin.target_monthly_passive_usd;
+      if (fin.target_deadline_months !== undefined) this.f.deadline_months = fin.target_deadline_months;
+
+      const t = p.time || {};
+      if (t.setup_hours_per_week_90d !== undefined) this.f.setup_hrs = t.setup_hours_per_week_90d;
+      if (t.maintenance_hours_per_month_steady !== undefined) this.f.maint_hrs = t.maintenance_hours_per_month_steady;
+
+      const risk = p.risk || {};
+      if (risk.score_1_to_10 !== undefined) this.f.risk_score = risk.score_1_to_10;
+      if (Array.isArray(risk.exclusions)) this.f.exclusions = risk.exclusions;
+
+      const skills = p.skills || {};
+      Object.keys(this.f.skills).forEach(k => {
+        if (skills[k] !== undefined) this.f.skills[k] = skills[k];
+      });
+
+      const goals = p.goals || {};
+      if (goals.primary) this.f.primary_goal = goals.primary;
+
+      const c = p.constraints || {};
+      this.f.no_public_face = !!c.no_public_face;
+      this.f.no_cs = !!c.no_customer_support;
     },
 
     filteredStreams() {

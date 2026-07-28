@@ -3,6 +3,8 @@
   "name": "eBooks (Self-Published, AI-Assisted)",
   "category": "digital",
   "passivity_index": 8,
+  "public_face_requirement": "optional",
+  "customer_support_requirement": "light",
   "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 200] },
   "setup": { "hours": 20, "calendar_weeks": 3 },
   "maintenance_hours_per_month": { "steady": 1, "year_1_avg": 3 },

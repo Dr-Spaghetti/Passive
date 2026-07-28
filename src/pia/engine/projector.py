@@ -17,10 +17,19 @@ def project_paper(
     monthly_contrib: float,
     months: int,
     reinvest: bool,
+    scenario_yields: dict[str, float] | None = None,
 ) -> dict[str, dict[str, float]]:
+    """Project income for a paper asset.
+
+    ``annual_yield_pct`` remains the base-yield default for backwards
+    compatibility. Callers with bear/base/bull estimates can pass
+    ``scenario_yields`` so the projection reflects those estimates rather than
+    a generic multiplier.
+    """
     results = {}
     for scenario, mult in [("bear", 0.80), ("base", 1.00), ("bull", 1.20)]:
-        r = (annual_yield_pct * mult) / 100 / 12
+        scenario_yield = (scenario_yields or {}).get(scenario, annual_yield_pct * mult)
+        r = scenario_yield / 100 / 12
         data: dict[str, float] = {}
         balance = principal
         for m in range(1, months + 1):

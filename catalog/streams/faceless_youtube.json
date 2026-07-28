@@ -3,6 +3,8 @@
   "name": "Faceless YouTube Channel (AI-Assisted)",
   "category": "content",
   "passivity_index": 6,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "light",
   "capital_usd": { "min": 0, "typical": 100, "scale_tiers": [500, 2000] },
   "setup": { "hours": 40, "calendar_weeks": 8 },
   "maintenance_hours_per_month": { "steady": 8, "year_1_avg": 15 },

@@ -3,6 +3,8 @@
   "name": "White-Label SaaS Reselling",
   "category": "digital",
   "passivity_index": 5,
+  "public_face_requirement": "optional",
+  "customer_support_requirement": "ongoing",
   "capital_usd": { "min": 200, "typical": 500, "scale_tiers": [2000, 10000] },
   "setup": { "hours": 20, "calendar_weeks": 4 },
   "maintenance_hours_per_month": { "steady": 5, "year_1_avg": 8 },

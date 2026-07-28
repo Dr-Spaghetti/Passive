@@ -3,6 +3,8 @@
   "name": "Individual REITs (Direct Shares)",
   "category": "real_asset",
   "passivity_index": 8,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "none",
   "capital_usd": { "min": 100, "typical": 5000, "scale_tiers": [25000, 100000] },
   "setup": { "hours": 3, "calendar_weeks": 1 },
   "maintenance_hours_per_month": { "steady": 0.5, "year_1_avg": 1 },

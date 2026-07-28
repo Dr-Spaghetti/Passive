@@ -3,6 +3,8 @@
   "name": "Stock Video Footage (Shutterstock / Pond5)",
   "category": "digital",
   "passivity_index": 7,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "none",
   "capital_usd": { "min": 0, "typical": 100, "scale_tiers": [0, 500] },
   "setup": { "hours": 15, "calendar_weeks": 3 },
   "maintenance_hours_per_month": { "steady": 3, "year_1_avg": 5 },

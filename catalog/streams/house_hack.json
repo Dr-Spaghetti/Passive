@@ -3,6 +3,8 @@
   "name": "House Hacking (Owner-Occupied Rental)",
   "category": "real_asset",
   "passivity_index": 5,
+  "public_face_requirement": "required",
+  "customer_support_requirement": "ongoing",
   "capital_usd": { "min": 10000, "typical": 30000, "scale_tiers": [50000, 150000] },
   "setup": { "hours": 40, "calendar_weeks": 12 },
   "maintenance_hours_per_month": { "steady": 8, "year_1_avg": 12 },

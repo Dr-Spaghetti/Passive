@@ -4,12 +4,14 @@ from pydantic import BaseModel, Field, model_validator
 
 
 class Range(BaseModel):
-    min: float = 0.0
-    max: float = 0.0
+    min: float = Field(0.0, ge=0)
+    max: float = Field(0.0, ge=0)
     point: Optional[float] = None
 
     @model_validator(mode="after")
     def set_point(self) -> Range:
+        if self.min > self.max:
+            raise ValueError("minimum cannot exceed maximum")
         if self.point is None:
             self.point = (self.min + self.max) / 2
         return self
@@ -22,16 +24,16 @@ class Locale(BaseModel):
 
 
 class Audience(BaseModel):
-    email: int = 0
-    yt: int = 0
-    social_total: int = 0
+    email: int = Field(0, ge=0)
+    yt: int = Field(0, ge=0)
+    social_total: int = Field(0, ge=0)
 
 
 class ExistingAssets(BaseModel):
-    brokerage_usd: float = 0.0
-    retirement_usd: float = 0.0
-    rental_properties: int = 0
-    digital_products_live: int = 0
+    brokerage_usd: float = Field(0.0, ge=0)
+    retirement_usd: float = Field(0.0, ge=0)
+    rental_properties: int = Field(0, ge=0)
+    digital_products_live: int = Field(0, ge=0)
     audience: Audience = Field(default_factory=Audience)
     physical: list[str] = Field(default_factory=list)
 
@@ -45,23 +47,23 @@ class Tax(BaseModel):
 class Financial(BaseModel):
     liquid_deployable_usd: Range = Field(default_factory=Range)
     monthly_surplus_usd: Range = Field(default_factory=Range)
-    emergency_fund_months: float = 0.0
-    high_interest_debt_usd: float = 0.0
+    emergency_fund_months: float = Field(0.0, ge=0)
+    high_interest_debt_usd: float = Field(0.0, ge=0)
     existing_assets: ExistingAssets = Field(default_factory=ExistingAssets)
-    target_monthly_passive_usd: float = 0.0
-    target_deadline_months: int = 24
+    target_monthly_passive_usd: float = Field(0.0, ge=0)
+    target_deadline_months: int = Field(24, ge=1)
     tax: Tax = Field(default_factory=Tax)
 
 
 class TimeProfile(BaseModel):
-    setup_hours_per_week_90d: float = 0.0
-    maintenance_hours_per_month_steady: float = 0.0
+    setup_hours_per_week_90d: float = Field(0.0, ge=0)
+    maintenance_hours_per_month_steady: float = Field(0.0, ge=0)
     preferred_cadence: Literal["set_forget", "light_ops", "creative_ops"] = "light_ops"
 
 
 class Risk(BaseModel):
     score_1_to_10: int = Field(5, ge=1, le=10)
-    max_drawdown_tolerance_pct: float = 20.0
+    max_drawdown_tolerance_pct: float = Field(20.0, ge=0, le=100)
     liquidity_need: Literal["days", "months", "years"] = "months"
     exclusions: list[str] = Field(default_factory=list)
     preferred_classes: list[str] = Field(default_factory=list)
@@ -90,7 +92,7 @@ class Goals(BaseModel):
 class Constraints(BaseModel):
     no_public_face: bool = False
     no_customer_support: bool = False
-    max_platforms: int = 3
+    max_platforms: int = Field(3, ge=1)
     other: str = ""
 
 

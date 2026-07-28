@@ -3,6 +3,8 @@
   "name": "Equipment / Tool Rental (Peer-to-Peer)",
   "category": "local_physical",
   "passivity_index": 6,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "ongoing",
   "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [500, 5000] },
   "setup": { "hours": 5, "calendar_weeks": 1 },
   "maintenance_hours_per_month": { "steady": 3, "year_1_avg": 5 },

@@ -3,6 +3,8 @@
   "name": "Micro-SaaS (Small Software Tool)",
   "category": "digital",
   "passivity_index": 6,
+  "public_face_requirement": "optional",
+  "customer_support_requirement": "ongoing",
   "capital_usd": { "min": 0, "typical": 200, "scale_tiers": [500, 5000] },
   "setup": { "hours": 100, "calendar_weeks": 12 },
   "maintenance_hours_per_month": { "steady": 8, "year_1_avg": 15 },

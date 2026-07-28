@@ -3,6 +3,8 @@
   "name": "Storage Space Rental (Garage / Spare Room)",
   "category": "local_physical",
   "passivity_index": 8,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "light",
   "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 2000] },
   "setup": { "hours": 3, "calendar_weeks": 1 },
   "maintenance_hours_per_month": { "steady": 1, "year_1_avg": 2 },

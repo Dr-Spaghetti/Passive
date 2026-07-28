@@ -3,6 +3,8 @@
   "name": "Target-Date Retirement Fund",
   "category": "paper",
   "passivity_index": 10,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "none",
   "capital_usd": { "min": 1, "typical": 10000, "scale_tiers": [50000, 500000] },
   "setup": { "hours": 0.5, "calendar_weeks": 0.25 },
   "maintenance_hours_per_month": { "steady": 0, "year_1_avg": 0 },

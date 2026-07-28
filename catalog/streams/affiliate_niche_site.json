@@ -3,6 +3,8 @@
   "name": "Affiliate Niche Website / SEO Blog",
   "category": "content",
   "passivity_index": 6,
+  "public_face_requirement": "optional",
+  "customer_support_requirement": "none",
   "capital_usd": { "min": 50, "typical": 300, "scale_tiers": [1000, 5000] },
   "setup": { "hours": 60, "calendar_weeks": 12 },
   "maintenance_hours_per_month": { "steady": 5, "year_1_avg": 12 },

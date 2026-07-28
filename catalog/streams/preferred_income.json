@@ -3,6 +3,8 @@
   "name": "Preferred Stock / Fixed-Income Equities",
   "category": "paper",
   "passivity_index": 9,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "none",
   "capital_usd": { "min": 500, "typical": 10000, "scale_tiers": [50000, 200000] },
   "setup": { "hours": 2, "calendar_weeks": 0.5 },
   "maintenance_hours_per_month": { "steady": 0.2, "year_1_avg": 0.5 },

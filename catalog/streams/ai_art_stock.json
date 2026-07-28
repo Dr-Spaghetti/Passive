@@ -3,6 +3,8 @@
   "name": "AI-Generated Stock Photography / Illustrations",
   "category": "digital",
   "passivity_index": 7,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "none",
   "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 200] },
   "setup": { "hours": 10, "calendar_weeks": 2 },
   "maintenance_hours_per_month": { "steady": 2, "year_1_avg": 4 },

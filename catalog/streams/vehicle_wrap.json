@@ -3,6 +3,8 @@
   "name": "Vehicle Advertising Wrap",
   "category": "local_physical",
   "passivity_index": 9,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "light",
   "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 500] },
   "setup": { "hours": 2, "calendar_weeks": 2 },
   "maintenance_hours_per_month": { "steady": 0, "year_1_avg": 0.5 },

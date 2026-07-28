@@ -3,6 +3,8 @@
   "name": "Amazon KDP — Low-Content & AI-Assisted Books",
   "category": "digital",
   "passivity_index": 8,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "light",
   "capital_usd": { "min": 0, "typical": 0, "scale_tiers": [0, 200] },
   "setup": { "hours": 10, "calendar_weeks": 1 },
   "maintenance_hours_per_month": { "steady": 2, "year_1_avg": 5 },

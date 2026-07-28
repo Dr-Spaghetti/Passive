@@ -3,6 +3,8 @@
   "name": "Online Course (Teachable / Gumroad / Udemy)",
   "category": "digital",
   "passivity_index": 7,
+  "public_face_requirement": "optional",
+  "customer_support_requirement": "ongoing",
   "capital_usd": { "min": 0, "typical": 100, "scale_tiers": [500, 2000] },
   "setup": { "hours": 60, "calendar_weeks": 6 },
   "maintenance_hours_per_month": { "steady": 3, "year_1_avg": 8 },

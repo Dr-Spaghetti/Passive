@@ -14,9 +14,9 @@ class YieldRange(BaseModel):
 
 
 class TimeToFirstDollar(BaseModel):
-    bear: int = 0
-    base: int = 0
-    bull: int = 0
+    bear: int = Field(1, ge=1)
+    base: int = Field(1, ge=1)
+    bull: int = Field(1, ge=1)
 
 
 class StreamRisk(BaseModel):
@@ -50,6 +50,8 @@ class Stream(BaseModel):
     category: Literal["paper", "real_asset", "digital", "content", "commerce",
                        "credit_alt", "local_physical", "other"]
     passivity_index: int = Field(..., ge=0, le=10)
+    public_face_requirement: Literal["none", "optional", "required"]
+    customer_support_requirement: Literal["none", "light", "ongoing"]
     capital_usd: CapitalRange
     setup: SetupInfo
     maintenance_hours_per_month: MaintenanceInfo

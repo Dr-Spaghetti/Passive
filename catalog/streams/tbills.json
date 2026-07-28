@@ -3,6 +3,8 @@
   "name": "US Treasury Bills / T-Bills",
   "category": "paper",
   "passivity_index": 10,
+  "public_face_requirement": "none",
+  "customer_support_requirement": "none",
   "capital_usd": { "min": 100, "typical": 10000, "scale_tiers": [50000, 250000] },
   "setup": { "hours": 1, "calendar_weeks": 0.25 },
   "maintenance_hours_per_month": { "steady": 0.2, "year_1_avg": 0.5 },

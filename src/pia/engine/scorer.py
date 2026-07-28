@@ -133,6 +133,35 @@ from pia.schemas.profile import Profile
 from pia.schemas.stream import ScoredStream
 
 
+PREFERENCE_PENALTIES = {
+    "public_face": {"optional": 6.0, "required": 15.0},
+    "customer_support": {"light": 5.0, "ongoing": 12.0},
+}
+
+
+def preference_tradeoffs(profile: Profile, stream: Stream) -> tuple[float, list[str]]:
+    """Return personal-fit penalties without turning preferences into exclusions."""
+    penalty = 0.0
+    explanations: list[str] = []
+
+    if profile.constraints.no_public_face:
+        face_penalty = PREFERENCE_PENALTIES["public_face"].get(stream.public_face_requirement, 0.0)
+        penalty += face_penalty
+        if stream.public_face_requirement == "required":
+            explanations.append("Ranked lower because it typically requires a public face.")
+        elif stream.public_face_requirement == "optional":
+            explanations.append("Ranked slightly lower because it can benefit from a public face.")
+
+    if profile.constraints.no_customer_support:
+        support_penalty = PREFERENCE_PENALTIES["customer_support"].get(stream.customer_support_requirement, 0.0)
+        penalty += support_penalty
+        if stream.customer_support_requirement == "ongoing":
+            explanations.append("Ranked lower because it typically requires ongoing customer support.")
+        elif stream.customer_support_requirement == "light":
+            explanations.append("Ranked slightly lower because it typically needs light customer support.")
+
+    return penalty, explanations
+
 def score_stream(
     profile: Profile,
     stream: Stream,
@@ -174,7 +203,9 @@ def score_stream(
         "diversification":score_diversification_value(selected_tags, stream),
     }
 
-    fit = sum(WEIGHTS[k] * v for k, v in factors.items())
+    fit_before_preferences = sum(WEIGHTS[k] * v for k, v in factors.items())
+    preference_penalty, preference_explain = preference_tradeoffs(profile, stream)
+    fit = max(0.0, fit_before_preferences - preference_penalty)
 
     if stream.yield_.unit == "annual_pct_on_capital":
         yield_normalized = min(stream.yield_.base / 30, 1.0) * 100
@@ -186,6 +217,7 @@ def score_stream(
 
     explain = [
         f"Fit: {fit:.0f}/100 — best factors: {sorted(factors.items(), key=lambda x: -x[1])[:2]}",
+        *preference_explain,
         f"Main risk: {stream.risk.flags[0] if stream.risk.flags else 'see risk profile'}",
         f"First action: {stream.startup_checklist[0] if stream.startup_checklist else 'See playbook'}",
     ]

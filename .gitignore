@@ -7,3 +7,4 @@ dist/
 *.egg-info/
 .venv/
 .playwright-mcp/
+.test-tmp/
