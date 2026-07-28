@@ -116,3 +116,25 @@ Provider-generated output cannot be verified until the Anthropic account has API
 
 - `.venv/Scripts/python.exe -m pytest -q --basetemp .test-tmp-resume2` completed with **83 passed** (up from 79; the 4 new tests target the newly-validated fields).
 - `.venv/Scripts/python.exe -m compileall -q src tests` and `git diff --check` on the changed files completed with no errors.
+
+## 2026-07-28 - Fixed live Anthropic intake, invalidated by three separate bugs
+
+### Stack decision
+
+The user confirmed the Anthropic account now has usable credits, so the previously-deferred live provider path was exercised directly instead of assumed. It had never actually worked — three independent bugs were masking each other behind the safe offline fallback.
+
+### Adversarial findings and disposition
+
+- **Critical, resolved:** Both `intake.py` and `playbooks.py` called a nonexistent model id (`claude-sonnet-4-6`), which failed every request and was silently swallowed by the safety fallback. Corrected to `claude-sonnet-5`.
+- **Critical, resolved:** `response.content[0].text` assumed the first content block was always text, but Claude sometimes emits a `ThinkingBlock` first, raising `AttributeError` and triggering the same silent fallback. Fixed by selecting the block with `type == "text"` in both files.
+- **Critical, resolved:** The intake system prompt described the `Profile` schema in prose instead of providing it, so the model invented plausible-but-wrong field names (`"capital"` instead of `liquid_deployable_usd`, `"target_monthly_income"` instead of `financial.target_monthly_passive_usd`, `skills` as a string array instead of a rated object). Pydantic silently dropped the unrecognized keys, so `intake_source` reported `"provider"` while the extracted profile was actually empty defaults. Replaced free-text JSON prompting with a forced tool call whose `input_schema` is `Profile.model_json_schema()` directly, eliminating field-name drift by construction.
+- **Medium, resolved:** Even with the tool-use fix, the model occasionally still emits a wrong-type value for a field with nothing to report (e.g. `skills: []`) or an out-of-enum string for a `Literal` field. Added `_coerce_provider_json` to normalize these back to schema defaults instead of failing the whole extraction, plus explicit enum-token instructions in the prompt.
+
+### Independent evidence
+
+- Direct calls to `_provider_intake` (bypassing the app's fallback) reproduced each bug in isolation before the corresponding fix, confirming root cause rather than assuming it.
+- After all fixes: 8/8 repeated calls with an ambiguous prompt succeeded; 6/6 across three varied real-world phrasings succeeded; 4/4 direct `_provider_playbook` calls succeeded.
+- A full HTTP round trip through the live `pia serve` process (`/api/intake` → `/api/analyze`) correctly extracted capital, monthly target, deadline, and skills from free text and produced a ranked portfolio.
+- `.venv/Scripts/python.exe -m pytest -q` completed with **89 passed** (6 new regression tests in `tests/test_intake.py` covering the coercion helper).
+- `.venv/Scripts/python.exe -m compileall -q src tests` and `git diff --check` on the changed files completed with no errors.
+- `runs/runs.db` was cleared of verification-run rows after testing so the demo starts from an empty run history.

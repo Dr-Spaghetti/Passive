@@ -37,11 +37,12 @@ def _provider_playbook(profile: "Profile", stream: "Stream", api_key: str) -> st
     )
 
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=1500,
         messages=[{"role": "user", "content": prompt}],
     )
-    return response.content[0].text
+    text_block = next(block for block in response.content if block.type == "text")
+    return text_block.text
 
 
 def _static_playbook(stream: "Stream", provider_unavailable: bool = False) -> str:

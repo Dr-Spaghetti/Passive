@@ -1,5 +1,4 @@
 from __future__ import annotations
-import json
 import os
 import re
 from datetime import date
@@ -137,33 +136,77 @@ def _provider_intake(user_text: str, profile_id: str | None = None) -> "Profile"
     client = Anthropic(api_key=api_key)
     pid = profile_id or f"ai-intake-{date.today().isoformat()}"
 
-    system = (
-        "You are a passive income profile intake assistant. "
-        "Extract a structured profile from a free-text description. "
-        "Output ONLY valid JSON matching the Profile schema. No commentary. "
-        "Required top-level keys: profile_id, created_at, financial, time, risk, skills, goals, constraints. "
-        "Use ranges (min/max) for capital and surplus. Estimate missing fields conservatively. "
-        "Flag high-interest debt if mentioned. Set emergency_fund_months to 0 if not mentioned."
-    )
+    # Force the exact Profile field names via a tool call rather than asking the
+    # model to freehand JSON matching a schema it was only told about in prose —
+    # that let it invent plausible-but-wrong keys (e.g. "capital" instead of
+    # "liquid_deployable_usd") that pydantic silently ignored as unknown fields.
+    tool = {
+        "name": "record_profile",
+        "description": (
+            "Record the structured passive-income profile extracted from the user's "
+            "free-text description. Only fill fields you have explicit evidence for; "
+            "leave everything else at its schema default rather than guessing."
+        ),
+        "input_schema": Profile.model_json_schema(),
+    }
 
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=2000,
-        system=system,
+        tools=[tool],
+        tool_choice={"type": "tool", "name": "record_profile"},
         messages=[{
             "role": "user",
             "content": (
                 f"Extract a profile from this description. "
-                f"Set profile_id to '{pid}' and created_at to '{date.today().isoformat()}'.\n\n{user_text}"
+                f"Set profile_id to '{pid}' and created_at to '{date.today().isoformat()}'. "
+                f"Flag high-interest debt if mentioned; set emergency_fund_months to 0 if not "
+                f"mentioned.\n\n{user_text}"
             ),
         }],
     )
-    raw = response.content[0].text.strip()
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-    return Profile(**json.loads(raw.strip()))
+    tool_use = next(block for block in response.content if block.type == "tool_use")
+    return Profile(**_coerce_provider_json(tool_use.input))
+
+
+_OBJECT_SECTIONS = ("financial", "time", "risk", "skills", "goals", "constraints", "confidence", "locale")
+
+_ENUM_FIELDS = {
+    ("time", "preferred_cadence"): ({"set_forget", "light_ops", "creative_ops"}, "light_ops"),
+    ("risk", "liquidity_need"): ({"days", "months", "years"}, "months"),
+    ("goals", "primary"): ({"cash_flow", "wealth", "freedom", "legacy", "tax_efficiency"}, "cash_flow"),
+    ("confidence", "financial"): ({"high", "med", "low"}, "med"),
+    ("confidence", "time"): ({"high", "med", "low"}, "med"),
+    ("confidence", "skills"): ({"high", "med", "low"}, "med"),
+}
+
+
+def _coerce_provider_json(data: dict) -> dict:
+    """Repair occasional wrong-type or out-of-enum fields the model emits.
+
+    Models occasionally send a plain string for a section that must be an
+    object, `[]` for a field that must be an object or string, or descriptive
+    text for a field constrained to a fixed set of tokens. Rather than fail
+    the whole extraction over one malformed field, drop or normalize it back
+    to the schema's own conservative default so validation succeeds.
+    """
+    if isinstance(data.get("skills"), list):
+        data["skills"] = {}
+
+    for section in _OBJECT_SECTIONS:
+        if section in data and not isinstance(data[section], dict):
+            del data[section]
+
+    constraints = data.get("constraints")
+    if isinstance(constraints, dict) and isinstance(constraints.get("other"), list):
+        constraints["other"] = ""
+
+    for (section, field), (valid_values, default) in _ENUM_FIELDS.items():
+        section_data = data.get(section)
+        if isinstance(section_data, dict) and section_data.get(field) not in valid_values:
+            section_data[field] = default
+
+    return data
 
 
 def intake_from_text_with_source(user_text: str, profile_id: str | None = None) -> tuple["Profile", str]:
