@@ -32,10 +32,18 @@ def score_maintenance_fit(
     return score
 
 
+LIQUIDITY_NEED_PENALTIES = {
+    "days":   {"high": 0.0, "med": 15.0, "low": 35.0},
+    "months": {"high": 0.0, "med": 5.0,  "low": 15.0},
+    "years":  {"high": 0.0, "med": 0.0,  "low": 0.0},
+}
+
+
 def score_risk_alignment(
     user_risk: int,
     user_exclusions: list[str],
     stream: Stream,
+    liquidity_need: str = "months",
 ) -> float:
     for exc in user_exclusions:
         if exc in stream.exclusions_match:
@@ -50,8 +58,7 @@ def score_risk_alignment(
         overage = composite - max_composite
         base = max(0.0, 100.0 - overage * 35)
 
-    if stream.risk.liquidity == "low" and user_risk <= 4:
-        base -= 20
+    base -= LIQUIDITY_NEED_PENALTIES.get(liquidity_need, {}).get(stream.risk.liquidity, 0.0)
 
     return max(0.0, min(100.0, base))
 
@@ -196,7 +203,7 @@ def score_stream(
         "capital":        score_capital_fit(capital, stream),
         "maintenance":    maint_score,
         "setup":          min(100.0, 100 * (1 - stream.setup.hours / setup_budget)),
-        "risk":           score_risk_alignment(user_risk, profile.risk.exclusions, stream),
+        "risk":           score_risk_alignment(user_risk, profile.risk.exclusions, stream, profile.risk.liquidity_need),
         "skill":          score_skill_leverage(skills_dict, stream),
         "goal":           score_goal_alignment(profile.goals.primary, stream),
         "time_to_dollar": score_time_to_first_dollar(deadline_days, stream),
@@ -215,12 +222,19 @@ def score_stream(
     ras = fit * (yield_normalized / (1 + stream.risk_composite))
     effort_yield = (stream.yield_.base * capital / 12) / max(1, stream.maintenance_hours_per_month.steady)
 
+    liquidity_penalty = LIQUIDITY_NEED_PENALTIES.get(profile.risk.liquidity_need, {}).get(stream.risk.liquidity, 0.0)
+
     explain = [
         f"Fit: {fit:.0f}/100 — best factors: {sorted(factors.items(), key=lambda x: -x[1])[:2]}",
         *preference_explain,
         f"Main risk: {stream.risk.flags[0] if stream.risk.flags else 'see risk profile'}",
         f"First action: {stream.startup_checklist[0] if stream.startup_checklist else 'See playbook'}",
     ]
+    if liquidity_penalty > 0:
+        explain.append(
+            f"Ranked lower because you may need cash within {profile.risk.liquidity_need} "
+            f"but this stream has {stream.risk.liquidity} liquidity."
+        )
 
     return ScoredStream(
         stream=stream,

@@ -91,6 +91,29 @@ def test_risk_low_user_prefers_low_risk():
     assert score >= 80
 
 
+def test_liquidity_need_days_penalizes_low_liquidity_stream():
+    s = make_stream(risk={"principal_loss": "low", "platform": "low", "regulatory": "low",
+                          "liquidity": "low", "complexity": "low"})
+    days_score = score_risk_alignment(user_risk=5, user_exclusions=[], stream=s, liquidity_need="days")
+    years_score = score_risk_alignment(user_risk=5, user_exclusions=[], stream=s, liquidity_need="years")
+    assert days_score < years_score
+    assert years_score == 100.0
+
+
+def test_liquidity_need_years_does_not_penalize_low_liquidity_stream():
+    s = make_stream(risk={"principal_loss": "low", "platform": "low", "regulatory": "low",
+                          "liquidity": "low", "complexity": "low"})
+    score = score_risk_alignment(user_risk=5, user_exclusions=[], stream=s, liquidity_need="years")
+    assert score == 100.0
+
+
+def test_liquidity_need_defaults_to_months_when_unspecified():
+    s = make_stream(risk={"principal_loss": "low", "platform": "low", "regulatory": "low",
+                          "liquidity": "high", "complexity": "low"})
+    score = score_risk_alignment(user_risk=5, user_exclusions=[], stream=s)
+    assert score == 100.0
+
+
 def test_skill_leverage_no_skills_needed():
     s = make_stream()
     score = score_skill_leverage(user_skills={}, stream=s)
@@ -200,6 +223,28 @@ def test_no_customer_support_is_a_soft_ranking_preference():
     assert ongoing_result.disqualified is False
     assert ongoing_result.fit_score < ranked[0].fit_score
     assert "Ranked lower because it typically requires ongoing customer support." in ongoing_result.explain
+
+
+def test_liquidity_mismatch_explains_the_ranking_penalty():
+    profile = preference_profile()
+    profile.risk.liquidity_need = "days"
+    illiquid = make_stream(
+        stream_id="illiquid",
+        risk={"principal_loss": "low", "platform": "low", "regulatory": "low",
+              "liquidity": "low", "complexity": "low"},
+    )
+    liquid = make_stream(
+        stream_id="liquid",
+        risk={"principal_loss": "low", "platform": "low", "regulatory": "low",
+              "liquidity": "high", "complexity": "low"},
+    )
+
+    ranked = rank_streams(profile, [illiquid, liquid])
+    illiquid_result = next(item for item in ranked if item.stream.stream_id == "illiquid")
+
+    assert ranked[0].stream.stream_id == "liquid"
+    assert illiquid_result.fit_score < ranked[0].fit_score
+    assert "Ranked lower because you may need cash within days but this stream has low liquidity." in illiquid_result.explain
 
 
 def test_preference_penalties_do_not_apply_when_preferences_are_off():

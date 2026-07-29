@@ -55,6 +55,9 @@ def test_analyze_returns_a_complete_safe_result():
     assert "yield_as_of" in first_stream
     assert "data_freshness" in first_stream
     assert "sources_note" in first_stream
+    assert first_stream["time_to_first_dollar_base"] >= 1
+    assert first_stream["time_to_first_dollar_bull"] >= 1
+    assert first_stream["time_to_first_dollar_bear"] >= first_stream["time_to_first_dollar_bull"]
 
     # The scenario chart must aggregate each paper allocation at that stream's
     # own yield, rather than applying one representative yield to the whole mix.
@@ -161,6 +164,25 @@ def test_stream_catalog_has_dashboard_fields():
     assert hysa["yield_as_of"]
     assert hysa["data_freshness"]
     assert hysa["sources_note"]
+    assert hysa["time_to_first_dollar_bear"] >= 1
+    assert hysa["time_to_first_dollar_base"] >= 1
+    assert hysa["time_to_first_dollar_bull"] >= 1
+
+
+def test_analyze_ranks_illiquid_streams_lower_when_liquidity_need_is_short():
+    payload = profile_payload()
+    payload["risk"]["liquidity_need"] = "days"
+    response = client.post("/api/analyze", json={"profile": payload})
+    assert response.status_code == 200
+    body = response.json()
+    by_id = {stream["stream_id"]: stream for stream in body["ranked_streams"]}
+
+    domain_parking = by_id.get("domain_parking")
+    hysa = by_id.get("hysa")
+    assert domain_parking is not None and hysa is not None
+    assert domain_parking["disqualified"] is False
+    assert domain_parking["fit_score"] < hysa["fit_score"]
+    assert any("liquidity" in explanation for explanation in domain_parking["explain"])
 
 
 def test_reverse_solver_endpoint_validates_and_calculates():

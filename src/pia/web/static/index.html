@@ -254,7 +254,7 @@ textarea { resize: vertical; min-height: 120px; }
   background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
   padding: 22px 24px; margin-bottom: 20px; position: relative;
 }
-.detail-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+.detail-grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 18px; }
 .ds-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-mid); }
 .ds-val { font-family: Georgia, serif; font-size: 20px; color: var(--text); margin-top: 3px; }
 .cl { list-style: none; display: flex; flex-direction: column; gap: 5px; }
@@ -452,7 +452,7 @@ textarea { resize: vertical; min-height: 120px; }
     <div class="page-title">Income Streams</div><div class="page-sub">Compare strategies before committing time or capital.</div>
     <div class="r-controls"><select x-model="streamFilter" @change="loadStreams()"><option value="">All categories</option><option value="paper">Paper assets</option><option value="real_asset">Real assets</option><option value="digital">Digital</option><option value="content">Content</option><option value="commerce">Commerce</option><option value="local_physical">Local physical</option></select><span class="muted sm" x-text="filteredCatalog().length + ' strategies'">Loading strategies…</span></div>
     <div class="stream-grid">
-      <template x-for="stream in filteredCatalog()" :key="stream.stream_id"><article class="card stream-card"><span class="badge b-gray" x-text="stream.category.replace('_',' ')"></span><h3 x-text="stream.name"></h3><p x-text="stream.yield_unit === 'annual_pct_on_capital' ? 'Base yield: ' + stream.yield_base.toFixed(1) + '% annual' : 'Base yield: $' + stream.yield_base.toLocaleString() + '/mo'"></p><div class="stream-meta"><span x-text="'PI ' + stream.passivity_index + '/10'"></span><span x-text="stream.maintenance_hours_per_month.toFixed(1) + 'h/mo'"></span></div><div class="chip-row"><span class="badge b-gray" x-text="'Public face: ' + stream.public_face_requirement"></span><span class="badge b-gray" x-text="'Support: ' + stream.customer_support_requirement"></span><span class="badge b-warn" x-show="stream.is_stale">Stale data</span></div><p class="muted sm mt" x-text="'Yield as of: ' + (stream.yield_as_of || 'not provided')"></p><p class="muted sm" x-text="stream.sources_note || 'No source note provided.'"></p><p class="muted sm" x-text="stream.data_freshness ? 'Data freshness: ' + stream.data_freshness : 'Data freshness: not provided'"></p></article></template>
+      <template x-for="stream in filteredCatalog()" :key="stream.stream_id"><article class="card stream-card"><span class="badge b-gray" x-text="stream.category.replace('_',' ')"></span><h3 x-text="stream.name"></h3><p x-text="stream.yield_unit === 'annual_pct_on_capital' ? 'Base yield: ' + stream.yield_base.toFixed(1) + '% annual' : 'Base yield: $' + stream.yield_base.toLocaleString() + '/mo'"></p><div class="stream-meta"><span x-text="'PI ' + stream.passivity_index + '/10'"></span><span x-text="stream.maintenance_hours_per_month.toFixed(1) + 'h/mo'"></span></div><p class="muted sm" x-text="'Time to first $: ' + stream.time_to_first_dollar_bull + '–' + stream.time_to_first_dollar_bear + ' days (base ' + stream.time_to_first_dollar_base + ')'"></p><div class="chip-row"><span class="badge b-gray" x-text="'Public face: ' + stream.public_face_requirement"></span><span class="badge b-gray" x-text="'Support: ' + stream.customer_support_requirement"></span><span class="badge b-warn" x-show="stream.is_stale">Stale data</span></div><p class="muted sm mt" x-text="'Yield as of: ' + (stream.yield_as_of || 'not provided')"></p><p class="muted sm" x-text="stream.sources_note || 'No source note provided.'"></p><p class="muted sm" x-text="stream.data_freshness ? 'Data freshness: ' + stream.data_freshness : 'Data freshness: not provided'"></p></article></template>
     </div>
   </section>
 
@@ -556,6 +556,15 @@ textarea { resize: vertical; min-height: 120px; }
             <span class="muted sm" x-text="riskLabel(f.risk_score)"></span>
           </div>
           <div class="range-hints" style="max-width:340px"><span>Conservative</span><span>Aggressive</span></div>
+        </div>
+        <hr class="divider">
+        <div class="fg">
+          <label>Liquidity Need — how soon might you need this money back?</label>
+          <div class="chip-row">
+            <template x-for="opt in ['days','months','years']" :key="opt">
+              <div class="chip" :class="{ on: f.liquidity_need===opt }" @click="f.liquidity_need=opt" x-text="opt"></div>
+            </template>
+          </div>
         </div>
         <hr class="divider">
         <div class="fg">
@@ -690,7 +699,7 @@ textarea { resize: vertical; min-height: 120px; }
               </div>
               <button class="btn btn-outline btn-sm" @click="openPlaybook(s); tab='playbooks'">View Playbook →</button>
             </div>
-            <div class="detail-grid3">
+            <div class="detail-grid4">
               <div>
                 <div class="ds-label">RAS Score</div>
                 <div class="ds-val" style="color:var(--accent);" x-text="s.ras.toFixed(1)"></div>
@@ -702,6 +711,11 @@ textarea { resize: vertical; min-height: 120px; }
               <div>
                 <div class="ds-label">Suggested Allocation</div>
                 <div class="ds-val" x-text="'$' + (s.capital_suggested_usd || 0).toLocaleString()"></div>
+              </div>
+              <div>
+                <div class="ds-label">Time to First $</div>
+                <div class="ds-val" x-text="s.time_to_first_dollar_base + (s.time_to_first_dollar_base === 1 ? ' day' : ' days')"></div>
+                <div class="sm muted" x-text="'Range ' + s.time_to_first_dollar_bull + '–' + s.time_to_first_dollar_bear + ' days'"></div>
               </div>
             </div>
             <template x-if="s.explain && s.explain.length">
@@ -1025,6 +1039,7 @@ function app() {
       setup_hrs: 5,
       maint_hrs: 10,
       risk_score: 5,
+      liquidity_need: 'months',
       exclusions: ['crypto','p2p','leveraged_re','adult'],
       skills: { ai_ml:0, content:0, video:0, software:0, marketing:0, real_estate:0, copywriting:0, design:0, sales:0, ops_automation:0 },
       primary_goal: 'cash_flow',
@@ -1153,7 +1168,7 @@ function app() {
           setup_hours_per_week_90d: this.f.setup_hrs,
           maintenance_hours_per_month_steady: this.f.maint_hrs,
         },
-        risk: { score_1_to_10: this.f.risk_score, exclusions: this.f.exclusions },
+        risk: { score_1_to_10: this.f.risk_score, exclusions: this.f.exclusions, liquidity_need: this.f.liquidity_need },
         skills: Object.assign({}, this.f.skills),
         goals: { primary: this.f.primary_goal },
         constraints: { no_public_face: this.f.no_public_face, no_customer_support: this.f.no_cs },
@@ -1235,6 +1250,7 @@ function app() {
 
       const risk = p.risk || {};
       if (risk.score_1_to_10 !== undefined) this.f.risk_score = risk.score_1_to_10;
+      if (risk.liquidity_need !== undefined) this.f.liquidity_need = risk.liquidity_need;
       if (Array.isArray(risk.exclusions)) this.f.exclusions = risk.exclusions;
 
       const skills = p.skills || {};
