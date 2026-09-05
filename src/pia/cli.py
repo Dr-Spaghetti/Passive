@@ -38,6 +38,7 @@ from pia.output.renderer import (
 )
 from pia.output.checklist import render_90day_checklist
 from pia.output.exporter import new_run_dir, export_run
+from pia.output.decision_brief import build_decision_brief, catalog_freshness_report
 
 console = Console()
 CATALOG_DIR = Path(__file__).parent.parent.parent / "catalog" / "streams"
@@ -280,6 +281,50 @@ def drift(stream_id, plan_net, plan_hours):
             console.print(f"[red]{a}[/red]")
     else:
         console.print(f"[green]{stream_id}: no drift detected.[/green]")
+
+
+@cli.command()
+@click.option("--profile", "profile_path", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path),
+              help="Path to Profile JSON")
+@click.option("--json", "as_json", is_flag=True, default=False, help="Print full brief as JSON")
+def brief(profile_path: Path, as_json: bool):
+    """Build a decision brief from a saved profile JSON."""
+    profile = Profile(**json.loads(profile_path.read_text(encoding="utf-8")))
+    streams = load_catalog(CATALOG_DIR)
+    brief_data = build_decision_brief(profile, streams)
+    run_dir = new_run_dir(profile.profile_id)
+    if as_json:
+        import contextlib
+        import io
+        with contextlib.redirect_stdout(io.StringIO()):
+            export_run(run_dir, {"decision_brief.md": brief_data["markdown"]})
+        click.echo(json.dumps(brief_data, indent=2))
+    else:
+        export_run(run_dir, {"decision_brief.md": brief_data["markdown"]})
+        console.print(brief_data["markdown"])
+        console.print(f"[dim]Saved decision_brief.md -> {run_dir}[/dim]")
+
+
+@cli.command()
+def freshness():
+    """Print catalog freshness report (stale yields / data_freshness)."""
+    streams = load_catalog(CATALOG_DIR)
+    report = catalog_freshness_report(streams)
+    console.print(f"Catalog streams: {report['total']}  stale: {report['stale_count']}")
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("Stream")
+    table.add_column("as_of")
+    table.add_column("data_freshness")
+    table.add_column("Stale")
+    for row in report["streams"]:
+        stale = "[red]yes[/red]" if row["stale"] else "[green]no[/green]"
+        table.add_row(
+            row["stream_id"],
+            str(row.get("as_of") or ""),
+            str(row.get("data_freshness") or ""),
+            stale,
+        )
+    console.print(table)
 
 
 @cli.command()

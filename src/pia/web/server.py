@@ -19,6 +19,7 @@ from pia.catalog.loader import load_catalog
 from pia.engine.scorer import rank_streams
 from pia.engine.portfolio import build_portfolio
 from pia.engine.projector import project_paper
+from pia.output.decision_brief import build_decision_brief, catalog_freshness_report
 
 CATALOG_DIR = Path(__file__).parent.parent.parent.parent / "catalog" / "streams"
 STATIC_DIR = Path(__file__).parent / "static"
@@ -281,6 +282,24 @@ async def reverse_solver(req: ReverseSolveRequest):
         req.annual_yield_pct,
         req.monthly_contrib,
     )
+
+
+
+@app.post("/api/brief")
+async def brief(req: AnalyzeRequest):
+    try:
+        profile = Profile(**req.profile)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    streams = load_catalog(CATALOG_DIR)
+    return build_decision_brief(profile, streams)
+
+
+@app.post("/api/freshness")
+async def freshness():
+    streams = load_catalog(CATALOG_DIR)
+    return catalog_freshness_report(streams)
 
 
 if __name__ == "__main__":

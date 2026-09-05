@@ -1,0 +1,41 @@
+{
+  "profile_id": "nick-template",
+  "created_at": "2026-09-04",
+  "locale": {
+    "country": "US",
+    "state": "FL"
+  },
+  "financial": {
+    "liquid_deployable_usd": {"min": "REPLACE-ME", "max": "REPLACE-ME"},
+    "monthly_surplus_usd": {"min": "REPLACE-ME", "max": "REPLACE-ME"},
+    "emergency_fund_months": "REPLACE-ME",
+    "high_interest_debt_usd": "REPLACE-ME",
+    "target_monthly_passive_usd": "REPLACE-ME",
+    "target_deadline_months": "REPLACE-ME"
+  },
+  "time": {
+    "setup_hours_per_week_90d": "REPLACE-ME",
+    "maintenance_hours_per_month_steady": "REPLACE-ME",
+    "preferred_cadence": "creative_ops"
+  },
+  "risk": {
+    "score_1_to_10": "REPLACE-ME",
+    "exclusions": [],
+    "liquidity_need": "months"
+  },
+  "skills": {
+    "ai_ml": 9,
+    "content": 8,
+    "software": 8,
+    "video": 5,
+    "copywriting": 6,
+    "marketing": 5
+  },
+  "goals": {
+    "primary": "cash_flow",
+    "secondary": ["freedom"]
+  },
+  "constraints": {
+    "no_public_face": true
+  }
+}
