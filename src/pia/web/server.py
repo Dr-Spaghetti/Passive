@@ -45,6 +45,22 @@ class IncomeLogRequest(BaseModel):
     fees_usd: float = Field(0, ge=0)
     hours: float = Field(0, ge=0)
     notes: str = Field("", max_length=2_000)
+    profile_id: str = ""
+    metrics: dict = Field(default_factory=dict)
+
+
+class PlanRequest(BaseModel):
+    stream_id: str
+    plan_monthly_net: float = Field(ge=0)
+    plan_monthly_hours: float = Field(ge=0)
+    profile_id: str = ""
+    notes: str = Field("", max_length=2_000)
+
+
+class DriftRequest(BaseModel):
+    stream_id: str
+    plan_monthly_net: float | None = None
+    plan_monthly_hours: float | None = None
 
 
 class ReverseSolveRequest(BaseModel):
@@ -268,8 +284,61 @@ async def tracker_log(req: IncomeLogRequest):
     stream_ids = {stream.stream_id for stream in load_catalog(CATALOG_DIR)}
     if req.stream_id not in stream_ids:
         raise HTTPException(status_code=404, detail=f"Stream '{req.stream_id}' not found")
-    log_income(req.stream_id, req.gross_usd, req.fees_usd, req.hours, req.notes)
+    log_income(
+        req.stream_id,
+        req.gross_usd,
+        req.fees_usd,
+        req.hours,
+        req.notes,
+        profile_id=req.profile_id,
+        metrics=req.metrics,
+    )
     return await tracker_history()
+
+
+@app.post("/api/plan")
+async def plan_set(req: PlanRequest):
+    from pia.tracker import set_plan
+
+    return set_plan(
+        req.stream_id,
+        req.plan_monthly_net,
+        req.plan_monthly_hours,
+        profile_id=req.profile_id,
+        notes=req.notes,
+    )
+
+
+@app.get("/api/plan")
+async def plan_list(profile_id: str | None = None):
+    from pia.tracker import list_plans
+
+    return {"plans": list_plans(profile_id)}
+
+
+@app.get("/api/plan/{stream_id}")
+async def plan_get(stream_id: str):
+    from pia.tracker import get_plan
+
+    row = get_plan(stream_id)
+    if not row:
+        raise HTTPException(status_code=404, detail=f"No plan for '{stream_id}'")
+    return row
+
+
+@app.post("/api/drift")
+async def drift_check(req: DriftRequest):
+    from pia.tracker import check_drift
+
+    alerts = check_drift(req.stream_id, req.plan_monthly_net, req.plan_monthly_hours)
+    return {"stream_id": req.stream_id, "alerts": alerts, "ok": not any(a.startswith("⚠") for a in alerts)}
+
+
+@app.get("/api/cos-contract")
+async def cos_contract():
+    from pia.output.decision_brief import COS_CONTRACT
+
+    return COS_CONTRACT
 
 
 @app.post("/api/reverse-solve")
