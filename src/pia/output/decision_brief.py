@@ -105,11 +105,14 @@ def select_options(ranked: list[ScoredStream]) -> dict[str, ScoredStream | None]
         # Prefer stack-lane exemplars (SEO / 360 / software) over generic high-RAS courses
         lane_note = " ".join(r.stack_match_notes).lower()
         exemplar = 1 if "exemplar" in lane_note else 0
-        generic_course_penalty = 1 if r.stream.stream_id == "online_course" and "soft-penalized" in lane_note else 0
+        generic_spam_penalty = 1 if (
+            "hard-demoted" in lane_note
+            or (r.stream.stream_id == "online_course" and "soft-penalized" in lane_note)
+        ) else 0
         return (
             0 if r.low_ceiling else 1,
             0 if r.debt_gate_demoted else 1,
-            0 if generic_course_penalty else 1,
+            0 if generic_spam_penalty else 1,
             exemplar,
             r.stack_match_score,
             r.ras,

@@ -3,10 +3,20 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from pia.catalog.inventory import merge_inventory_into_profile, parse_inventory_markdown
+from pia.catalog.inventory import (
+    merge_inventory_into_profile,
+    parse_inventory_markdown,
+    parse_inventory_markdown_text,
+)
 from pia.catalog.loader import load_catalog
 from pia.engine.portfolio import build_portfolio
-from pia.engine.scorer import rank_streams, score_skill_leverage, score_stack_match, score_stream
+from pia.engine.scorer import (
+    GENERIC_DIGITAL_SPAM,
+    rank_streams,
+    score_skill_leverage,
+    score_stack_match,
+    score_stream,
+)
 from pia.output.decision_brief import build_decision_brief
 from pia.schemas.profile import Profile, StackAsset, StackInventory
 from pia.schemas.stream import Stream
@@ -260,3 +270,40 @@ def test_plan_store_and_drift_api_helpers(tmp_path, monkeypatch):
         tracker.log_income("online_course", gross=10.0, fees=0.0, hours=1.0, profile_id="nick-test")
     alerts = tracker.check_drift("online_course")
     assert any("INCOME DRIFT" in a for a in alerts)
+
+
+def test_hard_demote_generic_digital_when_stack_lanes_present():
+    profile = nick_like_profile()
+    # Ensure software lane present via vercel/saas-style tags already in nick stack
+    tags = profile.stack_tags()
+    assert any("seo" in t for t in tags)
+    course = next(s for s in load_catalog(CATALOG_DIR) if s.stream_id == "online_course")
+    affiliate = next(s for s in load_catalog(CATALOG_DIR) if s.stream_id == "affiliate_niche_site")
+    course_scored = score_stream(profile, course, [])
+    aff_scored = score_stream(profile, affiliate, [])
+    assert any("Hard-demoted" in n for n in course_scored.stack_match_notes)
+    assert course_scored.stack_match_score < aff_scored.stack_match_score
+    # Unit-level: printables also hard-demoted
+    score, notes = score_stack_match(tags, make_stream(stream_id="printables", category="digital"))
+    assert any("Hard-demoted" in n for n in notes)
+    assert score <= 60.0
+
+
+def test_hard_demote_skipped_when_teaching_is_explicit_goal():
+    profile = nick_like_profile()
+    # Inject teaching intent via domain expertise
+    data = profile.model_dump()
+    data["skills"]["domain_expertise"] = list(data["skills"]["domain_expertise"]) + ["udemy instructor", "teach courses"]
+    profile = Profile(**data)
+    course = next(s for s in load_catalog(CATALOG_DIR) if s.stream_id == "online_course")
+    scored = score_stream(profile, course, [])
+    assert not any("Hard-demoted" in n for n in scored.stack_match_notes)
+
+
+def test_parse_inventory_markdown_text_matches_path_parser(tmp_path):
+    body = "# Inventory\n\nFACT Insta360 camera\nFACT BrightLocal WORK\nFACT Vercel shipping\n"
+    md = tmp_path / "inv.md"
+    md.write_text(body, encoding="utf-8")
+    from_path = parse_inventory_markdown(md)
+    from_text = parse_inventory_markdown_text(body, source="pasted")
+    assert {a.name for a in from_path.assets} == {a.name for a in from_text.assets}

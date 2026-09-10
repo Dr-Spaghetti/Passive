@@ -21,13 +21,12 @@ def load_inventory_json(path: Path) -> StackInventory:
     raise ValueError(f"Unsupported inventory JSON shape in {path}")
 
 
-def parse_inventory_markdown(path: Path) -> StackInventory:
-    """Best-effort FACT extractor for pia-ops nick-inventory markdown tables."""
-    text = path.read_text(encoding="utf-8")
+def parse_inventory_markdown_text(text: str, *, source: str = "pasted-markdown") -> StackInventory:
+    """Best-effort FACT extractor for pia-ops inventory markdown (string form)."""
     assets: list[StackAsset] = []
     notes: list[str] = [
         "WORK SaaS/gear is not personal capital unless Nick confirms personal_use_ok.",
-        f"Parsed from {path.name} (FACT/UNKNOWN only — no invented gear).",
+        f"Parsed from {source} (FACT/UNKNOWN only — no invented gear).",
     ]
 
     # Heuristic rows: look for known items mentioned as FACT
@@ -70,7 +69,12 @@ def parse_inventory_markdown(path: Path) -> StackInventory:
         )
         seen.add(name)
 
-    return StackInventory(assets=assets, notes=notes, source=str(path))
+    return StackInventory(assets=assets, notes=notes, source=source)
+
+
+def parse_inventory_markdown(path: Path) -> StackInventory:
+    """Best-effort FACT extractor for pia-ops nick-inventory markdown tables."""
+    return parse_inventory_markdown_text(path.read_text(encoding="utf-8"), source=str(path))
 
 
 def load_inventory(path: Path) -> StackInventory:

@@ -29,6 +29,8 @@ app = FastAPI(title="Passive Income Analyzer")
 
 class AnalyzeRequest(BaseModel):
     profile: dict
+    inventory_markdown: str | None = None
+    inventory_json: dict | None = None
 
 
 class PlaybookRequest(BaseModel):
@@ -68,6 +70,25 @@ class ReverseSolveRequest(BaseModel):
     months: int = Field(gt=0, le=600)
     annual_yield_pct: float = Field(ge=0, le=100)
     monthly_contrib: float = Field(0, ge=0)
+
+
+
+def _profile_from_request(req: AnalyzeRequest) -> Profile:
+    """Build Profile from request body, optionally merging stack inventory."""
+    from pia.catalog.inventory import (
+        merge_inventory_into_profile,
+        parse_inventory_markdown_text,
+    )
+    from pia.schemas.profile import StackInventory
+
+    profile = Profile(**req.profile)
+    if req.inventory_json is not None:
+        inventory = StackInventory.model_validate(req.inventory_json)
+        profile = merge_inventory_into_profile(profile, inventory)
+    elif req.inventory_markdown and req.inventory_markdown.strip():
+        inventory = parse_inventory_markdown_text(req.inventory_markdown.strip())
+        profile = merge_inventory_into_profile(profile, inventory)
+    return profile
 
 
 def build_paper_projections(allocations, ranked, months: int = 24) -> dict[str, list[float]]:
@@ -116,13 +137,14 @@ async def root():
 @app.post("/api/analyze")
 async def analyze(req: AnalyzeRequest):
     try:
-        profile = Profile(**req.profile)
+        profile = _profile_from_request(req)
     except Exception as e:
         raise HTTPException(status_code=422, detail=str(e))
 
     streams = load_catalog(CATALOG_DIR)
     ranked = rank_streams(profile, streams)
     alloc = build_portfolio(profile, ranked)
+    brief = build_decision_brief(profile, streams)
 
     projection_series = build_paper_projections(alloc.allocations, ranked)
     monthly_proj = {scenario: values[11] for scenario, values in projection_series.items()}
@@ -157,6 +179,10 @@ async def analyze(req: AnalyzeRequest):
                 "disqualified": r.disqualified,
                 "disqualify_reason": r.disqualify_reason,
                 "explain": r.explain,
+                "why_fit": next((e for e in r.explain if e.startswith("Why this fits")), None),
+                "stack_match_score": r.stack_match_score,
+                "stack_match_notes": r.stack_match_notes,
+                "reachability_flags": r.reachability_flags,
                 "capital_suggested_usd": r.capital_suggested_usd,
                 "yield_bear": r.stream.yield_.bear,
                 "yield_base": r.stream.yield_.base,
@@ -192,6 +218,11 @@ async def analyze(req: AnalyzeRequest):
                 for item in alloc.allocations
             ],
         },
+        "brief": brief,
+        "inventory_merged": bool(
+            (req.inventory_markdown and req.inventory_markdown.strip())
+            or req.inventory_json is not None
+        ),
     }
 
 
@@ -357,7 +388,7 @@ async def reverse_solver(req: ReverseSolveRequest):
 @app.post("/api/brief")
 async def brief(req: AnalyzeRequest):
     try:
-        profile = Profile(**req.profile)
+        profile = _profile_from_request(req)
     except Exception as e:
         raise HTTPException(status_code=422, detail=str(e))
 

@@ -169,8 +169,45 @@ LANE_EXEMPLAR_STREAMS: dict[str, list[str]] = {
     "ai": ["ai_art_stock", "ai_music_stock", "micro_saas"],
 }
 
+# Generic digital-product spam to hard-demote when PERSONAL/PRODUCT stack lanes exist
+GENERIC_DIGITAL_SPAM = {"online_course", "printables", "amazon_kdp", "ebooks", "print_on_demand"}
+HARD_DEMOTE_PENALTY = 40.0
+TEACHING_INTENT_KEYWORDS = ("teach", "course", "udemy", "instructor", "tutorial", "curriculum")
 
-def score_stack_match(profile_tags: set[str], stream: Stream) -> tuple[float, list[str]]:
+
+def _profile_has_priority_stack_lanes(profile_l: set[str]) -> bool:
+    """True when profile has seo OR video_360 OR software lane tags (same detection as group_hits)."""
+    has_seo = any(any(x in t for x in ("seo", "gbp", "citation", "brightlocal", "falcon", "maps")) for t in profile_l)
+    has_video = any(any(x in t for x in ("insta360", "360", "pano", "panorama", "panostitch")) for t in profile_l)
+    has_software = any(
+        any(x in t for x in ("saas", "vercel", "github", "typescript", "python", "micro_saas", "software"))
+        for t in profile_l
+    )
+    return has_seo or has_video or has_software
+
+
+def profile_indicates_teaching(profile: "Profile") -> bool:
+    """True when goals / domain_expertise / stack tags clearly indicate teaching/courses."""
+    bits: list[str] = []
+    bits.extend(profile.skills.domain_expertise or [])
+    bits.append(getattr(profile.goals, "primary", "") or "")
+    bits.extend(getattr(profile.goals, "secondary", None) or [])
+    bits.extend(sorted(profile.stack_tags()))
+    for asset in profile.stack.assets:
+        bits.append(asset.name)
+        bits.extend(asset.tags)
+        if asset.notes:
+            bits.append(asset.notes)
+    hay = " ".join(str(b).lower() for b in bits)
+    return any(k in hay for k in TEACHING_INTENT_KEYWORDS)
+
+
+def score_stack_match(
+    profile_tags: set[str],
+    stream: Stream,
+    *,
+    teaching_goal: bool = False,
+) -> tuple[float, list[str]]:
     """Score how well PERSONAL/PRODUCT (and confirmed WORK) stack fits the stream."""
     if not profile_tags:
         return 40.0, []
@@ -234,13 +271,24 @@ def score_stack_match(profile_tags: set[str], stream: Stream) -> tuple[float, li
         if stream.stream_id in LANE_EXEMPLAR_STREAMS.get(group, []):
             exemplar_bonus += 12.0
 
-    # Soft penalty: generic online_course when SEO or 360 lanes exist but course isn't an exemplar
+    # Soft / hard demotion for generic digital products when stack lanes exist
     generic_penalty = 0.0
     lane_priority = {"seo", "video_360"} & set(group_hits)
-    if stream.stream_id == "online_course" and (
+    has_priority_lanes = _profile_has_priority_stack_lanes(profile_l)
+    if (
+        stream.stream_id in GENERIC_DIGITAL_SPAM
+        and has_priority_lanes
+        and not teaching_goal
+    ):
+        # Hard demote: prefer SEO/SaaS/360 exemplars over generic digital spam
+        generic_penalty = HARD_DEMOTE_PENALTY
+        notes.append(
+            "Hard-demoted generic digital product — prefer stack exemplars (SEO/SaaS/360) unless teaching is an explicit goal."
+        )
+    elif stream.stream_id == "online_course" and (
         any(any(x in t for x in ("seo", "gbp", "insta360", "pano", "panorama")) for t in profile_l)
     ):
-        # Course is allowed but should not dominate solely via generic skill overlap
+        # Soft penalty retained for compatibility when hard-demote does not apply
         generic_penalty = 18.0
         notes.append(
             "Generic course path soft-penalized — prefer SEO/360 stack exemplars unless teaching is the explicit lane."
@@ -376,7 +424,11 @@ def score_stream(
 
     setup_budget = max(profile.time.setup_hours_per_week_90d * 12, 1)
     stack_tags = profile.stack_tags()
-    stack_score, stack_notes = score_stack_match(stack_tags, stream)
+    stack_score, stack_notes = score_stack_match(
+        stack_tags,
+        stream,
+        teaching_goal=profile_indicates_teaching(profile),
+    )
 
     factors = {
         "capital":         score_capital_fit(capital, stream),

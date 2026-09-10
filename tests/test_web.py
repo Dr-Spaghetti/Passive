@@ -206,3 +206,52 @@ def test_tracker_log_rejects_unknown_stream():
         json={"stream_id": "not-a-stream", "gross_usd": 100, "fees_usd": 0, "hours": 1},
     )
     assert response.status_code == 404
+
+
+def test_analyze_with_inventory_returns_brief_and_demotes_online_course():
+    """Inventory markdown with SEO/SaaS lanes should surface brief and demote online_course."""
+    inventory_md = """
+# FACT inventory
+FACT BrightLocal SEO GBP citation tools
+FACT Vercel / Dr-Spaghetti shipping SaaS github
+FACT panostitch-pro product software
+Director of AI Justify Local SEO
+"""
+    profile = profile_payload()
+    # Need enough maintenance budget so online_course is scored (not hard-DQ'd)
+    profile["time"]["maintenance_hours_per_month_steady"] = 20
+    profile["time"]["setup_hours_per_week_90d"] = 10
+    profile["skills"]["content"] = 8
+    profile["skills"]["software"] = 8
+    profile["skills"]["ai_ml"] = 8
+    response = client.post(
+        "/api/analyze",
+        json={"profile": profile, "inventory_markdown": inventory_md},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert "brief" in body
+    assert body["brief"]["options"], "expected brief options"
+    assert body.get("inventory_merged") is True
+    first = body["ranked_streams"][0]
+    assert "stack_match_score" in first
+    assert "stack_match_notes" in first
+    assert "reachability_flags" in first
+
+    primary = body["brief"]["options"][0]["stream_id"]
+    assert primary != "online_course"
+
+    by_id = {s["stream_id"]: s for s in body["ranked_streams"]}
+    course = by_id["online_course"]
+    assert any("Hard-demoted" in n for n in course["stack_match_notes"])
+
+    qualified = [s for s in body["ranked_streams"] if not s["disqualified"]]
+    course_rank = next(i for i, s in enumerate(qualified) if s["stream_id"] == "online_course")
+    preferred = {"micro_saas", "affiliate_niche_site", "white_label_saas", "stock_video"}
+    preferred_ranks = [
+        i for i, s in enumerate(qualified) if s["stream_id"] in preferred
+    ]
+    assert preferred_ranks, "expected at least one stack exemplar among qualified"
+    assert min(preferred_ranks) < course_rank or course["stack_match_score"] < max(
+        by_id[p]["stack_match_score"] for p in preferred if p in by_id
+    )
