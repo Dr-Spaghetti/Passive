@@ -386,7 +386,7 @@ textarea { resize: vertical; min-height: 120px; }
       <span class="nav-icon">◎</span> Profile
     </div>
     <div class="nav-item" data-analysis-nav role="button" :tabindex="results ? 0 : -1" :aria-disabled="!results" :class="{ active: tab==='results', locked: !results }" @click="if(results) tab='results'" @keydown.enter="if(results) tab='results'" @keydown.space.prevent="if(results) tab='results'">
-      <span class="nav-icon">≡</span> Results
+      <span class="nav-icon">≡</span> Decision Brief
     </div>
     <div class="nav-item" data-analysis-nav role="button" :tabindex="results ? 0 : -1" :aria-disabled="!results" :class="{ active: tab==='portfolio', locked: !results }" @click="if(results) tab='portfolio'" @keydown.enter="if(results) tab='portfolio'" @keydown.space.prevent="if(results) tab='portfolio'">
       <span class="nav-icon">◑</span> Portfolio
@@ -615,6 +615,20 @@ textarea { resize: vertical; min-height: 120px; }
         </div>
       </div>
 
+      <div class="card">
+        <div class="card-title">Stack inventory (optional)</div>
+        <div class="fg">
+          <label>Paste FACT inventory markdown</label>
+          <textarea
+            x-model="inventoryMd"
+            @input="persistInventory()"
+            rows="6"
+            placeholder="Paste your FACT-only stack inventory markdown (SEO tools, Insta360, SaaS shipping, etc.) — or leave blank for generic rankings."
+          ></textarea>
+          <div class="muted sm" style="margin-top:6px;">Persisted in this browser. Improves stack-aware scoring (SEO / 360 / SaaS lanes).</div>
+        </div>
+      </div>
+
       <template x-if="analysisError">
         <div class="alert alert-danger">
           <span class="ai">✕</span>
@@ -666,25 +680,111 @@ textarea { resize: vertical; min-height: 120px; }
 
   <!-- RESULTS TAB -->
   <section class="section" :class="{ active: tab==='results' }">
-    <div class="page-title">Ranked Streams</div>
+    <div class="page-title">Your decision brief</div>
     <div class="page-sub" x-show="results">
       <span x-text="results?.ranked_streams?.filter(s=>!s.disqualified).length"></span> qualified ·
       <span x-text="results?.ranked_streams?.filter(s=>s.disqualified).length"></span> disqualified
+      <span x-show="results?.brief?.options?.length"> · primary focus on recommended start</span>
     </div>
 
     <template x-if="!results">
-      <div class="empty"><h3>No analysis yet</h3><p>Fill in your profile and click "Run Analysis" to see ranked streams.</p></div>
+      <div class="empty"><h3>No analysis yet</h3><p>Fill in your profile and click "Run Analysis" to see your decision brief.</p></div>
     </template>
 
     <template x-if="results">
       <div>
-        <template x-if="results.debt_gate_active">
+        <template x-if="!results.inventory_merged">
           <div class="alert alert-warn">
             <span class="ai">⚠</span>
-            <div><strong>Debt Gate Active —</strong> <span x-text="results.debt_gate_message"></span></div>
+            <div><strong>No stack inventory —</strong> rankings are generic. Paste your inventory for stack-aware answers.</div>
           </div>
         </template>
 
+        <template x-if="results.debt_gate_active || results.brief?.debt_gate_active">
+          <div class="alert alert-warn">
+            <span class="ai">⚠</span>
+            <div><strong>Debt Gate Active —</strong> <span x-text="results.brief?.debt_gate_message || results.debt_gate_message"></span></div>
+          </div>
+        </template>
+
+        <template x-if="results.brief?.surplus_allocation_guidance">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Surplus guidance</div>
+            <div class="sm" x-text="results.brief.surplus_allocation_guidance"></div>
+          </div>
+        </template>
+
+        <template x-if="results.brief?.methods_compared?.length">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Methods compared (on your stack)</div>
+            <template x-for="m in results.brief.methods_compared" :key="m.id + m.verdict">
+              <div style="margin:8px 0; font-size:13px;">
+                <span class="badge" :class="m.verdict==='disqualified' ? 'b-warn' : 'b-ok'" x-text="m.verdict"></span>
+                <strong x-text="m.name"></strong>
+                <span class="mono muted" x-text="'(' + m.id + ')'"></span>
+                <span class="muted" x-show="m.stack_match_score != null" x-text="' · stack ' + m.stack_match_score"></span>
+                <div class="sm muted" style="margin-top:2px;" x-text="m.note"></div>
+              </div>
+            </template>
+          </div>
+        </template>
+
+        <template x-if="results.brief?.options?.length">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Recommended start + alternatives</div>
+            <template x-for="o in results.brief.options" :key="o.stream_id">
+              <div style="padding:12px 0; border-bottom:1px solid var(--border);">
+                <div class="row-sb" style="align-items:flex-start;">
+                  <div>
+                    <div class="badge b-ok" x-text="o.role_label"></div>
+                    <div style="font-family:Georgia,serif; font-size:17px; margin-top:4px;" x-text="o.name"></div>
+                    <div class="mono muted sm" x-text="o.stream_id"></div>
+                  </div>
+                  <div class="n" style="text-align:right;">
+                    <div class="sm muted">Stack match</div>
+                    <div class="bold" style="color:var(--accent);" x-text="Number(o.stack_match_score || 0).toFixed(0)"></div>
+                    <div class="sm muted" x-text="'Fit ' + o.fit_score + ' · RAS ' + o.ras"></div>
+                  </div>
+                </div>
+                <div class="sm" style="margin-top:8px;" x-text="(o.stack_match_notes && o.stack_match_notes[0]) || (o.explain && o.explain.find(e => e.startsWith('Why this fits'))) || (o.explain && o.explain[0]) || ''"></div>
+                <div class="sm muted" style="margin-top:6px;" x-show="o.week1_actions && o.week1_actions.length">
+                  <strong>First action:</strong> <span x-text="o.week1_actions[0]"></span>
+                </div>
+              </div>
+            </template>
+          </div>
+        </template>
+
+        <div class="fg2" style="margin-bottom:16px;" x-show="results.brief">
+          <div class="card">
+            <div class="card-title">Start this month</div>
+            <template x-for="o in (results.brief?.options || []).slice(0,1)" :key="'start-'+o.stream_id">
+              <div class="sm"><strong x-text="o.name"></strong> — <span x-text="(o.week1_actions && o.week1_actions[0]) || 'See week-1 plan'"></span></div>
+            </template>
+          </div>
+          <div class="card">
+            <div class="card-title">Park</div>
+            <template x-for="o in (results.brief?.options || []).slice(1)" :key="'park-'+o.stream_id">
+              <div class="sm" x-text="o.name + ' (' + o.role_label + ')'"></div>
+            </template>
+            <div class="sm muted" x-show="!(results.brief?.options || []).slice(1).length">No parked alts.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Not now</div>
+            <template x-for="d in (results.brief?.disqualified_sample || []).slice(0,4)" :key="'dq-'+d.stream_id">
+              <div class="sm"><span class="mono" x-text="d.stream_id"></span> — <span class="muted" x-text="d.reason"></span></div>
+            </template>
+            <div class="sm muted" x-show="!(results.brief?.disqualified_sample || []).length">No disqualified sample.</div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-bottom:14px;">
+          <button class="btn btn-outline btn-sm" @click="showFullCatalog = !showFullCatalog">
+            <span x-text="showFullCatalog ? 'Hide full ranked catalog' : 'Show full ranked catalog'"></span>
+          </button>
+        </div>
+
+        <div x-show="showFullCatalog">
         <!-- DETAIL PANEL — shown above table when a stream is selected -->
         <template x-if="expandedId">
           <div class="detail-card" x-data="{ s: getStream(expandedId) }">
@@ -787,6 +887,7 @@ textarea { resize: vertical; min-height: 120px; }
                 <th>Category</th>
                 <th>Passivity</th>
                 <th>Fit</th>
+                <th>Stack</th>
                 <th>RAS</th>
                 <th>Bear / Base / Bull</th>
                 <th>Status</th>
@@ -815,6 +916,10 @@ textarea { resize: vertical; min-height: 120px; }
                     <div class="sm muted" x-text="s.passivity_index + '/10'"></div>
                   </td>
                   <td class="n" x-text="s.fit_score.toFixed(0)"></td>
+                  <td class="n">
+                    <div class="bold" x-text="(s.stack_match_score ?? 0).toFixed ? s.stack_match_score.toFixed(0) : (s.stack_match_score || '—')"></div>
+                    <div class="sm muted" x-text="(s.stack_match_notes && s.stack_match_notes[0]) || ''" style="max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+                  </td>
                   <td class="n bold" style="color:var(--accent);" x-text="s.ras.toFixed(0)"></td>
                   <td class="n sm">
                     <span style="color:var(--warn);" x-text="fmtY(s.yield_bear, s.yield_unit)"></span>
@@ -836,6 +941,7 @@ textarea { resize: vertical; min-height: 120px; }
             </tbody>
           </table>
         </div>
+        </div><!-- /showFullCatalog -->
       </div>
     </template>
   </section>
@@ -1007,6 +1113,8 @@ function app() {
     loading: false,
     results: null,
     analysisError: null,
+    inventoryMd: '',
+    showFullCatalog: false,
     aiText: '',
     aiError: null,
     aiNotice: null,
@@ -1048,6 +1156,11 @@ function app() {
     },
 
     init() {
+      try {
+        this.inventoryMd = localStorage.getItem('pia_inventory_md') || '';
+      } catch (e) {
+        this.inventoryMd = '';
+      }
       this.$watch('tab', newTab => {
         setTimeout(() => {
           if (newTab !== 'portfolio') {
@@ -1059,6 +1172,12 @@ function app() {
         }, 0);
       });
       this.loadDashboard();
+    },
+
+    persistInventory() {
+      try {
+        localStorage.setItem('pia_inventory_md', this.inventoryMd || '');
+      } catch (e) { /* ignore quota / private mode */ }
     },
 
     money(value) {
@@ -1179,22 +1298,33 @@ function app() {
       this.loading = true;
       this.analysisError = null;
       try {
+        this.persistInventory();
+        const payload = { profile: this.buildProfile() };
+        if ((this.inventoryMd || '').trim()) {
+          payload.inventory_markdown = this.inventoryMd;
+        }
         const r = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ profile: this.buildProfile() }),
+          body: JSON.stringify(payload),
         });
         if (!r.ok) {
           const err = await r.json().catch(() => ({ detail: 'Server error' }));
           throw new Error(err.detail || 'Analysis failed');
         }
         this.results = await r.json();
+        this.showFullCatalog = false;
+        const briefPrimary = (this.results.brief && this.results.brief.options && this.results.brief.options[0])
+          ? this.results.brief.options[0].name
+          : null;
         this.latestMetrics = {
           bear: this.results.monthly_projections.bear,
           base: this.results.monthly_projections.base,
           bull: this.results.monthly_projections.bull,
           deployed: this.results.portfolio.total_deployed,
-          caption: 'Current profile · ' + this.results.ranked_streams.filter(s => !s.disqualified).slice(0, 3).map(s => s.name).join(', '),
+          caption: briefPrimary
+            ? ('Decision brief · start with ' + briefPrimary)
+            : ('Current profile · ' + this.results.ranked_streams.filter(s => !s.disqualified).slice(0, 3).map(s => s.name).join(', ')),
         };
         this.expandedId = null;
         this.tab = 'results';

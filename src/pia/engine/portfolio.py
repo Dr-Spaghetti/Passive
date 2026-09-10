@@ -22,11 +22,32 @@ class PortfolioAllocation:
     total_deployed: float = 0.0
     debt_gate_active: bool = False
     debt_gate_message: str = ""
+    surplus_allocation_guidance: str = ""
     phase_summary: dict[str, float] = field(default_factory=dict)
+    max_risky_allocation_pct: float = 100.0
 
 
 CORE_CATEGORIES = {"paper", "real_asset"}
 LOCAL_CATEGORIES = {"local_physical"}
+RISKY_UNDER_DEBT = {"real_asset", "local_physical", "credit_alt"}
+
+
+def surplus_guidance(profile: Profile) -> str:
+    """Educational surplus split while high-interest debt remains. Not advice."""
+    if not profile.has_debt_gate:
+        return ""
+    surplus = profile.monthly_surplus_point
+    debt = profile.financial.high_interest_debt_usd
+    debt_share = max(0.0, surplus * 0.60)
+    buffer_share = max(0.0, surplus * 0.30)
+    explore_share = max(0.0, surplus * 0.10)
+    return (
+        f"Surplus allocation guidance (educational): with ${debt:,.0f} high-interest debt and "
+        f"~${surplus:,.0f}/mo surplus midpoint — earmark >=60% (~${debt_share:,.0f}) to debt paydown, "
+        f"~30% (~${buffer_share:,.0f}) to emergency-fund buffer, "
+        f"<=10% (~${explore_share:,.0f}) to low-capital skill experiments. "
+        "Not financial advice."
+    )
 
 
 def build_portfolio(
@@ -39,14 +60,32 @@ def build_portfolio(
 
     if profile.has_debt_gate:
         alloc.debt_gate_active = True
+        alloc.max_risky_allocation_pct = 10.0
         alloc.debt_gate_message = (
             f"DEBT GATE: ${profile.financial.high_interest_debt_usd:,.0f} high-interest debt detected. "
             "Prioritize aggressive paydown before deploying capital into income streams. "
             "Recommended: allocate >=60% of monthly surplus to debt. Max risky allocation capped at 10%."
         )
+        alloc.surplus_allocation_guidance = surplus_guidance(profile)
+        # Haircut deployable capital while debt gate is active
         capital = capital * 0.4
 
-    qualified = [r for r in ranked if not r.disqualified]
+    qualified = [
+        r for r in ranked
+        if not r.disqualified and not r.unreachable_capital
+    ]
+    if profile.has_debt_gate:
+        # Ranking/portfolio policy: skip capital-at-risk categories while debt gate is on
+        # unless they somehow have zero capital need and were not demoted heavily.
+        filtered = []
+        for r in qualified:
+            if r.stream.category in RISKY_UNDER_DEBT and r.stream.capital_usd.min > 0:
+                continue
+            if r.missing_prereq:
+                continue
+            filtered.append(r)
+        qualified = filtered
+
     if not qualified:
         return alloc
 
@@ -62,6 +101,8 @@ def build_portfolio(
     local_budget = capital * local_target
 
     core_spent = satellite_spent = local_spent = 0.0
+    risky_spent = 0.0
+    risky_cap = capital * (alloc.max_risky_allocation_pct / 100.0) if alloc.debt_gate_active else capital
     tag_exposure: dict[str, float] = {}
     items: list[AllocationItem] = []
 
@@ -83,9 +124,15 @@ def build_portfolio(
         if budget_remaining <= 0:
             continue
 
+        is_risky = s.category in RISKY_UNDER_DEBT or s.risk.principal_loss in ("med", "high")
+        if alloc.debt_gate_active and is_risky and risky_spent >= risky_cap:
+            continue
+
         max_stream = min(capital * 0.35, budget_remaining)
         suggested = scored.capital_suggested_usd if scored.capital_suggested_usd > 0 else capital * 0.1
         amount = min(suggested, max_stream)
+        if alloc.debt_gate_active and is_risky:
+            amount = min(amount, max(0.0, risky_cap - risky_spent))
 
         for tag in s.correlation_tags:
             already = tag_exposure.get(tag, 0)
@@ -121,6 +168,8 @@ def build_portfolio(
             local_spent += amount
         else:
             satellite_spent += amount
+        if is_risky:
+            risky_spent += amount
 
         for tag in s.correlation_tags:
             tag_exposure[tag] = tag_exposure.get(tag, 0) + amount

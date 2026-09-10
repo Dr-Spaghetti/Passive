@@ -102,6 +102,25 @@ class Confidence(BaseModel):
     skills: Literal["high", "med", "low"] = "med"
 
 
+class StackAsset(BaseModel):
+    """Lane-tagged inventory item. WORK is never personal deployable capital."""
+
+    name: str
+    lane: Literal["work", "product", "personal"]
+    status: Literal["fact", "unknown", "weak_fact"] = "fact"
+    personal_use_ok: bool = False
+    tags: list[str] = Field(default_factory=list)
+    notes: str = ""
+
+
+class StackInventory(BaseModel):
+    """PERSONAL/PRODUCT may score; WORK only if personal_use_ok is confirmed."""
+
+    assets: list[StackAsset] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+    source: str = ""
+
+
 class Profile(BaseModel):
     profile_id: str
     created_at: str
@@ -113,6 +132,7 @@ class Profile(BaseModel):
     goals: Goals = Field(default_factory=Goals)
     constraints: Constraints = Field(default_factory=Constraints)
     confidence: Confidence = Field(default_factory=Confidence)
+    stack: StackInventory = Field(default_factory=StackInventory)
 
     @property
     def effective_risk_score(self) -> int:
@@ -129,5 +149,31 @@ class Profile(BaseModel):
         return self.financial.liquid_deployable_usd.point or 0.0
 
     @property
+    def monthly_surplus_point(self) -> float:
+        return self.financial.monthly_surplus_usd.point or 0.0
+
+    @property
     def monthly_maintenance_budget(self) -> float:
         return self.time.maintenance_hours_per_month_steady
+
+    def deployable_stack_assets(self) -> list[StackAsset]:
+        """Assets that may inform PERSONAL Passive scoring (never unconfirmed WORK)."""
+        out: list[StackAsset] = []
+        for asset in self.stack.assets:
+            if asset.lane == "work" and not asset.personal_use_ok:
+                continue
+            if asset.status == "unknown":
+                continue
+            out.append(asset)
+        return out
+
+    def stack_tags(self) -> set[str]:
+        tags: set[str] = set()
+        for asset in self.deployable_stack_assets():
+            tags.update(t.lower() for t in asset.tags)
+            tags.add(asset.name.lower())
+        for item in self.financial.existing_assets.physical:
+            tags.add(item.lower())
+        for domain in self.skills.domain_expertise:
+            tags.add(domain.lower())
+        return tags

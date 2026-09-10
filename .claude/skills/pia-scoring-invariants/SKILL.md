@@ -11,29 +11,39 @@ Use whenever a stream's fit score, ranking, or disqualification is in question, 
 
 Starting from a `Profile` and a `Stream`:
 
-1. **Disqualification check first.** If `score_maintenance_fit` (hours per month above budget with `return_disqualify=True`) exceeds them, the stream is disqualified outright. Same for a stream that matches any `profile.risk.exclusions` via `exclusions_match`. Disqualified streams never get a fit score.
-2. **Eight score factors**, combined with `WEIGHTS` (must sum to 1.0):
-   - `capital` 0.18, `maintenance` 0.18, `setup` 0.10, `risk` 0.15, `skill` 0.14, `goal` 0.12, `time_to_dollar` 0.08, `diversification` 0.05
-3. **Preference penalties** from `preference_tradeoffs` (public face and customer support) are subtracted from the weighted fit. They lower rank but never turn a stream into an exclusion.
-4. **RAS** = `fit * (yield_normalized / (1 + risk_composite))`.
-5. **effort_yield** = `(yield * capital / 12) / hours`.
+1. **Disqualification check first.** Hard DQs:
+   - Maintenance hours/mo above budget (`score_maintenance_fit` with `return_disqualify=True`)
+   - Stream matches any `profile.risk.exclusions` via `exclusions_match`
+   - **Capital floor:** `deployable_capital < stream.capital_usd.min` → unreachable_capital DQ
+   Disqualified streams never get a usable fit/RAS for ranking winners.
+2. **Nine score factors**, combined with `WEIGHTS` (must sum to 1.0):
+   - `capital` 0.16, `maintenance` 0.16, `setup` 0.09, `risk` 0.13, `skill` 0.12,
+     `goal` 0.10, `time_to_dollar` 0.07, `diversification` 0.05, `stack` 0.12
+3. **Skill factor** uses multi-skill coverage (max + mean) plus optional `domain_expertise` boost.
+4. **Stack factor** matches PERSONAL/PRODUCT (and WORK only if `personal_use_ok`) inventory tags to stream metadata. Company SaaS without `personal_use_ok` does not count as personal capital.
+5. **Debt-gate ranking policy** (when `high_interest_debt_usd > 0`): demote capital-at-risk / principal-loss streams; portfolio also caps risky share at 10% and publishes surplus guidance (>=60% paydown educational split).
+6. **Preference penalties** from `preference_tradeoffs` (public face and customer support) are subtracted from the weighted fit. They lower rank but never turn a stream into an exclusion.
+7. **RAS** = `fit * (yield_normalized / (1 + risk_composite))`.
+8. **effort_yield** = `(yield * capital / 12) / hours`.
 
 ## Ranking (`rank_streams`)
 
 - Streams are scored in order; each qualifying stream adds its `correlation_tags` to `selected_tags`, which feed the next stream's `diversification` factor.
 - Sort is `(not disqualified, ras)` descending: qualifying streams first, then by RAS.
+- Brief `select_options` skips unreachable / prefers stack match and avoids low-ceiling fillers.
 
 ## Rules
 
 - Keep `WEIGHTS` summing to exactly 1.0. Changing one necessitates adjusting others, and you must update any snapshot golden values and run the tests.
-- Do not change disqualification semantics silently: maintenance over budget and exclusion matches are hard disqualifiers, not soft penalties.
-- `score_stream` handles missing data conservatively (`skills_leveraged` empty -> 50; no correlation tags -> 50 for diversification, neutral), so do not special-case None in callers.
+- Do not weaken hard disqualifiers: maintenance over budget, exclusion matches, capital below min.
+- `score_stream` handles missing data conservatively (`skills_leveraged` empty -> 50; no correlation tags -> 50 for diversification, neutral; empty stack -> modest stack score), so do not special-case None in callers.
+- Never invent money numbers; never claim financial advice.
 
 ## Verification
 
-- `python -m pytest -q` (run with the venv: `.venv/Scripts/python.exe -m pytest -q`)
+- `python -m pytest -q` (venv: `.venv/bin/python -m pytest -q`)
 - Run the web suite: hit `http://127.0.0.1:8000/health` after `serve` and validate an analyze request. See README.
-- Reference `tests/` files covering schemas, scoring, portfolio, projector, and tracker.
+- Reference `tests/` files covering schemas, scoring, portfolio, projector, tracker, and `test_abcde_stack_debt.py`.
 
 ## Education disclaimer
 

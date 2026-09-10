@@ -40,6 +40,8 @@ def render_portfolio_blueprint(
 
     if alloc.debt_gate_active:
         lines.append(f"> {alloc.debt_gate_message}\n")
+        if getattr(alloc, "surplus_allocation_guidance", ""):
+            lines.append(f"> {alloc.surplus_allocation_guidance}\n")
 
     lines.append(f"**Total Deployed:** ${alloc.total_deployed:,.0f}\n")
     lines.append("### Projected Monthly Income at Month 12")

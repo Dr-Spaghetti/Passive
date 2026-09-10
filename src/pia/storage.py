@@ -5,7 +5,14 @@ import sqlite3
 from pathlib import Path
 from datetime import date
 
-DB_PATH = Path(os.environ.get("PIA_DB_PATH", Path(__file__).parent.parent.parent / "runs" / "runs.db"))
+def _default_db_path() -> Path:
+    # Vercel serverless filesystem is read-only except /tmp.
+    if os.environ.get("VERCEL") == "1":
+        return Path("/tmp/pia-runs.db")
+    return Path(__file__).parent.parent.parent / "runs" / "runs.db"
+
+
+DB_PATH = Path(os.environ.get("PIA_DB_PATH", str(_default_db_path())))
 
 
 def init_db() -> None:

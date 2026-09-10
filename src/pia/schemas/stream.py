@@ -112,3 +112,10 @@ class ScoredStream(BaseModel):
     explain: list[str] = Field(default_factory=list)
     capital_suggested_usd: float = 0.0
     projected_monthly: dict[str, dict[str, float]] = Field(default_factory=dict)
+    unreachable_capital: bool = False
+    missing_prereq: bool = False
+    low_ceiling: bool = False
+    debt_gate_demoted: bool = False
+    stack_match_score: float = 0.0
+    stack_match_notes: list[str] = Field(default_factory=list)
+    reachability_flags: list[str] = Field(default_factory=list)

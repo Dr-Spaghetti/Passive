@@ -29,6 +29,8 @@ app = FastAPI(title="Passive Income Analyzer")
 
 class AnalyzeRequest(BaseModel):
     profile: dict
+    inventory_markdown: str | None = None
+    inventory_json: dict | None = None
 
 
 class PlaybookRequest(BaseModel):
@@ -45,6 +47,22 @@ class IncomeLogRequest(BaseModel):
     fees_usd: float = Field(0, ge=0)
     hours: float = Field(0, ge=0)
     notes: str = Field("", max_length=2_000)
+    profile_id: str = ""
+    metrics: dict = Field(default_factory=dict)
+
+
+class PlanRequest(BaseModel):
+    stream_id: str
+    plan_monthly_net: float = Field(ge=0)
+    plan_monthly_hours: float = Field(ge=0)
+    profile_id: str = ""
+    notes: str = Field("", max_length=2_000)
+
+
+class DriftRequest(BaseModel):
+    stream_id: str
+    plan_monthly_net: float | None = None
+    plan_monthly_hours: float | None = None
 
 
 class ReverseSolveRequest(BaseModel):
@@ -52,6 +70,25 @@ class ReverseSolveRequest(BaseModel):
     months: int = Field(gt=0, le=600)
     annual_yield_pct: float = Field(ge=0, le=100)
     monthly_contrib: float = Field(0, ge=0)
+
+
+
+def _profile_from_request(req: AnalyzeRequest) -> Profile:
+    """Build Profile from request body, optionally merging stack inventory."""
+    from pia.catalog.inventory import (
+        merge_inventory_into_profile,
+        parse_inventory_markdown_text,
+    )
+    from pia.schemas.profile import StackInventory
+
+    profile = Profile(**req.profile)
+    if req.inventory_json is not None:
+        inventory = StackInventory.model_validate(req.inventory_json)
+        profile = merge_inventory_into_profile(profile, inventory)
+    elif req.inventory_markdown and req.inventory_markdown.strip():
+        inventory = parse_inventory_markdown_text(req.inventory_markdown.strip())
+        profile = merge_inventory_into_profile(profile, inventory)
+    return profile
 
 
 def build_paper_projections(allocations, ranked, months: int = 24) -> dict[str, list[float]]:
@@ -100,13 +137,14 @@ async def root():
 @app.post("/api/analyze")
 async def analyze(req: AnalyzeRequest):
     try:
-        profile = Profile(**req.profile)
+        profile = _profile_from_request(req)
     except Exception as e:
         raise HTTPException(status_code=422, detail=str(e))
 
     streams = load_catalog(CATALOG_DIR)
     ranked = rank_streams(profile, streams)
     alloc = build_portfolio(profile, ranked)
+    brief = build_decision_brief(profile, streams)
 
     projection_series = build_paper_projections(alloc.allocations, ranked)
     monthly_proj = {scenario: values[11] for scenario, values in projection_series.items()}
@@ -141,6 +179,10 @@ async def analyze(req: AnalyzeRequest):
                 "disqualified": r.disqualified,
                 "disqualify_reason": r.disqualify_reason,
                 "explain": r.explain,
+                "why_fit": next((e for e in r.explain if e.startswith("Why this fits")), None),
+                "stack_match_score": r.stack_match_score,
+                "stack_match_notes": r.stack_match_notes,
+                "reachability_flags": r.reachability_flags,
                 "capital_suggested_usd": r.capital_suggested_usd,
                 "yield_bear": r.stream.yield_.bear,
                 "yield_base": r.stream.yield_.base,
@@ -176,6 +218,11 @@ async def analyze(req: AnalyzeRequest):
                 for item in alloc.allocations
             ],
         },
+        "brief": brief,
+        "inventory_merged": bool(
+            (req.inventory_markdown and req.inventory_markdown.strip())
+            or req.inventory_json is not None
+        ),
     }
 
 
@@ -268,8 +315,61 @@ async def tracker_log(req: IncomeLogRequest):
     stream_ids = {stream.stream_id for stream in load_catalog(CATALOG_DIR)}
     if req.stream_id not in stream_ids:
         raise HTTPException(status_code=404, detail=f"Stream '{req.stream_id}' not found")
-    log_income(req.stream_id, req.gross_usd, req.fees_usd, req.hours, req.notes)
+    log_income(
+        req.stream_id,
+        req.gross_usd,
+        req.fees_usd,
+        req.hours,
+        req.notes,
+        profile_id=req.profile_id,
+        metrics=req.metrics,
+    )
     return await tracker_history()
+
+
+@app.post("/api/plan")
+async def plan_set(req: PlanRequest):
+    from pia.tracker import set_plan
+
+    return set_plan(
+        req.stream_id,
+        req.plan_monthly_net,
+        req.plan_monthly_hours,
+        profile_id=req.profile_id,
+        notes=req.notes,
+    )
+
+
+@app.get("/api/plan")
+async def plan_list(profile_id: str | None = None):
+    from pia.tracker import list_plans
+
+    return {"plans": list_plans(profile_id)}
+
+
+@app.get("/api/plan/{stream_id}")
+async def plan_get(stream_id: str):
+    from pia.tracker import get_plan
+
+    row = get_plan(stream_id)
+    if not row:
+        raise HTTPException(status_code=404, detail=f"No plan for '{stream_id}'")
+    return row
+
+
+@app.post("/api/drift")
+async def drift_check(req: DriftRequest):
+    from pia.tracker import check_drift
+
+    alerts = check_drift(req.stream_id, req.plan_monthly_net, req.plan_monthly_hours)
+    return {"stream_id": req.stream_id, "alerts": alerts, "ok": not any(a.startswith("⚠") for a in alerts)}
+
+
+@app.get("/api/cos-contract")
+async def cos_contract():
+    from pia.output.decision_brief import COS_CONTRACT
+
+    return COS_CONTRACT
 
 
 @app.post("/api/reverse-solve")
@@ -288,7 +388,7 @@ async def reverse_solver(req: ReverseSolveRequest):
 @app.post("/api/brief")
 async def brief(req: AnalyzeRequest):
     try:
-        profile = Profile(**req.profile)
+        profile = _profile_from_request(req)
     except Exception as e:
         raise HTTPException(status_code=422, detail=str(e))
 

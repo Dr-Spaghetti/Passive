@@ -38,7 +38,8 @@ from pia.output.renderer import (
 )
 from pia.output.checklist import render_90day_checklist
 from pia.output.exporter import new_run_dir, export_run
-from pia.output.decision_brief import build_decision_brief, catalog_freshness_report
+from pia.output.decision_brief import build_decision_brief, catalog_freshness_report, COS_CONTRACT
+from pia.catalog.inventory import load_inventory, merge_inventory_into_profile
 
 console = Console()
 CATALOG_DIR = Path(__file__).parent.parent.parent / "catalog" / "streams"
@@ -257,39 +258,84 @@ def list_runs_cmd():
 
 @cli.command()
 @click.argument("stream_id")
-def log(stream_id):
+@click.option("--profile-id", default="", help="Optional profile_id for tracker rows")
+def log(stream_id, profile_id):
     """Log actual income for a stream."""
     from pia.tracker import log_income
     gross = click.prompt("Gross income ($)", type=float)
     fees = click.prompt("Fees/costs ($)", type=float, default=0.0)
     hours = click.prompt("Hours spent", type=float, default=0.0)
     notes = click.prompt("Notes (optional)", default="")
-    log_income(stream_id, gross, fees, hours, notes)
+    log_income(stream_id, gross, fees, hours, notes, profile_id=profile_id)
     console.print(f"[green]Logged: ${gross - fees:.2f} net for {stream_id}[/green]")
 
 
 @cli.command()
 @click.argument("stream_id")
-@click.option("--plan-net", type=float, required=True, help="Planned monthly net income for this stream")
-@click.option("--plan-hours", type=float, required=True, help="Planned monthly hours for this stream")
+@click.option("--plan-net", type=float, default=None, help="Planned monthly net (optional if stored via pia plan set)")
+@click.option("--plan-hours", type=float, default=None, help="Planned monthly hours (optional if stored)")
 def drift(stream_id, plan_net, plan_hours):
     """Check a stream for income or time drift vs plan."""
     from pia.tracker import check_drift
     alerts = check_drift(stream_id, plan_net, plan_hours)
     if alerts:
         for a in alerts:
-            console.print(f"[red]{a}[/red]")
+            style = "red" if a.startswith("⚠") else "yellow"
+            console.print(f"[{style}]{a}[/{style}]")
     else:
         console.print(f"[green]{stream_id}: no drift detected.[/green]")
+
+
+@cli.group()
+def plan():
+    """Persist plan baselines for weekly drift checks."""
+    pass
+
+
+@plan.command("set")
+@click.argument("stream_id")
+@click.option("--plan-net", type=float, required=True)
+@click.option("--plan-hours", type=float, required=True)
+@click.option("--profile-id", default="")
+@click.option("--notes", default="")
+def plan_set(stream_id, plan_net, plan_hours, profile_id, notes):
+    """Store plan baselines used by `pia drift` / POST /api/drift."""
+    from pia.tracker import set_plan
+    row = set_plan(stream_id, plan_net, plan_hours, profile_id=profile_id, notes=notes)
+    console.print(f"[green]Plan saved for {stream_id}:[/green] {row}")
+
+
+@plan.command("show")
+@click.argument("stream_id", required=False)
+@click.option("--profile-id", default=None)
+def plan_show(stream_id, profile_id):
+    """Show one plan or list plans."""
+    from pia.tracker import get_plan, list_plans
+    if stream_id:
+        row = get_plan(stream_id)
+        if not row:
+            console.print(f"[yellow]No plan for {stream_id}[/yellow]")
+            return
+        console.print(json.dumps(row, indent=2))
+    else:
+        console.print(json.dumps(list_plans(profile_id), indent=2))
 
 
 @cli.command()
 @click.option("--profile", "profile_path", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path),
               help="Path to Profile JSON")
+@click.option("--inventory", "inventory_path", default=None,
+              type=click.Path(exists=True, dir_okay=False, path_type=Path),
+              help="Optional stack inventory JSON or pia-ops markdown (WORK≠personal capital)")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Print full brief as JSON")
-def brief(profile_path: Path, as_json: bool):
-    """Build a decision brief from a saved profile JSON."""
+def brief(profile_path: Path, inventory_path: Path | None, as_json: bool):
+    """Build a decision brief from a saved profile JSON (CoS hub entrypoint)."""
     profile = Profile(**json.loads(profile_path.read_text(encoding="utf-8")))
+    if inventory_path is not None:
+        inv = load_inventory(inventory_path)
+        profile = merge_inventory_into_profile(profile, inv)
+        console.print(f"[dim]Merged stack inventory from {inventory_path} "
+                      f"({len(profile.stack.assets)} assets)[/dim]")
     streams = load_catalog(CATALOG_DIR)
     brief_data = build_decision_brief(profile, streams)
     run_dir = new_run_dir(profile.profile_id)
@@ -303,6 +349,12 @@ def brief(profile_path: Path, as_json: bool):
         export_run(run_dir, {"decision_brief.md": brief_data["markdown"]})
         console.print(brief_data["markdown"])
         console.print(f"[dim]Saved decision_brief.md -> {run_dir}[/dim]")
+
+
+@cli.command("cos-contract")
+def cos_contract_cmd():
+    """Print the CoS ↔ pia re-brief / tracker contract."""
+    console.print(json.dumps(COS_CONTRACT, indent=2))
 
 
 @cli.command()
