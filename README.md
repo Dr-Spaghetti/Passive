@@ -28,6 +28,20 @@ Optional provider-backed intake and customized playbooks use `ANTHROPIC_API_KEY`
 .\.venv\Scripts\pia.exe drift hysa --plan-net 25 --plan-hours 1
 ```
 
+
+## Maximize posture
+
+By default pia **maximizes executable upside under real constraints**. Dollar
+targets (`target_monthly_passive_usd`) and deadlines are optional stretch
+scoreboards for gap reporting — they do not demote streams or change
+Start/Support/Kill. Set `"maximize_executable_upside": false` on a profile to
+restore legacy low-ceiling soft penalties.
+
+```bash
+pia brief --profile profiles/nick.template.json
+# commitment sections ON by default; use --no-commitment for decision-only
+```
+
 ## Verification
 
 ```powershell

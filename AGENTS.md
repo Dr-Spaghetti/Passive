@@ -22,6 +22,18 @@ Educational planning tool that ranks passive-income stream ideas against capital
 - Never commit `.env` (holds `ANTHROPIC_API_KEY`).
 - Educational scope: no financial/legal/tax advice claims.
 
+
+## Maximize posture (default ON)
+
+`Profile.maximize_executable_upside` defaults to `True`. Under maximize mode:
+
+- `target_monthly_passive_usd` and `target_deadline_months` are **stretch scoreboard / gap reporting only**.
+- They must **not** change ranking order, Start/Support/Kill picks, or soft-penalize `low_ceiling` streams.
+- Informational `low_ceiling` flags and feasibility gap % are OK; feasibility `unreachable` becomes `stretch_gap` (illustrative pressure, not a playbook verdict).
+- Opt out by setting `maximize_executable_upside: false` on the profile JSON.
+
+CLI: `pia brief --profile …` emits commitment Start/Support/Kill/feasibility/7-day by default (`--no-commitment` for decision-only).
+
 ## Common commands
 
 ```powershell

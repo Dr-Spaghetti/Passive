@@ -133,6 +133,9 @@ class Profile(BaseModel):
     constraints: Constraints = Field(default_factory=Constraints)
     confidence: Confidence = Field(default_factory=Confidence)
     stack: StackInventory = Field(default_factory=StackInventory)
+    # P0 maximize posture (default ON): dollar target + deadline are stretch
+    # scoreboard / gap reporting only — they must not steer ranking or Start/Support/Kill.
+    maximize_executable_upside: bool = True
 
     @property
     def effective_risk_score(self) -> int:

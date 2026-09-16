@@ -91,8 +91,16 @@ def _is_brief_eligible(scored: ScoredStream) -> bool:
     return True
 
 
-def select_options(ranked: list[ScoredStream]) -> dict[str, ScoredStream | None]:
-    """Pick primary + up to two alternatives; prefer reachable + stack-fit; skip weak fillers."""
+def select_options(
+    ranked: list[ScoredStream],
+    *,
+    maximize: bool = True,
+) -> dict[str, ScoredStream | None]:
+    """Pick primary + up to two alternatives; prefer reachable + stack-fit; skip weak fillers.
+
+    Under maximize posture (default), ``low_ceiling`` is informational only and must not
+    demote or exclude options. Dollar target is stretch scoreboard, not a playbook filter.
+    """
     qualified = [r for r in ranked if _is_brief_eligible(r)]
     if not qualified:
         # Fall back to any non-DQ so brief is not empty, but mark later
@@ -109,8 +117,9 @@ def select_options(ranked: list[ScoredStream]) -> dict[str, ScoredStream | None]
             "hard-demoted" in lane_note
             or (r.stream.stream_id == "online_course" and "soft-penalized" in lane_note)
         ) else 0
+        ceiling_rank = 1 if maximize else (0 if r.low_ceiling else 1)
         return (
-            0 if r.low_ceiling else 1,
+            ceiling_rank,
             0 if r.debt_gate_demoted else 1,
             0 if generic_spam_penalty else 1,
             exemplar,
@@ -126,9 +135,9 @@ def select_options(ranked: list[ScoredStream]) -> dict[str, ScoredStream | None]
     rest = [r for r in qualified if r.stream.stream_id != primary.stream.stream_id]
     # Prefer different category for alt_a
     def _allow_as_alt(r: ScoredStream) -> bool:
-        if not r.low_ceiling:
+        if maximize or not r.low_ceiling:
             return True
-        # Keep stack exemplars visible even if catalog base yield is modest
+        # Legacy (maximize off): keep stack exemplars visible even if catalog base yield is modest
         return "exemplar" in " ".join(r.stack_match_notes).lower()
 
     alt_a = None
@@ -145,8 +154,11 @@ def select_options(ranked: list[ScoredStream]) -> dict[str, ScoredStream | None]
     if alt_a:
         used.add(alt_a.stream.stream_id)
     remaining = [r for r in qualified if r.stream.stream_id not in used]
-    # Third option: prefer stack match over pure fit; avoid low-ceiling fillers when possible
-    remaining_strong = [r for r in remaining if not r.low_ceiling] or remaining
+    # Third option: prefer stack match over pure fit; under maximize do not filter on low_ceiling
+    if maximize:
+        remaining_strong = remaining
+    else:
+        remaining_strong = [r for r in remaining if not r.low_ceiling] or remaining
     alt_b = max(remaining_strong, key=option_key) if remaining_strong else None
 
     return {"primary": primary, "alt_a": alt_a, "alt_b": alt_b}
@@ -190,7 +202,11 @@ def _methods_on_stack(
         if scored.debt_gate_demoted:
             fail_notes.append("debt gate demotion")
         if scored.low_ceiling:
-            fail_notes.append("low yield ceiling vs target")
+            fail_notes.append(
+                "informational stretch gap vs scoreboard target"
+                if profile.maximize_executable_upside
+                else "low yield ceiling vs target"
+            )
         if scored.unreachable_capital:
             fail_notes.append("thin capital vs typical")
         methods.append(
@@ -256,7 +272,7 @@ def build_decision_brief(
 ) -> dict[str, Any]:
     ranked = rank_streams(profile, streams)
     alloc = build_portfolio(profile, ranked)
-    picks = select_options(ranked)
+    picks = select_options(ranked, maximize=bool(profile.maximize_executable_upside))
 
     options: list[dict[str, Any]] = []
     labels = [("primary", "Recommended start"), ("alt_a", "Strong alternative"), ("alt_b", "Third option")]
@@ -301,7 +317,15 @@ def build_decision_brief(
             "primary": profile.goals.primary,
             "target_monthly_passive_usd": profile.financial.target_monthly_passive_usd,
             "deadline_months": profile.financial.target_deadline_months,
+            "role": "stretch_scoreboard",
+            "note": (
+                "target_monthly / deadline are optional stretch scoreboard / gap reporting only; "
+                "they do not change ranking or Start/Support/Kill under maximize mode."
+                if profile.maximize_executable_upside
+                else "Legacy mode: dollar target may soft-penalize low-ceiling streams."
+            ),
         },
+        "maximize_executable_upside": bool(profile.maximize_executable_upside),
         "debt_gate_active": alloc.debt_gate_active,
         "debt_gate_message": alloc.debt_gate_message,
         "surplus_allocation_guidance": alloc.surplus_allocation_guidance or surplus_guidance(profile),
@@ -336,8 +360,9 @@ def render_brief_markdown(brief: dict[str, Any]) -> str:
     lines.append(f"**Profile:** `{brief['profile_id']}`  ")
     g = brief["goal"]
     lines.append(
-        f"**Goal:** {g.get('primary')} · target ${g.get('target_monthly_passive_usd', 0):,.0f}/mo "
+        f"**Goal:** {g.get('primary')} · stretch scoreboard ${g.get('target_monthly_passive_usd', 0):,.0f}/mo "
         f"in {g.get('deadline_months')} months"
+        + (" · maximize mode ON" if brief.get("maximize_executable_upside", True) else " · maximize OFF")
     )
     lines.append("")
     if brief.get("debt_gate_active"):

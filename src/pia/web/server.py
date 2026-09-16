@@ -20,6 +20,7 @@ from pia.engine.scorer import rank_streams
 from pia.engine.portfolio import build_portfolio
 from pia.engine.projector import project_paper
 from pia.output.decision_brief import build_decision_brief, catalog_freshness_report
+from pia.output.commitment_brief import apply_teaching_intent, build_commitment_brief
 
 CATALOG_DIR = Path(__file__).parent.parent.parent.parent / "catalog" / "streams"
 STATIC_DIR = Path(__file__).parent / "static"
@@ -31,6 +32,7 @@ class AnalyzeRequest(BaseModel):
     profile: dict
     inventory_markdown: str | None = None
     inventory_json: dict | None = None
+    teaching_intent: bool = False
 
 
 class PlaybookRequest(BaseModel):
@@ -74,7 +76,7 @@ class ReverseSolveRequest(BaseModel):
 
 
 def _profile_from_request(req: AnalyzeRequest) -> Profile:
-    """Build Profile from request body, optionally merging stack inventory."""
+    """Build Profile from request body, optionally merging stack inventory + teaching toggle."""
     from pia.catalog.inventory import (
         merge_inventory_into_profile,
         parse_inventory_markdown_text,
@@ -88,6 +90,8 @@ def _profile_from_request(req: AnalyzeRequest) -> Profile:
     elif req.inventory_markdown and req.inventory_markdown.strip():
         inventory = parse_inventory_markdown_text(req.inventory_markdown.strip())
         profile = merge_inventory_into_profile(profile, inventory)
+    # Teaching toggle: merge domain_expertise "teaching" so scorer lifts hard-demote
+    profile = apply_teaching_intent(profile, bool(getattr(req, "teaching_intent", False)))
     return profile
 
 
@@ -144,6 +148,13 @@ async def analyze(req: AnalyzeRequest):
     streams = load_catalog(CATALOG_DIR)
     ranked = rank_streams(profile, streams)
     alloc = build_portfolio(profile, ranked)
+    # teaching_intent already applied on profile; pass False to avoid double-tag
+    commitment_brief = build_commitment_brief(
+        profile, streams, teaching_intent=False
+    )
+    # Reflect actual toggle state for clients
+    commitment_brief["teaching_intent"] = bool(req.teaching_intent)
+    commitment_brief["commitment"]["teaching_intent"] = bool(req.teaching_intent)
     brief = build_decision_brief(profile, streams)
 
     projection_series = build_paper_projections(alloc.allocations, ranked)
@@ -219,6 +230,8 @@ async def analyze(req: AnalyzeRequest):
             ],
         },
         "brief": brief,
+        "commitment_brief": commitment_brief,
+        "teaching_intent": bool(req.teaching_intent),
         "inventory_merged": bool(
             (req.inventory_markdown and req.inventory_markdown.strip())
             or req.inventory_json is not None
@@ -393,7 +406,28 @@ async def brief(req: AnalyzeRequest):
         raise HTTPException(status_code=422, detail=str(e))
 
     streams = load_catalog(CATALOG_DIR)
-    return build_decision_brief(profile, streams)
+    decision = build_decision_brief(profile, streams)
+    commitment = build_commitment_brief(profile, streams, teaching_intent=False)
+    commitment["teaching_intent"] = bool(req.teaching_intent)
+    commitment["commitment"]["teaching_intent"] = bool(req.teaching_intent)
+    # Keep CoS decision brief fields; add commitment_brief as primary UX contract
+    decision["commitment_brief"] = commitment
+    decision["commitment"] = commitment.get("commitment")
+    return decision
+
+
+@app.post("/api/commitment")
+async def commitment(req: AnalyzeRequest):
+    try:
+        profile = _profile_from_request(req)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    streams = load_catalog(CATALOG_DIR)
+    out = build_commitment_brief(profile, streams, teaching_intent=False)
+    out["teaching_intent"] = bool(req.teaching_intent)
+    out["commitment"]["teaching_intent"] = bool(req.teaching_intent)
+    return out
 
 
 @app.post("/api/freshness")

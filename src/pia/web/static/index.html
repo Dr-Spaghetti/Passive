@@ -627,6 +627,13 @@ textarea { resize: vertical; min-height: 120px; }
           ></textarea>
           <div class="muted sm" style="margin-top:6px;">Persisted in this browser. Improves stack-aware scoring (SEO / 360 / SaaS lanes).</div>
         </div>
+        <div class="fg" style="margin-top:12px;">
+          <label style="text-transform:none; letter-spacing:0; font-weight:400; font-size:13px; display:flex; gap:8px; cursor:pointer; align-items:center;">
+            <input type="checkbox" x-model="teachingIntent" @change="persistTeaching()">
+            I want to teach / sell courses
+          </label>
+          <div class="muted sm" style="margin-top:4px;">Off by default — keeps courses/KDP/printables hard-demoted unless you opt in.</div>
+        </div>
       </div>
 
       <template x-if="analysisError">
@@ -680,15 +687,15 @@ textarea { resize: vertical; min-height: 120px; }
 
   <!-- RESULTS TAB -->
   <section class="section" :class="{ active: tab==='results' }">
-    <div class="page-title">Your decision brief</div>
+    <div class="page-title">Commitment Brief</div>
     <div class="page-sub" x-show="results">
-      <span x-text="results?.ranked_streams?.filter(s=>!s.disqualified).length"></span> qualified ·
-      <span x-text="results?.ranked_streams?.filter(s=>s.disqualified).length"></span> disqualified
-      <span x-show="results?.brief?.options?.length"> · primary focus on recommended start</span>
+      Educational planning only — not financial advice ·
+      <span x-show="cb()?.start">Start locked</span>
+      <span x-show="!cb()?.start && cb()?.no_start_reason">No Start — debt/capital block</span>
     </div>
 
     <template x-if="!results">
-      <div class="empty"><h3>No analysis yet</h3><p>Fill in your profile and click "Run Analysis" to see your decision brief.</p></div>
+      <div class="empty"><h3>No analysis yet</h3><p>Fill in your profile and click "Run Analysis" to see your Commitment Brief.</p></div>
     </template>
 
     <template x-if="results">
@@ -700,87 +707,109 @@ textarea { resize: vertical; min-height: 120px; }
           </div>
         </template>
 
-        <template x-if="results.debt_gate_active || results.brief?.debt_gate_active">
+        <template x-if="results.debt_gate_active || cb()?.debt_plan?.active">
           <div class="alert alert-warn">
             <span class="ai">⚠</span>
-            <div><strong>Debt Gate Active —</strong> <span x-text="results.brief?.debt_gate_message || results.debt_gate_message"></span></div>
+            <div><strong>Debt Gate Active —</strong> <span x-text="results.debt_gate_message || cb()?.debt_plan?.note || ''"></span></div>
           </div>
         </template>
 
-        <template x-if="results.brief?.surplus_allocation_guidance">
-          <div class="card" style="margin-bottom:16px;">
-            <div class="card-title">Surplus guidance</div>
-            <div class="sm" x-text="results.brief.surplus_allocation_guidance"></div>
-          </div>
-        </template>
-
-        <template x-if="results.brief?.methods_compared?.length">
-          <div class="card" style="margin-bottom:16px;">
-            <div class="card-title">Methods compared (on your stack)</div>
-            <template x-for="m in results.brief.methods_compared" :key="m.id + m.verdict">
-              <div style="margin:8px 0; font-size:13px;">
-                <span class="badge" :class="m.verdict==='disqualified' ? 'b-warn' : 'b-ok'" x-text="m.verdict"></span>
-                <strong x-text="m.name"></strong>
-                <span class="mono muted" x-text="'(' + m.id + ')'"></span>
-                <span class="muted" x-show="m.stack_match_score != null" x-text="' · stack ' + m.stack_match_score"></span>
-                <div class="sm muted" style="margin-top:2px;" x-text="m.note"></div>
+        <!-- START -->
+        <div class="card" style="margin-bottom:16px; border-color:var(--accent);">
+          <div class="card-title">Start this month</div>
+          <template x-if="cb()?.start">
+            <div>
+              <div style="font-family:Georgia,serif; font-size:20px;" x-text="cb().start.name"></div>
+              <div class="mono muted sm" x-text="cb().start.stream_id"></div>
+              <div class="row" style="gap:10px; margin-top:8px; flex-wrap:wrap;">
+                <span class="badge b-ok" x-text="'Fit ' + cb().start.fit_score"></span>
+                <span class="badge b-gray" x-text="'RAS ' + cb().start.ras"></span>
+                <span class="badge b-gray" x-text="'Stack ' + Number(cb().start.stack_match_score||0).toFixed(0)"></span>
               </div>
-            </template>
-          </div>
-        </template>
+              <div class="sm" style="margin-top:10px;" x-text="(cb().start.stack_match_notes && cb().start.stack_match_notes[0]) || (cb().start.explain && cb().start.explain[0]) || ''"></div>
+            </div>
+          </template>
+          <template x-if="!cb()?.start">
+            <div class="sm" x-text="cb()?.no_start_reason || 'No Start — clear debt/capital constraints, then re-run.'"></div>
+          </template>
+        </div>
 
-        <template x-if="results.brief?.options?.length">
-          <div class="card" style="margin-bottom:16px;">
-            <div class="card-title">Recommended start + alternatives</div>
-            <template x-for="o in results.brief.options" :key="o.stream_id">
-              <div style="padding:12px 0; border-bottom:1px solid var(--border);">
-                <div class="row-sb" style="align-items:flex-start;">
-                  <div>
-                    <div class="badge b-ok" x-text="o.role_label"></div>
-                    <div style="font-family:Georgia,serif; font-size:17px; margin-top:4px;" x-text="o.name"></div>
-                    <div class="mono muted sm" x-text="o.stream_id"></div>
-                  </div>
-                  <div class="n" style="text-align:right;">
-                    <div class="sm muted">Stack match</div>
-                    <div class="bold" style="color:var(--accent);" x-text="Number(o.stack_match_score || 0).toFixed(0)"></div>
-                    <div class="sm muted" x-text="'Fit ' + o.fit_score + ' · RAS ' + o.ras"></div>
-                  </div>
-                </div>
-                <div class="sm" style="margin-top:8px;" x-text="(o.stack_match_notes && o.stack_match_notes[0]) || (o.explain && o.explain.find(e => e.startsWith('Why this fits'))) || (o.explain && o.explain[0]) || ''"></div>
-                <div class="sm muted" style="margin-top:6px;" x-show="o.week1_actions && o.week1_actions.length">
-                  <strong>First action:</strong> <span x-text="o.week1_actions[0]"></span>
-                </div>
-              </div>
-            </template>
-          </div>
-        </template>
+        <!-- SUPPORT -->
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title">Support (parked — don’t start yet)</div>
+          <template x-for="o in (cb()?.support || [])" :key="'sup-'+o.stream_id">
+            <div style="padding:8px 0; border-bottom:1px solid var(--border);">
+              <strong x-text="o.name"></strong>
+              <span class="mono muted sm" x-text="' (' + o.stream_id + ')'"></span>
+              <div class="sm muted" x-text="(o.stack_match_notes && o.stack_match_notes[0]) || ''"></div>
+            </div>
+          </template>
+          <div class="sm muted" x-show="!(cb()?.support || []).length">No parked alts this month.</div>
+        </div>
 
-        <div class="fg2" style="margin-bottom:16px;" x-show="results.brief">
-          <div class="card">
-            <div class="card-title">Start this month</div>
-            <template x-for="o in (results.brief?.options || []).slice(0,1)" :key="'start-'+o.stream_id">
-              <div class="sm"><strong x-text="o.name"></strong> — <span x-text="(o.week1_actions && o.week1_actions[0]) || 'See week-1 plan'"></span></div>
-            </template>
+        <!-- KILL / NOT NOW -->
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title">Kill / Not now</div>
+          <template x-for="(line, idx) in (cb()?.kill_summary || [])" :key="'kill-'+idx">
+            <div class="sm" style="margin:4px 0;" x-text="line"></div>
+          </template>
+          <div class="sm muted" x-show="!(cb()?.kill_summary || []).length">Nothing extra to kill this pass.</div>
+        </div>
+
+        <!-- FEASIBILITY -->
+        <div class="card" style="margin-bottom:16px;" x-show="cb()?.feasibility">
+          <div class="card-title">Feasibility strip</div>
+          <div class="row" style="gap:16px; flex-wrap:wrap;">
+            <div>
+              <div class="sm muted">Target</div>
+              <div class="bold" x-text="'$' + Number(cb().feasibility.target_monthly||0).toLocaleString() + '/mo'"></div>
+            </div>
+            <div>
+              <div class="sm muted">Deadline</div>
+              <div class="bold" x-text="(cb().feasibility.deadline_months||0) + ' mo'"></div>
+            </div>
+            <div>
+              <div class="sm muted">Projected base</div>
+              <div class="bold" x-text="'$' + Number(cb().feasibility.projected_base_at_deadline||0).toLocaleString()"></div>
+            </div>
+            <div>
+              <div class="sm muted">% of target</div>
+              <div class="bold" x-text="Number(cb().feasibility.pct_of_target_base||0).toFixed(0) + '%'"></div>
+            </div>
+            <div>
+              <div class="sm muted">Status</div>
+              <span class="badge" :class="cb().feasibility.status==='on_track' ? 'b-ok' : 'b-warn'" x-text="cb().feasibility.status"></span>
+            </div>
           </div>
-          <div class="card">
-            <div class="card-title">Park</div>
-            <template x-for="o in (results.brief?.options || []).slice(1)" :key="'park-'+o.stream_id">
-              <div class="sm" x-text="o.name + ' (' + o.role_label + ')'"></div>
+          <div class="sm muted" style="margin-top:8px;" x-text="cb().feasibility.note"></div>
+        </div>
+
+        <!-- FIRST 7 DAYS -->
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-title">First 7 days (stack playbook)</div>
+          <ol style="margin:0; padding-left:18px;">
+            <template x-for="(step, idx) in (cb()?.first_7_days || [])" :key="'d7-'+idx">
+              <li class="sm" style="margin:6px 0;" x-text="step"></li>
             </template>
-            <div class="sm muted" x-show="!(results.brief?.options || []).slice(1).length">No parked alts.</div>
+          </ol>
+        </div>
+
+        <!-- DEBT PLAN -->
+        <div class="card" style="margin-bottom:16px;" x-show="cb()?.debt_plan">
+          <div class="card-title">Debt plan</div>
+          <div class="sm" x-text="cb().debt_plan.note"></div>
+          <div class="sm muted" style="margin-top:6px;" x-show="cb().debt_plan.split">
+            Split (educational):
+            ≥60% debt (~$<span x-text="cb().debt_plan.split.debt_paydown_usd"></span>) ·
+            ~30% buffer (~$<span x-text="cb().debt_plan.split.emergency_buffer_usd"></span>) ·
+            ≤10% experiments (~$<span x-text="cb().debt_plan.split.risky_experiments_usd"></span>)
           </div>
-          <div class="card">
-            <div class="card-title">Not now</div>
-            <template x-for="d in (results.brief?.disqualified_sample || []).slice(0,4)" :key="'dq-'+d.stream_id">
-              <div class="sm"><span class="mono" x-text="d.stream_id"></span> — <span class="muted" x-text="d.reason"></span></div>
-            </template>
-            <div class="sm muted" x-show="!(results.brief?.disqualified_sample || []).length">No disqualified sample.</div>
-          </div>
+          <div class="sm muted" style="margin-top:4px;" x-text="cb().debt_plan.guidance"></div>
         </div>
 
         <div class="row" style="margin-bottom:14px;">
           <button class="btn btn-outline btn-sm" @click="showFullCatalog = !showFullCatalog">
-            <span x-text="showFullCatalog ? 'Hide full ranked catalog' : 'Show full ranked catalog'"></span>
+            <span x-text="showFullCatalog ? 'Hide engineer catalog' : 'Engineer: full catalog'"></span>
           </button>
         </div>
 
@@ -1114,6 +1143,7 @@ function app() {
     results: null,
     analysisError: null,
     inventoryMd: '',
+    teachingIntent: false,
     showFullCatalog: false,
     aiText: '',
     aiError: null,
@@ -1158,8 +1188,10 @@ function app() {
     init() {
       try {
         this.inventoryMd = localStorage.getItem('pia_inventory_md') || '';
+        this.teachingIntent = localStorage.getItem('pia_teaching_intent') === '1';
       } catch (e) {
         this.inventoryMd = '';
+        this.teachingIntent = false;
       }
       this.$watch('tab', newTab => {
         setTimeout(() => {
@@ -1179,6 +1211,19 @@ function app() {
         localStorage.setItem('pia_inventory_md', this.inventoryMd || '');
       } catch (e) { /* ignore quota / private mode */ }
     },
+
+    persistTeaching() {
+      try {
+        localStorage.setItem('pia_teaching_intent', this.teachingIntent ? '1' : '0');
+      } catch (e) {}
+    },
+
+    cb() {
+      return (this.results && (this.results.commitment_brief && this.results.commitment_brief.commitment
+        ? this.results.commitment_brief.commitment
+        : this.results.commitment_brief)) || null;
+    },
+
 
     money(value) {
       return '$' + Number(value || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
@@ -1299,7 +1344,8 @@ function app() {
       this.analysisError = null;
       try {
         this.persistInventory();
-        const payload = { profile: this.buildProfile() };
+        this.persistTeaching();
+        const payload = { profile: this.buildProfile(), teaching_intent: !!this.teachingIntent };
         if ((this.inventoryMd || '').trim()) {
           payload.inventory_markdown = this.inventoryMd;
         }
@@ -1314,16 +1360,17 @@ function app() {
         }
         this.results = await r.json();
         this.showFullCatalog = false;
-        const briefPrimary = (this.results.brief && this.results.brief.options && this.results.brief.options[0])
-          ? this.results.brief.options[0].name
-          : null;
+        const startName = (this.results.commitment_brief && this.results.commitment_brief.start)
+          ? this.results.commitment_brief.start.name
+          : ((this.results.brief && this.results.brief.options && this.results.brief.options[0])
+            ? this.results.brief.options[0].name : null);
         this.latestMetrics = {
           bear: this.results.monthly_projections.bear,
           base: this.results.monthly_projections.base,
           bull: this.results.monthly_projections.bull,
           deployed: this.results.portfolio.total_deployed,
-          caption: briefPrimary
-            ? ('Decision brief · start with ' + briefPrimary)
+          caption: startName
+            ? ('Commitment Brief · Start: ' + startName)
             : ('Current profile · ' + this.results.ranked_streams.filter(s => !s.disqualified).slice(0, 3).map(s => s.name).join(', ')),
         };
         this.expandedId = null;
