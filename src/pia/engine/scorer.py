@@ -334,7 +334,9 @@ PREFERENCE_PENALTIES = {
 
 # Streams treated as higher-risk capital deployment under an active debt gate
 DEBT_GATE_RISKY_CATEGORIES = {"real_asset", "local_physical", "credit_alt"}
-LOW_CEILING_MONTHLY_USD = 100.0  # base monthly_usd_at_typical below this = low ceiling vs aggressive goals
+LOW_CEILING_MONTHLY_USD = 100.0  # catalog base below this may set informational low_ceiling flag
+# Under maximize mode, scoring uses this fixed deadline so scoreboard deadline cannot steer RAS.
+MAXIMIZE_NEUTRAL_DEADLINE_DAYS = 24 * 30
 
 
 def preference_tradeoffs(profile: Profile, stream: Stream) -> tuple[float, list[str]]:
@@ -379,7 +381,11 @@ def score_stream(
     capital = profile.deployable_capital
     maintenance_budget = profile.monthly_maintenance_budget
     user_risk = profile.effective_risk_score
-    deadline_days = profile.financial.target_deadline_months * 30
+    # Maximize posture: deadline is stretch scoreboard only — do not let it change fit/RAS.
+    if profile.maximize_executable_upside:
+        deadline_days = MAXIMIZE_NEUTRAL_DEADLINE_DAYS
+    else:
+        deadline_days = profile.financial.target_deadline_months * 30
     skills_dict = profile.skills.model_dump(exclude={"domain_expertise"})
     domain_expertise = list(profile.skills.domain_expertise or [])
 
@@ -465,7 +471,7 @@ def score_stream(
                 "Debt gate: soft demotion — surplus should favor debt paydown over locking new capital."
             )
 
-    # Low-ceiling soft penalty when chasing aggressive cash_flow targets
+    # Low-ceiling flag vs stretch scoreboard target (informational under maximize).
     ceiling = _monthly_yield_ceiling(stream, capital)
     target = profile.financial.target_monthly_passive_usd or 0.0
     low_ceiling = False
@@ -477,11 +483,18 @@ def score_stream(
         and target >= 1000
     ):
         low_ceiling = True
-        fit = max(0.0, fit - 12.0)
-        ceiling_explain.append(
-            f"Low ceiling vs goal: catalog base ~${stream.yield_.base:,.0f}/mo "
-            f"vs target ${target:,.0f}/mo — weak as a primary path."
-        )
+        if profile.maximize_executable_upside:
+            # Informational only — do not demote fit/RAS under maximize posture.
+            ceiling_explain.append(
+                f"Informational stretch gap: catalog base ~${stream.yield_.base:,.0f}/mo "
+                f"vs scoreboard ${target:,.0f}/mo — does not change ranking under maximize mode."
+            )
+        else:
+            fit = max(0.0, fit - 12.0)
+            ceiling_explain.append(
+                f"Low ceiling vs goal: catalog base ~${stream.yield_.base:,.0f}/mo "
+                f"vs target ${target:,.0f}/mo — weak as a primary path."
+            )
 
     if stream.yield_.unit == "annual_pct_on_capital":
         yield_normalized = min(stream.yield_.base / 30, 1.0) * 100

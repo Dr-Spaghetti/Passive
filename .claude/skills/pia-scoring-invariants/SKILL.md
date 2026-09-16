@@ -23,14 +23,15 @@ Starting from a `Profile` and a `Stream`:
 4. **Stack factor** matches PERSONAL/PRODUCT (and WORK only if `personal_use_ok`) inventory tags to stream metadata. Company SaaS without `personal_use_ok` does not count as personal capital.
 5. **Debt-gate ranking policy** (when `high_interest_debt_usd > 0`): demote capital-at-risk / principal-loss streams; portfolio also caps risky share at 10% and publishes surplus guidance (>=60% paydown educational split).
 6. **Preference penalties** from `preference_tradeoffs` (public face and customer support) are subtracted from the weighted fit. They lower rank but never turn a stream into an exclusion.
-7. **RAS** = `fit * (yield_normalized / (1 + risk_composite))`.
-8. **effort_yield** = `(yield * capital / 12) / hours`.
+7. **Maximize posture** (default `Profile.maximize_executable_upside=True`): dollar target / deadline are stretch scoreboard only. Do **not** apply the low_ceiling fit soft-penalty; use a neutral deadline for `score_time_to_first_dollar`. Informational `low_ceiling` flag OK.
+8. **RAS** = `fit * (yield_normalized / (1 + risk_composite))`.
+9. **effort_yield** = `(yield * capital / 12) / hours`.
 
 ## Ranking (`rank_streams`)
 
 - Streams are scored in order; each qualifying stream adds its `correlation_tags` to `selected_tags`, which feed the next stream's `diversification` factor.
 - Sort is `(not disqualified, ras)` descending: qualifying streams first, then by RAS.
-- Brief `select_options` skips unreachable / prefers stack match and avoids low-ceiling fillers.
+- Brief `select_options` / commitment `pick_commitment` skip unreachable / prefer stack match. Under maximize they must **not** demote or exclude on `low_ceiling`.
 
 ## Rules
 

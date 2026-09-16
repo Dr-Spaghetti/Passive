@@ -39,6 +39,7 @@ from pia.output.renderer import (
 from pia.output.checklist import render_90day_checklist
 from pia.output.exporter import new_run_dir, export_run
 from pia.output.decision_brief import build_decision_brief, catalog_freshness_report, COS_CONTRACT
+from pia.output.commitment_brief import build_commitment_brief, render_commitment_markdown
 from pia.catalog.inventory import load_inventory, merge_inventory_into_profile
 
 console = Console()
@@ -328,8 +329,14 @@ def plan_show(stream_id, profile_id):
               type=click.Path(exists=True, dir_okay=False, path_type=Path),
               help="Optional stack inventory JSON or pia-ops markdown (WORK≠personal capital)")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Print full brief as JSON")
-def brief(profile_path: Path, inventory_path: Path | None, as_json: bool):
-    """Build a decision brief from a saved profile JSON (CoS hub entrypoint)."""
+@click.option(
+    "--commitment/--no-commitment",
+    default=True,
+    show_default=True,
+    help="Emit Start/Support/Kill/feasibility/7-day like API commitment path (default ON)",
+)
+def brief(profile_path: Path, inventory_path: Path | None, as_json: bool, commitment: bool):
+    """Build a decision/commitment brief from a saved profile JSON (CoS hub entrypoint)."""
     profile = Profile(**json.loads(profile_path.read_text(encoding="utf-8")))
     if inventory_path is not None:
         inv = load_inventory(inventory_path)
@@ -338,17 +345,29 @@ def brief(profile_path: Path, inventory_path: Path | None, as_json: bool):
                       f"({len(profile.stack.assets)} assets)[/dim]")
     streams = load_catalog(CATALOG_DIR)
     brief_data = build_decision_brief(profile, streams)
+    artifacts = {"decision_brief.md": brief_data["markdown"]}
+    if commitment:
+        cb = build_commitment_brief(profile, streams, teaching_intent=False)
+        cb_md = render_commitment_markdown(cb)
+        cb["markdown"] = cb_md
+        brief_data["commitment_brief"] = cb
+        brief_data["commitment"] = cb.get("commitment")
+        artifacts["commitment_brief.md"] = cb_md
     run_dir = new_run_dir(profile.profile_id)
     if as_json:
         import contextlib
         import io
         with contextlib.redirect_stdout(io.StringIO()):
-            export_run(run_dir, {"decision_brief.md": brief_data["markdown"]})
+            export_run(run_dir, artifacts)
         click.echo(json.dumps(brief_data, indent=2))
     else:
-        export_run(run_dir, {"decision_brief.md": brief_data["markdown"]})
-        console.print(brief_data["markdown"])
-        console.print(f"[dim]Saved decision_brief.md -> {run_dir}[/dim]")
+        export_run(run_dir, artifacts)
+        if commitment and "commitment_brief" in brief_data:
+            console.print(brief_data["commitment_brief"]["markdown"])
+            console.print(f"[dim]Saved commitment_brief.md + decision_brief.md -> {run_dir}[/dim]")
+        else:
+            console.print(brief_data["markdown"])
+            console.print(f"[dim]Saved decision_brief.md -> {run_dir}[/dim]")
 
 
 @cli.command("cos-contract")
