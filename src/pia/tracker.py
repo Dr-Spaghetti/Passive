@@ -36,6 +36,17 @@ def init_tracker() -> None:
             conn.execute("ALTER TABLE income_log ADD COLUMN profile_id TEXT DEFAULT ''")
         if "period_key" not in cols:
             conn.execute("ALTER TABLE income_log ADD COLUMN period_key TEXT DEFAULT ''")
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS debt_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT,
+                profile_id TEXT DEFAULT '',
+                balance_usd REAL,
+                payment_usd REAL,
+                notes TEXT DEFAULT '',
+                period_key TEXT DEFAULT ''
+            )
+        """)
 
 
 def _period_key(when: date | None = None) -> str:
@@ -263,3 +274,188 @@ def check_drift(
             )
 
     return alerts
+
+
+def log_debt(
+    *,
+    profile_id: str = "",
+    balance_usd: float | None = None,
+    payment_usd: float | None = None,
+    notes: str = "",
+    when: date | None = None,
+) -> dict:
+    """Append a debt ledger entry. Prefer explicit balance_usd; never invent amounts.
+
+    At least one of balance_usd or payment_usd must be provided (user-entered only).
+    """
+    if balance_usd is None and payment_usd is None:
+        raise ValueError("Provide balance_usd and/or payment_usd (user-entered; never invent).")
+    if balance_usd is not None and balance_usd < 0:
+        raise ValueError("balance_usd cannot be negative")
+    if payment_usd is not None and payment_usd < 0:
+        raise ValueError("payment_usd cannot be negative")
+    init_tracker()
+    d = when or date.today()
+    with sqlite3.connect(DB_PATH) as conn:
+        cur = conn.execute(
+            "INSERT INTO debt_log "
+            "(date, profile_id, balance_usd, payment_usd, notes, period_key) "
+            "VALUES (?,?,?,?,?,?)",
+            (
+                d.isoformat(),
+                profile_id or "",
+                balance_usd,
+                payment_usd,
+                notes,
+                _period_key(d),
+            ),
+        )
+        row_id = cur.lastrowid
+    return {
+        "id": row_id,
+        "date": d.isoformat(),
+        "profile_id": profile_id or "",
+        "balance_usd": balance_usd,
+        "payment_usd": payment_usd,
+        "notes": notes,
+        "period_key": _period_key(d),
+    }
+
+
+def list_debt_logs(limit: int = 25, profile_id: str | None = None) -> list[dict]:
+    """Return recent debt ledger entries (newest first)."""
+    init_tracker()
+    with sqlite3.connect(DB_PATH) as conn:
+        if profile_id is not None:
+            rows = conn.execute(
+                "SELECT id, date, profile_id, balance_usd, payment_usd, notes, period_key "
+                "FROM debt_log WHERE profile_id=? ORDER BY id DESC LIMIT ?",
+                (profile_id, limit),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT id, date, profile_id, balance_usd, payment_usd, notes, period_key "
+                "FROM debt_log ORDER BY id DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+    return [
+        {
+            "id": r[0],
+            "date": r[1],
+            "profile_id": r[2] or "",
+            "balance_usd": r[3],
+            "payment_usd": r[4],
+            "notes": r[5] or "",
+            "period_key": r[6] or "",
+        }
+        for r in rows
+    ]
+
+
+def latest_debt_balance_entry(profile_id: str = "") -> dict | None:
+    """Latest row with an explicit balance_usd for profile_id (preferred over payments)."""
+    init_tracker()
+    with sqlite3.connect(DB_PATH) as conn:
+        row = conn.execute(
+            "SELECT id, date, profile_id, balance_usd, payment_usd, notes, period_key "
+            "FROM debt_log WHERE profile_id=? AND balance_usd IS NOT NULL "
+            "ORDER BY date DESC, id DESC LIMIT 1",
+            (profile_id or "",),
+        ).fetchone()
+    if not row:
+        return None
+    return {
+        "id": row[0],
+        "date": row[1],
+        "profile_id": row[2] or "",
+        "balance_usd": row[3],
+        "payment_usd": row[4],
+        "notes": row[5] or "",
+        "period_key": row[6] or "",
+    }
+
+
+def debt_ledger_snapshot(profile_id: str = "") -> dict:
+    """Summarize ledger for briefs: last explicit balance + gate status. Never invents money."""
+    latest = latest_debt_balance_entry(profile_id)
+    recent = list_debt_logs(limit=5, profile_id=profile_id or "")
+    if latest is None:
+        return {
+            "latest_balance_entry": None,
+            "recent_entries": recent,
+            "gate_status": "unknown",
+            "balance_usd": None,
+            "note": (
+                "No explicit balance entry in debt ledger — brief uses profile "
+                "high_interest_debt_usd only; payment-only rows do not invent a remaining balance."
+            ),
+        }
+    bal = float(latest["balance_usd"])
+    if bal <= 0:
+        gate = "cleared"
+        note = (
+            "User-entered debt ledger balance is $0 — debt gate can clear; "
+            "high_interest_debt_usd input path cleared for this brief."
+        )
+    else:
+        gate = "active"
+        note = (
+            f"User-entered debt ledger balance ${bal:,.2f} — debt gate active. "
+            "Educational tracking only; not financial advice."
+        )
+    return {
+        "latest_balance_entry": latest,
+        "recent_entries": recent,
+        "gate_status": gate,
+        "balance_usd": bal,
+        "note": note,
+    }
+
+
+def apply_debt_ledger_to_profile(profile: Any) -> tuple[Any, dict]:
+    """Return (profile_for_scoring, ledger_meta).
+
+    If the latest explicit ledger balance is 0, clear high_interest_debt_usd on a
+    copy so has_debt_gate is false. If balance > 0, sync that user-entered balance
+    onto the copy. Payment-only rows never invent a remaining balance.
+    """
+    from copy import deepcopy
+
+    meta = debt_ledger_snapshot(getattr(profile, "profile_id", "") or "")
+    bal = meta.get("balance_usd")
+    if bal is None:
+        # No explicit balance — leave profile money fields untouched
+        if getattr(profile, "has_debt_gate", False):
+            meta["gate_status"] = "active"
+            meta["note"] = (
+                "Debt gate follows profile.financial.high_interest_debt_usd "
+                "(no explicit ledger balance yet)."
+            )
+        else:
+            meta["gate_status"] = "cleared"
+            meta["note"] = (
+                "No high-interest debt on profile and no ledger balance entry."
+            )
+        meta["cleared_high_interest_debt_input"] = False
+        meta["applied_balance_usd"] = None
+        return profile, meta
+
+    working = deepcopy(profile)
+    # Sync only user-entered explicit balance — never invent from payments
+    working.financial.high_interest_debt_usd = float(bal)
+    meta["applied_balance_usd"] = float(bal)
+    meta["cleared_high_interest_debt_input"] = float(bal) <= 0
+    if float(bal) <= 0:
+        meta["gate_status"] = "cleared"
+        meta["note"] = (
+            "User-entered ledger balance $0 — cleared high_interest_debt_usd for this brief; "
+            "debt gate inactive. Educational only."
+        )
+    else:
+        meta["gate_status"] = "active"
+        meta["note"] = (
+            f"Applied user-entered ledger balance ${float(bal):,.2f} to brief scoring. "
+            "Educational only — not financial advice."
+        )
+    return working, meta
+

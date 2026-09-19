@@ -63,6 +63,26 @@ pia brief --profile profiles/nick.template.json
 # commitment sections ON by default; use --no-commitment for decision-only
 ```
 
+
+
+## Debt ledger (C2)
+
+Track user-entered high-interest debt balances (educational only — never invents amounts).
+Prefer explicit `--balance` entries. Payment-only rows do **not** invent a remaining balance.
+When the latest explicit balance is `$0`, the next brief clears the `high_interest_debt_usd`
+input path so the debt gate can clear.
+
+```bash
+pia debt log --profile-id nick --balance 2500 --notes "statement"
+pia debt log --profile-id nick --payment 200 --notes "payment only (no invented remainder)"
+pia debt log --profile-id nick --balance 0 --notes "paid off"
+pia debt show --profile-id nick
+
+# API
+# POST /api/debt  {"profile_id":"nick","balance_usd":0,"notes":"paid off"}
+# GET  /api/debt?profile_id=nick
+```
+
 ## Verification
 
 ```powershell

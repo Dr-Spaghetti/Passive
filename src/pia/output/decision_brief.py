@@ -279,6 +279,9 @@ def build_decision_brief(
     *,
     stack_notes: list[str] | None = None,
 ) -> dict[str, Any]:
+    from pia.tracker import apply_debt_ledger_to_profile
+
+    profile, debt_ledger = apply_debt_ledger_to_profile(profile)
     ranked = rank_streams(profile, streams)
     alloc = build_portfolio(profile, ranked)
     picks = select_options(ranked, maximize=bool(profile.maximize_executable_upside))
@@ -337,6 +340,7 @@ def build_decision_brief(
         "maximize_executable_upside": bool(profile.maximize_executable_upside),
         "debt_gate_active": alloc.debt_gate_active,
         "debt_gate_message": alloc.debt_gate_message,
+        "debt_ledger": debt_ledger,
         "surplus_allocation_guidance": alloc.surplus_allocation_guidance or surplus_guidance(profile),
         "options": options,
         "disqualified_sample": disqualified[:8],
@@ -374,8 +378,20 @@ def render_brief_markdown(brief: dict[str, Any]) -> str:
         + (" · maximize mode ON" if brief.get("maximize_executable_upside", True) else " · maximize OFF")
     )
     lines.append("")
+    ledger = brief.get("debt_ledger") or {}
+    if ledger:
+        bal = ledger.get("balance_usd")
+        status = ledger.get("gate_status") or ("active" if brief.get("debt_gate_active") else "cleared")
+        bal_txt = "no explicit balance entry" if bal is None else f"${bal:,.2f}"
+        lines.append(f"**Debt ledger:** last balance {bal_txt} · gate **{status}**")
+        if ledger.get("note"):
+            lines.append(f"_{ledger['note']}_")
+        lines.append("")
     if brief.get("debt_gate_active"):
         lines.append(f"**Debt gate:** {brief.get('debt_gate_message')}")
+        lines.append("")
+    elif ledger.get("gate_status") == "cleared" and ledger.get("cleared_high_interest_debt_input"):
+        lines.append("**Debt gate:** cleared (ledger balance $0 — high_interest_debt_usd input path cleared)")
         lines.append("")
     if brief.get("surplus_allocation_guidance"):
         lines.append(f"**Surplus guidance:** {brief['surplus_allocation_guidance']}")
