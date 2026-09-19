@@ -335,6 +335,45 @@ def plan_show(stream_id, profile_id):
 
 
 
+
+
+@cli.group()
+def debt():
+    """Track high-interest debt balances / payments (educational; never invents amounts)."""
+    pass
+
+
+@debt.command("log")
+@click.option("--profile-id", default="", help="Profile id for this ledger row")
+@click.option("--balance", "balance_usd", type=float, default=None, help="Explicit remaining balance (preferred)")
+@click.option("--payment", "payment_usd", type=float, default=None, help="Optional payment amount (does not invent remaining balance)")
+@click.option("--notes", default="")
+def debt_log(profile_id, balance_usd, payment_usd, notes):
+    """Log a debt ledger entry. Prefer --balance; payment-only never invents remaining balance."""
+    from pia.tracker import log_debt
+    if balance_usd is None and payment_usd is None:
+        raise click.UsageError("Provide --balance and/or --payment (user-entered; never invent).")
+    row = log_debt(
+        profile_id=profile_id,
+        balance_usd=balance_usd,
+        payment_usd=payment_usd,
+        notes=notes,
+    )
+    console.print(f"[green]Debt ledger entry saved:[/green] {row}")
+
+
+@debt.command("show")
+@click.option("--profile-id", default=None, help="Filter by profile_id")
+@click.option("--limit", default=25, show_default=True, type=int)
+def debt_show(profile_id, limit):
+    """Show recent debt ledger rows and latest explicit balance snapshot."""
+    from pia.tracker import debt_ledger_snapshot, list_debt_logs
+    rows = list_debt_logs(limit=limit, profile_id=profile_id)
+    snap = debt_ledger_snapshot(profile_id or "")
+    # click.echo avoids Rich ANSI/control chars so JSON stays machine-parseable
+    click.echo(json.dumps({"snapshot": snap, "entries": rows}, indent=2))
+
+
 @cli.group(name="inventory")
 def inventory_cmd():
     """FACT-only stack inventory CRUD (JSON source of truth; WORK≠personal capital)."""

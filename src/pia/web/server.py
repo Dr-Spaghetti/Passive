@@ -61,6 +61,14 @@ class PlanRequest(BaseModel):
     notes: str = Field("", max_length=2_000)
 
 
+
+class DebtLogRequest(BaseModel):
+    profile_id: str = ""
+    balance_usd: float | None = Field(default=None, ge=0)
+    payment_usd: float | None = Field(default=None, ge=0)
+    notes: str = Field("", max_length=2_000)
+
+
 class DriftRequest(BaseModel):
     stream_id: str
     plan_monthly_net: float | None = None
@@ -368,6 +376,43 @@ async def plan_get(stream_id: str):
     if not row:
         raise HTTPException(status_code=404, detail=f"No plan for '{stream_id}'")
     return row
+
+
+
+@app.post("/api/debt")
+async def debt_log(req: DebtLogRequest):
+    from pia.tracker import log_debt, list_debt_logs, debt_ledger_snapshot
+
+    if req.balance_usd is None and req.payment_usd is None:
+        raise HTTPException(
+            status_code=422,
+            detail="Provide balance_usd and/or payment_usd (user-entered; never invent).",
+        )
+    try:
+        row = log_debt(
+            profile_id=req.profile_id,
+            balance_usd=req.balance_usd,
+            payment_usd=req.payment_usd,
+            notes=req.notes,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    return {
+        "entry": row,
+        "snapshot": debt_ledger_snapshot(req.profile_id or ""),
+        "entries": list_debt_logs(limit=25, profile_id=req.profile_id or None),
+    }
+
+
+@app.get("/api/debt")
+async def debt_history(profile_id: str | None = None, limit: int = 25):
+    from pia.tracker import list_debt_logs, debt_ledger_snapshot
+
+    pid = profile_id or ""
+    return {
+        "snapshot": debt_ledger_snapshot(pid),
+        "entries": list_debt_logs(limit=limit, profile_id=profile_id),
+    }
 
 
 @app.post("/api/drift")

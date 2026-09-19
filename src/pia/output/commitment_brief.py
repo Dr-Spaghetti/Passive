@@ -437,7 +437,10 @@ def build_commitment_brief(
     teaching_intent: bool = False,
 ) -> dict[str, Any]:
     """Build Commitment Brief v2 dict with nested ``commitment`` block."""
+    from pia.tracker import apply_debt_ledger_to_profile
+
     working = apply_teaching_intent(profile, teaching_intent)
+    working, debt_ledger = apply_debt_ledger_to_profile(working)
     ranked = rank_streams(working, streams)
     debt_gate_active = working.has_debt_gate
     maximize = bool(working.maximize_executable_upside)
@@ -514,6 +517,7 @@ def build_commitment_brief(
             ),
         },
         "debt_gate_active": debt_gate_active,
+        "debt_ledger": debt_ledger,
         "surplus_allocation_guidance": surplus_guidance(working) if debt_gate_active else "",
         "teaching_intent": bool(teaching_intent),
         "teaching_intent_mechanism": (
@@ -549,12 +553,23 @@ def render_commitment_markdown(brief: dict[str, Any]) -> str:
     if g.get("note"):
         lines.append(f"_{g['note']}_")
     lines.append("")
+    ledger = brief.get("debt_ledger") or {}
+    if ledger:
+        bal = ledger.get("balance_usd")
+        status = ledger.get("gate_status") or ("active" if brief.get("debt_gate_active") else "cleared")
+        bal_txt = "no explicit balance entry" if bal is None else f"${bal:,.2f}"
+        lines.append(f"**Debt ledger:** last balance {bal_txt} · gate **{status}**")
+        if ledger.get("note"):
+            lines.append(f"_{ledger['note']}_")
+        lines.append("")
     if brief.get("debt_gate_active"):
-        lines.append(f"**Debt gate:** active")
+        lines.append("**Debt gate:** active")
         if brief.get("surplus_allocation_guidance"):
             lines.append(f"**Surplus guidance:** {brief['surplus_allocation_guidance']}")
         lines.append("")
-
+    elif ledger.get("gate_status") == "cleared" and ledger.get("cleared_high_interest_debt_input"):
+        lines.append("**Debt gate:** cleared (ledger balance $0)")
+        lines.append("")
     c = brief.get("commitment") or brief
     start = c.get("start")
     lines.append("## Start")
