@@ -1,0 +1,90 @@
+{
+  "assets": [
+    {
+      "name": "Justify Local AI/SEO skills",
+      "lane": "work",
+      "status": "fact",
+      "personal_use_ok": true,
+      "tags": ["seo", "gbp", "ai", "citation", "maps"],
+      "notes": "Skills transferable; company SaaS still blocked separately"
+    },
+    {
+      "name": "Insta360 camera",
+      "lane": "work",
+      "status": "fact",
+      "personal_use_ok": true,
+      "tags": ["insta360", "360", "video", "pano"],
+      "notes": "Ownership/payer UNKNOWN — skill/gear adjacency only, not free capital"
+    },
+    {
+      "name": "panostitch-pro",
+      "lane": "product",
+      "status": "fact",
+      "personal_use_ok": true,
+      "tags": ["panostitch", "pano", "panorama", "video", "software"],
+      "notes": "Dr-Spaghetti product"
+    },
+    {
+      "name": "Vercel / Dr-Spaghetti shipping",
+      "lane": "product",
+      "status": "fact",
+      "personal_use_ok": true,
+      "tags": ["software", "saas", "vercel", "github"],
+      "notes": "Shipping stack"
+    },
+    {
+      "name": "Passive (pia)",
+      "lane": "personal",
+      "status": "fact",
+      "personal_use_ok": true,
+      "tags": ["software", "pia"],
+      "notes": "Personal Passive analyzer"
+    },
+    {
+      "name": "BrightLocal",
+      "lane": "work",
+      "status": "fact",
+      "personal_use_ok": false,
+      "tags": ["seo", "gbp", "citation", "brightlocal"],
+      "notes": "Company SaaS — not personal capital"
+    },
+    {
+      "name": "Local Falcon",
+      "lane": "work",
+      "status": "fact",
+      "personal_use_ok": false,
+      "tags": ["seo", "gbp", "local falcon"],
+      "notes": "Company SaaS — migrating to BrightLocal"
+    },
+    {
+      "name": "Runway AI",
+      "lane": "work",
+      "status": "fact",
+      "personal_use_ok": false,
+      "tags": ["ai", "video", "runway"],
+      "notes": "Jewel-forwarded expense path; not personal capital"
+    },
+    {
+      "name": "Higgsfield",
+      "lane": "work",
+      "status": "fact",
+      "personal_use_ok": false,
+      "tags": ["ai", "video", "higgsfield"],
+      "notes": "WORK client video usage"
+    },
+    {
+      "name": "Physical drone",
+      "lane": "personal",
+      "status": "unknown",
+      "personal_use_ok": false,
+      "tags": ["drone"],
+      "notes": "No purchase evidence — do not invent"
+    }
+  ],
+  "notes": [
+    "WORK SaaS/gear is not personal capital unless Nick confirms personal_use_ok.",
+    "Curated FACT JSON from pia-ops/stack/nick-inventory-2026-09-08.md — educational only.",
+    "Do not invent money, gear, or deploy numbers."
+  ],
+  "source": "tests/fixtures/nick_stack_inventory.json"
+}

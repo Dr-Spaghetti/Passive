@@ -193,7 +193,8 @@ def profile_indicates_teaching(profile: "Profile") -> bool:
     bits.append(getattr(profile.goals, "primary", "") or "")
     bits.extend(getattr(profile.goals, "secondary", None) or [])
     bits.extend(sorted(profile.stack_tags()))
-    for asset in profile.stack.assets:
+    # Only deployable stack (never unconfirmed WORK) may signal teaching intent
+    for asset in profile.deployable_stack_assets():
         bits.append(asset.name)
         bits.extend(asset.tags)
         if asset.notes:
