@@ -40,7 +40,19 @@ from pia.output.checklist import render_90day_checklist
 from pia.output.exporter import new_run_dir, export_run
 from pia.output.decision_brief import build_decision_brief, catalog_freshness_report, COS_CONTRACT
 from pia.output.commitment_brief import build_commitment_brief, render_commitment_markdown
-from pia.catalog.inventory import load_inventory, merge_inventory_into_profile
+from pia.catalog.inventory import (
+    add_asset,
+    import_markdown_to_json,
+    list_assets,
+    load_inventory,
+    merge_inventory_into_profile,
+    remove_asset,
+    save_inventory_json,
+    update_asset,
+    validate_inventory,
+    work_blocked_assets,
+)
+from pia.schemas.profile import StackInventory
 
 console = Console()
 CATALOG_DIR = Path(__file__).parent.parent.parent / "catalog" / "streams"
@@ -322,12 +334,166 @@ def plan_show(stream_id, profile_id):
         console.print(json.dumps(list_plans(profile_id), indent=2))
 
 
+
+@cli.group(name="inventory")
+def inventory_cmd():
+    """FACT-only stack inventory CRUD (JSON source of truth; WORK≠personal capital)."""
+    pass
+
+
+@inventory_cmd.command("list")
+@click.option(
+    "--file", "inventory_path", required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Path to inventory JSON (preferred) or markdown migration file",
+)
+@click.option("--lane", type=click.Choice(["work", "product", "personal"]), default=None)
+@click.option("--status", type=click.Choice(["fact", "unknown", "weak_fact"]), default=None)
+@click.option("--deployable-only", is_flag=True, default=False,
+              help="Only assets allowed for PERSONAL Passive scoring")
+@click.option("--json", "as_json", is_flag=True, default=False)
+def inventory_list(inventory_path: Path, lane, status, deployable_only, as_json):
+    """List inventory assets (JSON preferred)."""
+    inv = load_inventory(inventory_path)
+    rows = list_assets(inv, lane=lane, status=status, deployable_only=deployable_only)
+    if as_json:
+        click.echo(json.dumps([a.model_dump() for a in rows], indent=2))
+        return
+    table = Table(show_header=True, header_style="bold magenta")
+    for col in ("Name", "Lane", "Status", "personal_use_ok", "Tags"):
+        table.add_column(col)
+    for a in rows:
+        table.add_row(
+            a.name,
+            a.lane,
+            a.status,
+            "yes" if a.personal_use_ok else "no",
+            ", ".join(a.tags[:6]),
+        )
+    console.print(table)
+    blocked = work_blocked_assets(inv)
+    console.print(
+        f"[dim]{len(rows)} shown / {len(inv.assets)} total; "
+        f"{len(blocked)} WORK blocked from deployable capital[/dim]"
+    )
+
+
+@inventory_cmd.command("add")
+@click.option(
+    "--file", "inventory_path", required=True,
+    type=click.Path(dir_okay=False, path_type=Path),
+    help="Inventory JSON path (created if missing)",
+)
+@click.option("--name", required=True)
+@click.option("--lane", type=click.Choice(["work", "product", "personal"]), required=True)
+@click.option("--status", type=click.Choice(["fact", "unknown", "weak_fact"]), default="fact")
+@click.option("--personal-use-ok/--no-personal-use-ok", default=False,
+              help="WORK gear/SaaS only scores when confirmed True")
+@click.option("--tag", "tags", multiple=True, help="Repeatable tag")
+@click.option("--notes", default="")
+@click.option("--overwrite", is_flag=True, default=False)
+def inventory_add(inventory_path: Path, name, lane, status, personal_use_ok, tags, notes, overwrite):
+    """Add a FACT/UNKNOWN asset to inventory JSON."""
+    if inventory_path.exists():
+        inv = load_inventory_json_safe(inventory_path)
+    else:
+        inv = StackInventory(assets=[], notes=["FACT-only inventory — educational tooling."], source=str(inventory_path))
+    inv = add_asset(
+        inv,
+        name=name,
+        lane=lane,
+        status=status,
+        personal_use_ok=personal_use_ok,
+        tags=tags,
+        notes=notes,
+        overwrite=overwrite,
+    )
+    save_inventory_json(inv, inventory_path)
+    console.print(f"[green]Added[/green] {name} -> {inventory_path}")
+
+
+@inventory_cmd.command("update")
+@click.option(
+    "--file", "inventory_path", required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option("--name", required=True, help="Existing asset name")
+@click.option("--new-name", default=None)
+@click.option("--lane", type=click.Choice(["work", "product", "personal"]), default=None)
+@click.option("--status", type=click.Choice(["fact", "unknown", "weak_fact"]), default=None)
+@click.option("--personal-use-ok/--no-personal-use-ok", default=None)
+@click.option("--tag", "tags", multiple=True, help="Replace tags when provided")
+@click.option("--notes", default=None)
+def inventory_update(inventory_path, name, new_name, lane, status, personal_use_ok, tags, notes):
+    """Update fields on an existing inventory asset."""
+    inv = load_inventory_json_safe(inventory_path)
+    kwargs = {}
+    if new_name is not None:
+        kwargs["new_name"] = new_name
+    if lane is not None:
+        kwargs["lane"] = lane
+    if status is not None:
+        kwargs["status"] = status
+    if personal_use_ok is not None:
+        kwargs["personal_use_ok"] = personal_use_ok
+    if tags:
+        kwargs["tags"] = tags
+    if notes is not None:
+        kwargs["notes"] = notes
+    if not kwargs:
+        raise click.UsageError("Provide at least one field to update")
+    inv = update_asset(inv, name, **kwargs)
+    save_inventory_json(inv, inventory_path)
+    console.print(f"[green]Updated[/green] {name} -> {inventory_path}")
+
+
+@inventory_cmd.command("remove")
+@click.option(
+    "--file", "inventory_path", required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option("--name", required=True)
+def inventory_remove(inventory_path, name):
+    """Remove an asset from inventory JSON."""
+    inv = load_inventory_json_safe(inventory_path)
+    inv = remove_asset(inv, name)
+    save_inventory_json(inv, inventory_path)
+    console.print(f"[green]Removed[/green] {name} -> {inventory_path}")
+
+
+@inventory_cmd.command("import-md")
+@click.option(
+    "--from", "md_path", required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="pia-ops markdown inventory (migration only)",
+)
+@click.option(
+    "--to", "json_path", required=True,
+    type=click.Path(dir_okay=False, path_type=Path),
+    help="Output curated JSON path",
+)
+@click.option("--overwrite", is_flag=True, default=False)
+def inventory_import_md(md_path, json_path, overwrite):
+    """Migrate markdown heuristic → validated JSON (review before CoS use)."""
+    inv = import_markdown_to_json(md_path, json_path, overwrite=overwrite)
+    console.print(
+        f"[green]Wrote[/green] {len(inv.assets)} assets -> {json_path} "
+        f"[dim](heuristic migration — review FACT/lanes)[/dim]"
+    )
+
+
+def load_inventory_json_safe(path: Path) -> StackInventory:
+    """Load JSON inventory only (CRUD never writes via markdown heuristic)."""
+    from pia.catalog.inventory import load_inventory_json
+    return load_inventory_json(path)
+
+
 @cli.command()
 @click.option("--profile", "profile_path", required=True, type=click.Path(exists=True, dir_okay=False, path_type=Path),
               help="Path to Profile JSON")
 @click.option("--inventory", "inventory_path", default=None,
               type=click.Path(exists=True, dir_okay=False, path_type=Path),
-              help="Optional stack inventory JSON or pia-ops markdown (WORK≠personal capital)")
+              help="Stack inventory JSON (source of truth) or optional markdown migration path")
 @click.option("--json", "as_json", is_flag=True, default=False, help="Print full brief as JSON")
 @click.option(
     "--commitment/--no-commitment",

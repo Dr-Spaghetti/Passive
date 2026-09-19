@@ -29,6 +29,27 @@ Optional provider-backed intake and customized playbooks use `ANTHROPIC_API_KEY`
 ```
 
 
+
+## Stack inventory (FACT JSON)
+
+Validated JSON is the source of truth for stack-aware scoring. WORK-lane SaaS/gear
+is never personal deployable capital unless `personal_use_ok` is confirmed.
+Markdown parse remains an optional migration path only.
+
+```bash
+# CoS brief with curated inventory
+pia brief --profile /path/to/profile.json --inventory /path/to/inventory.json
+
+# CRUD (writes JSON only)
+pia inventory list --file stack.json
+pia inventory add --file stack.json --name BrightLocal --lane work --status fact --tag seo
+pia inventory update --file stack.json --name BrightLocal --no-personal-use-ok
+pia inventory import-md --from nick-inventory.md --to nick-inventory.json
+```
+
+Sample fixture: `tests/fixtures/nick_stack_inventory.json`. Educational tooling only —
+do not invent money, gear, or deploy numbers.
+
 ## Maximize posture
 
 By default pia **maximizes executable upside under real constraints**. Dollar

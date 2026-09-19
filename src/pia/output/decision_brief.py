@@ -259,6 +259,15 @@ def _default_stack_notes(profile: Profile) -> list[str]:
         notes.append(
             "No stack inventory merged — pass `--inventory` or set profile.stack for sharper rankings."
         )
+    blocked = [
+        a.name
+        for a in profile.stack.assets
+        if a.lane == "work" and not a.personal_use_ok and a.status != "unknown"
+    ]
+    if blocked:
+        notes.append(
+            "WORK blocked from deployable capital: " + ", ".join(blocked[:8])
+        )
     if profile.stack.notes:
         notes.extend(profile.stack.notes[:3])
     return notes
